@@ -19,26 +19,24 @@ class MainMenuView(
 		img = Texture("badlogic.jpg")
 	}
 
-	override fun hide() {
-		dispose()
-	}
-
-	override fun render(delta: Float) {
+	override fun render(deltaTime: Float) {
 		batch.begin()
 		batch.draw(img, 0f, 0f)
 		batch.end()
 	}
 
 	override fun pause() {
-		// TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 
 	override fun resume() {
-		// TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 
 	override fun resize(width: Int, height: Int) {
-		// TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+		// TODO update viewport
+	}
+
+	override fun hide() {
+		dispose()
 	}
 
 	override fun dispose() {
