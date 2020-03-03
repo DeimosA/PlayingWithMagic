@@ -10,13 +10,13 @@ import no.group15.playmagic.ui.views.MainMenuView
 class PlayMagic : Game() {
 
 
-	private var batch: SpriteBatch? = null
+	private lateinit var batch: SpriteBatch
 
 
 	override fun create() {
 		batch = SpriteBatch()
 		Gdx.gl.glClearColor(1f, 0f, 0f, 1f)
-		setScreen(MainMenuView(this, batch!!))
+		setScreen(MainMenuView(this, batch))
 	}
 
 	override fun render() {
@@ -26,6 +26,6 @@ class PlayMagic : Game() {
 
 	override fun dispose() {
 		super.dispose()
-		batch!!.dispose()
+		batch.dispose()
 	}
 }

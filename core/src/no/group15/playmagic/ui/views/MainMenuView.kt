@@ -1,9 +1,12 @@
 package no.group15.playmagic.ui.views
 
 import com.badlogic.gdx.Game
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import no.group15.playmagic.ui.controllers.GamePresenter
 
 
 class MainMenuView(
@@ -12,16 +15,28 @@ class MainMenuView(
 ) : Screen {
 
 
-	private lateinit var img: Texture
+	private lateinit var font: BitmapFont
+	private val glyph = GlyphLayout()
 
 
 	override fun show() {
-		img = Texture("badlogic.jpg")
+		font = BitmapFont()
+		font.data.setScale(4f)
+		glyph.setText(font, "Play!")
 	}
 
 	override fun render(deltaTime: Float) {
+		if (Gdx.input.justTouched()) {
+			appContext.screen = GamePresenter(appContext, batch)
+		}
+
 		batch.begin()
-		batch.draw(img, 0f, 0f)
+		font.draw(
+			batch,
+			glyph,
+			Gdx.graphics.width / 2 - glyph.width / 2,
+			Gdx.graphics.height / 2 + glyph.height / 2
+		)
 		batch.end()
 	}
 
@@ -40,6 +55,6 @@ class MainMenuView(
 	}
 
 	override fun dispose() {
-		img.dispose()
+		font.dispose()
 	}
 }
