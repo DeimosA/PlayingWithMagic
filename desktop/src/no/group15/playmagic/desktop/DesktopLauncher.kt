@@ -8,7 +8,8 @@ object DesktopLauncher {
 	@JvmStatic
 	fun main(arg: Array<String>) {
 		val config = Lwjgl3ApplicationConfiguration()
-		// config.title = "Playing with Magic"
+		config.setTitle("Playing with Magic")
+		config.setWindowedMode(1280, 720)
 		Lwjgl3Application(PlayMagic(), config)
 	}
 }
