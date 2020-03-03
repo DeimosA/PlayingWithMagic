@@ -1,14 +1,14 @@
 package no.group15.playmagic.desktop
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import no.group15.playmagic.PlayMagic
 
 object DesktopLauncher {
 	@JvmStatic
 	fun main(arg: Array<String>) {
-		val config = LwjglApplicationConfiguration()
-		config.title = "Playing with Magic"
-		LwjglApplication(PlayMagic(), config)
+		val config = Lwjgl3ApplicationConfiguration()
+		// config.title = "Playing with Magic"
+		Lwjgl3Application(PlayMagic(), config)
 	}
 }
