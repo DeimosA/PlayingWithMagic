@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.utils.viewport.ExtendViewport
 import no.group15.playmagic.ui.controllers.GamePresenter
 
 
@@ -17,11 +18,15 @@ class MainMenuView(
 
 	private lateinit var font: BitmapFont
 	private val glyph = GlyphLayout()
+	private val menuWidth = 1280f
+	private val menuHeight = 720f
+	private val viewPort = ExtendViewport(menuWidth, menuHeight, menuWidth, menuHeight)
 
 
 	override fun show() {
+		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1f)
 		font = BitmapFont()
-		font.data.setScale(4f)
+		font.data.setScale(8f)
 		glyph.setText(font, "Play!")
 	}
 
@@ -30,12 +35,14 @@ class MainMenuView(
 			appContext.screen = GamePresenter(appContext, batch)
 		}
 
+		viewPort.apply()
+		batch.projectionMatrix = viewPort.camera.combined
 		batch.begin()
 		font.draw(
 			batch,
 			glyph,
-			Gdx.graphics.width / 2 - glyph.width / 2,
-			Gdx.graphics.height / 2 + glyph.height / 2
+			menuWidth / 2 - glyph.width / 2,
+			menuHeight / 2 + glyph.height / 2
 		)
 		batch.end()
 	}
@@ -47,7 +54,7 @@ class MainMenuView(
 	}
 
 	override fun resize(width: Int, height: Int) {
-		// TODO update viewport
+		viewPort.update(width, height, true)
 	}
 
 	override fun hide() {
