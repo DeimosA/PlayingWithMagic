@@ -1,4 +1,4 @@
-package no.group15.playmagic.components
+package no.group15.playmagic.ECS.components
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.Vector2
