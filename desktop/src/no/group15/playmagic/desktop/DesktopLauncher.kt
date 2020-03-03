@@ -8,6 +8,7 @@ object DesktopLauncher {
 	@JvmStatic
 	fun main(arg: Array<String>) {
 		val config = LwjglApplicationConfiguration()
+		config.title = "Playing with Magic"
 		LwjglApplication(PlayMagic(), config)
 	}
 }
