@@ -1,9 +1,13 @@
 package no.group15.playmagic.ui.views
 
 import com.badlogic.gdx.Game
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.utils.viewport.ExtendViewport
+import no.group15.playmagic.ui.controllers.GamePresenter
 
 
 class MainMenuView(
@@ -12,16 +16,34 @@ class MainMenuView(
 ) : Screen {
 
 
-	private lateinit var img: Texture
+	private lateinit var font: BitmapFont
+	private val glyph = GlyphLayout()
+	private val menuWidth = 1280f
+	private val menuHeight = 720f
+	private val viewPort = ExtendViewport(menuWidth, menuHeight, menuWidth, menuHeight)
 
 
 	override fun show() {
-		img = Texture("badlogic.jpg")
+		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1f)
+		font = BitmapFont()
+		font.data.setScale(8f)
+		glyph.setText(font, "Play!")
 	}
 
 	override fun render(deltaTime: Float) {
+		if (Gdx.input.justTouched()) {
+			appContext.screen = GamePresenter(appContext, batch)
+		}
+
+		viewPort.apply()
+		batch.projectionMatrix = viewPort.camera.combined
 		batch.begin()
-		batch.draw(img, 0f, 0f)
+		font.draw(
+			batch,
+			glyph,
+			menuWidth / 2 - glyph.width / 2,
+			menuHeight / 2 + glyph.height / 2
+		)
 		batch.end()
 	}
 
@@ -32,7 +54,7 @@ class MainMenuView(
 	}
 
 	override fun resize(width: Int, height: Int) {
-		// TODO update viewport
+		viewPort.update(width, height, true)
 	}
 
 	override fun hide() {
@@ -40,6 +62,6 @@ class MainMenuView(
 	}
 
 	override fun dispose() {
-		img.dispose()
+		font.dispose()
 	}
 }
