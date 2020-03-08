@@ -18,9 +18,12 @@ class MainMenuView(
 
 	private lateinit var font: BitmapFont
 	private val glyph = GlyphLayout()
-	private val menuWidth = 1280f
-	private val menuHeight = 720f
-	private val viewPort = ExtendViewport(menuWidth, menuHeight, menuWidth, menuHeight)
+	// Reference height of menus
+	private val refMenuHeight = 720f
+	// Extend to support 5:4 through 32:9 ratios
+	private val viewport = ExtendViewport(
+		900f, refMenuHeight, 2560f, refMenuHeight
+	)
 
 
 	override fun show() {
@@ -35,14 +38,14 @@ class MainMenuView(
 			appContext.screen = GamePresenter(appContext, batch)
 		}
 
-		viewPort.apply()
-		batch.projectionMatrix = viewPort.camera.combined
+		viewport.apply()
+		batch.projectionMatrix = viewport.camera.combined
 		batch.begin()
 		font.draw(
 			batch,
 			glyph,
-			menuWidth / 2 - glyph.width / 2,
-			menuHeight / 2 + glyph.height / 2
+			viewport.worldWidth / 2 - glyph.width / 2,
+			refMenuHeight / 2 + glyph.height / 2
 		)
 		batch.end()
 	}
@@ -54,7 +57,7 @@ class MainMenuView(
 	}
 
 	override fun resize(width: Int, height: Int) {
-		viewPort.update(width, height, true)
+		viewport.update(width, height, true)
 	}
 
 	override fun hide() {
