@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import ktx.graphics.use
 import no.group15.playmagic.ui.controllers.GamePresenter
 
 
@@ -39,15 +40,14 @@ class MainMenuView(
 		}
 
 		viewport.apply()
-		batch.projectionMatrix = viewport.camera.combined
-		batch.begin()
-		font.draw(
-			batch,
-			glyph,
-			viewport.worldWidth / 2 - glyph.width / 2,
-			refMenuHeight / 2 + glyph.height / 2
-		)
-		batch.end()
+		batch.use(viewport.camera) {
+			font.draw(
+				batch,
+				glyph,
+				viewport.worldWidth / 2 - glyph.width / 2,
+				refMenuHeight / 2 + glyph.height / 2
+			)
+		}
 	}
 
 	override fun pause() {

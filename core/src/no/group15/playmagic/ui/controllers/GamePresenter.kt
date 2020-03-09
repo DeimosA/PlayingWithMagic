@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import ktx.graphics.use
 import no.group15.playmagic.ecs.engineFactory
 
 
@@ -24,14 +25,13 @@ class GamePresenter(
 	override fun show() {
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 		engine = engineFactory(batch, viewport)
+		viewport.apply()
 	}
 
 	override fun render(deltaTime: Float) {
-		viewport.apply()
-		batch.projectionMatrix = viewport.camera.combined
-		batch.begin()
-		engine.update(deltaTime)
-		batch.end()
+		batch.use(viewport.camera) {
+			engine.update(deltaTime)
+		}
 	}
 
 	override fun pause() {
