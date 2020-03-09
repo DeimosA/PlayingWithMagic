@@ -8,7 +8,7 @@ import com.badlogic.ashley.utils.ImmutableArray
 import ktx.ashley.mapperFor
 import no.group15.playmagic.ecs.components.TimerComponent
 
-class BombTimerSystem(
+class TimerSystem(
 	priority: Int
 ) : EntitySystem(
 	priority
@@ -17,15 +17,15 @@ class BombTimerSystem(
 	private lateinit var entities : ImmutableArray<Entity>
 	private val timerMapper = mapperFor<TimerComponent>()
 
-	override fun addedToEngine(engine: Engine) {
+	override fun addedToEngine (engine : Engine) {
 		entities = engine.getEntitiesFor(
 			Family.all(TimerComponent::class.java).get()
 		)
 	}
 
-	override fun update ( deltaTime : Float ) {
+	override fun update(deltaTime : Float) {
 
-		for ( entity in entities ) {
+		for (entity in entities) {
 			val timer = timerMapper.get(entity)
 
 			timer.timeLeft =- deltaTime
