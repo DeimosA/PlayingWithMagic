@@ -7,7 +7,8 @@ import com.badlogic.gdx.utils.Pool
 
 class MovementComponent : Component, Pool.Poolable {
 
-	var velocity : Vector2 = Vector2(0F, 0F)
+	var velocity: Vector2 = Vector2(0F, 0F)
+
 	// Constants
 	val acceleration = 1f
 	val maxSpeed = 1f

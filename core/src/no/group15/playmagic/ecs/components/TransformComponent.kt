@@ -7,9 +7,9 @@ import com.badlogic.gdx.utils.Pool
 
 class TransformComponent : Component, Pool.Poolable {
 
-	var position : Vector2 = Vector2(0f, 0f)
-	var scale : Vector2 = Vector2(1f, 1f)
-	var rotation : Float = 0f
+	var position: Vector2 = Vector2(0f, 0f)
+	var scale: Vector2 = Vector2(1f, 1f)
+	var rotation: Float = 0f
 
 
 	override fun reset() {

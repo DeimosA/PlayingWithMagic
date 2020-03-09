@@ -12,6 +12,7 @@ class TextureComponent : Component, Pool.Poolable {
 
 	// Size in world coordinates
 	var size = Vector2(1f, 1f)
+
 	// Origin for scaling and rotation relative to size
 	var origin = Vector2(0.5f, 0.5f)
 

@@ -20,19 +20,19 @@ class MovementSystem(
 	priority
 ) {
 
-	private lateinit var entities : ImmutableArray<Entity>
+	private lateinit var entities: ImmutableArray<Entity>
 	private val movementMapper = mapperFor<MovementComponent>()
 	private val transformMapper = mapperFor<TransformComponent>()
 
-	override fun addedToEngine ( engine : Engine ) {
+	override fun addedToEngine(engine: Engine) {
 		entities = engine.getEntitiesFor(
 			Family.all(MovementComponent::class.java, TransformComponent::class.java).get()
 		)
 	}
 
-	override fun update ( deltaTime : Float ) {
+	override fun update(deltaTime: Float) {
 
-		for ( entity in entities ) {
+		for (entity in entities) {
 			val movement = movementMapper.get(entity)
 			val transform = transformMapper.get(entity)
 
