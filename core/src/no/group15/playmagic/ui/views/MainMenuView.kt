@@ -32,6 +32,7 @@ class MainMenuView(
 		font = BitmapFont()
 		font.data.setScale(8f)
 		glyph.setText(font, "Play!")
+		viewport.apply()
 	}
 
 	override fun render(deltaTime: Float) {
@@ -39,7 +40,6 @@ class MainMenuView(
 			appContext.screen = GamePresenter(appContext, batch)
 		}
 
-		viewport.apply()
 		batch.use(viewport.camera) {
 			font.draw(
 				batch,
