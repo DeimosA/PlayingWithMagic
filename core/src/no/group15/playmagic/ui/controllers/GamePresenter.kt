@@ -4,13 +4,12 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.graphics.use
 import no.group15.playmagic.ecs.engineFactory
-import no.group15.playmagic.ui.views.VirtualStickView
+import no.group15.playmagic.ui.views.GameView
 
 
 class GamePresenter(
@@ -18,31 +17,26 @@ class GamePresenter(
 	private val batch: SpriteBatch
 ) : Screen {
 
-
 	private val viewport = ExtendViewport(
 		4 / 3f * 10, 10f, 21 / 9f * 10, 10f
 	)
+	private val assetManager = AssetManager()
 	private lateinit var engine: Engine
-	private lateinit var virtualStick: VirtualStickView
-	private lateinit var virtualStickTexture: Texture
+	private lateinit var gameView: GameView
 
 
 	override fun show() {
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 		engine = engineFactory(batch, viewport)
-		virtualStickTexture = Texture("virtual_joystick.png")
-		virtualStick = VirtualStickView(
-			TextureRegion(virtualStickTexture, 0, 0, 300, 300),
-			TextureRegion(virtualStickTexture, 300, 0, 140, 140),
-			2f
-		)
+		gameView = GameView(assetManager)
 		viewport.apply()
 	}
 
 	override fun render(deltaTime: Float) {
 		batch.use(viewport.camera) {
 			engine.update(deltaTime)
-			virtualStick.update(batch)
+			gameView.update(deltaTime)
+			gameView.render(batch)
 		}
 	}
 
@@ -54,7 +48,7 @@ class GamePresenter(
 
 	override fun resize(width: Int, height: Int) {
 		viewport.update(width, height, false)
-		virtualStick.updateWorldSize(
+		gameView.resize(
 			viewport.worldWidth,
 			viewport.worldHeight
 		)
@@ -65,6 +59,6 @@ class GamePresenter(
 	}
 
 	override fun dispose() {
-		virtualStickTexture.dispose()
+		assetManager.dispose()
 	}
 }

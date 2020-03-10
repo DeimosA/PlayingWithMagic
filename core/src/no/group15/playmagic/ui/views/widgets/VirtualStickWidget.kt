@@ -1,4 +1,4 @@
-package no.group15.playmagic.ui.views
+package no.group15.playmagic.ui.views.widgets
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.Sprite
@@ -7,16 +7,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 
 
-class VirtualStickView(
+class VirtualStickWidget(
 	padTexture: TextureRegion,
 	handleTexture: TextureRegion,
-	private val size: Float
-) {
-
+	size: Float
+) : Widget {
 
 	private val padSprite = Sprite(padTexture)
 	private val handleSprite = Sprite(handleTexture)
-	private val handleCenter = Vector2(0f, 0f)
+	private val handleCenter = Vector2()
 	private val margin = 1f
 
 
@@ -24,23 +23,22 @@ class VirtualStickView(
 		val scale = size / padSprite.width
 	    padSprite.setSize(size, size)
 		handleSprite.setScale(scale)
-
 	}
 
-	fun update(batch: SpriteBatch) {
+	override fun update(deltaTime: Float) {
 		if (Gdx.input.isTouched) {
 			// TODO check pos
 		} else {
 			handleSprite.setCenter(handleCenter.x, handleCenter.y)
 		}
+	}
+
+	override fun render(batch: SpriteBatch) {
 		padSprite.draw(batch)
 		handleSprite.draw(batch)
 	}
 
-	/**
-	 * Size of the viewport the stick should be drawn in
-	 */
-	fun updateWorldSize(width: Float, height: Float) {
+	override fun resize(width: Float, height: Float) {
 		// Lower left corner
 		padSprite.setPosition(-width / 2 + margin, -height / 2 + margin)
 		handleCenter.set(
