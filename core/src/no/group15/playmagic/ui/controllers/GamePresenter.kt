@@ -3,6 +3,7 @@ package no.group15.playmagic.ui.controllers
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -14,7 +15,8 @@ import no.group15.playmagic.ui.views.GameView
 
 class GamePresenter(
 	private val appContext: Game,
-	private val batch: SpriteBatch
+	private val batch: SpriteBatch,
+	private val inputMultiplexer: InputMultiplexer
 ) : Screen {
 
 	private val viewport = ExtendViewport(
