@@ -16,4 +16,8 @@ class MessagesWidget : Widget {
 	override fun resize(width: Float, height: Float) {
 		TODO("Not yet implemented")
 	}
+
+	override fun dispose() {
+		TODO("Not yet implemented")
+	}
 }

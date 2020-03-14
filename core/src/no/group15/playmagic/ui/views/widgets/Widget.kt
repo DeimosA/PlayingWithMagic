@@ -1,9 +1,10 @@
 package no.group15.playmagic.ui.views.widgets
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.utils.Disposable
 
 
-interface Widget {
+interface Widget : Disposable {
 
 	/**
 	 * Updates the widget with [deltaTime]

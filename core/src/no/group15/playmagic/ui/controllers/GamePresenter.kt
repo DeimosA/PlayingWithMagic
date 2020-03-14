@@ -30,7 +30,7 @@ class GamePresenter(
 	override fun show() {
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 		engine = engineFactory(batch, viewport)
-		gameView = GameView(assetManager)
+		gameView = GameView(viewport, assetManager, inputMultiplexer)
 		viewport.apply()
 	}
 
@@ -61,6 +61,7 @@ class GamePresenter(
 	}
 
 	override fun dispose() {
+		gameView.dispose()
 		assetManager.dispose()
 	}
 }

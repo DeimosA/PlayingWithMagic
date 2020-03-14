@@ -18,4 +18,7 @@ class ButtonsWidget : Widget {
 		TODO("Not yet implemented")
 	}
 
+	override fun dispose() {
+		TODO("Not yet implemented")
+	}
 }
