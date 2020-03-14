@@ -10,14 +10,16 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.graphics.use
+import no.group15.playmagic.PlayMagic
+import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.controllers.GamePresenter
 
 
 class MainMenuView(
-	private val appContext: Game,
+	private val appContext: PlayMagic,
 	private val batch: SpriteBatch,
 	private val inputMultiplexer: InputMultiplexer
-) : Screen {
+) : AppState {
 
 	// Reference height of menus
 	private val refMenuHeight = 720f
@@ -44,12 +46,12 @@ class MainMenuView(
 			return true
 		}
 		override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-			appContext.screen = GamePresenter(appContext, batch, inputMultiplexer)
+			appContext.appState = GamePresenter(appContext, batch, inputMultiplexer)
 			return true
 		}
 	}
 
-	override fun show() {
+	override fun create() {
 		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1f)
 
 		val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Dragonfly-z9jl.ttf"))
@@ -74,8 +76,7 @@ class MainMenuView(
 		viewport.apply()
 	}
 
-
-	override fun render(deltaTime: Float) {
+	override fun update(deltaTime: Float) {
 		batch.use(viewport.camera) {
 			menuFont.draw(
 				batch,
@@ -89,18 +90,18 @@ class MainMenuView(
 		}
 	}
 
-	override fun pause() {
-	}
-
-	override fun resume() {
-	}
-
 	override fun resize(width: Int, height: Int) {
 		viewport.update(width, height, true)
 	}
 
-	override fun hide() {
-		dispose()
+	override fun back() {
+		Gdx.app.exit()
+	}
+
+	override fun pause() {
+	}
+
+	override fun resume() {
 	}
 
 	override fun dispose() {
