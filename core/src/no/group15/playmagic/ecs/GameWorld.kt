@@ -13,7 +13,7 @@ import no.group15.playmagic.ecs.systems.MovementSystem
 import no.group15.playmagic.ecs.systems.RenderingSystem
 
 
-fun engineFactory(batch: SpriteBatch, viewport: Viewport): Engine {
+fun engineFactory(viewport: Viewport, batch: SpriteBatch): Engine {
 	val engine = PooledEngine()
 
 	// Add entities
@@ -32,7 +32,7 @@ fun engineFactory(batch: SpriteBatch, viewport: Viewport): Engine {
 
 	// Add systems
 	engine.addSystem(MovementSystem(0, viewport))
-	engine.addSystem(RenderingSystem(10, batch))
+	engine.addSystem(RenderingSystem(10, viewport, batch))
 
 	return engine
 }

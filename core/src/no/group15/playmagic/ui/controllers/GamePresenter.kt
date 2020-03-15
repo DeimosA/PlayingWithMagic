@@ -6,7 +6,6 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
-import ktx.graphics.use
 import no.group15.playmagic.PlayMagic
 import no.group15.playmagic.ecs.engineFactory
 import no.group15.playmagic.ui.AppState
@@ -20,8 +19,9 @@ class GamePresenter(
 	private val inputMultiplexer: InputMultiplexer
 ) : AppState {
 
-	private val viewport = ExtendViewport(
-		4 / 3f * 10, 10f, 21 / 9f * 10, 10f
+	private val engineViewHeight = 10f
+	private val engineViewport = ExtendViewport(
+		4 / 3f * engineViewHeight, engineViewHeight, 21 / 9f * engineViewHeight, engineViewHeight
 	)
 	private val assetManager = AssetManager()
 	private lateinit var engine: Engine
@@ -30,24 +30,20 @@ class GamePresenter(
 
 	override fun create() {
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
-		engine = engineFactory(batch, viewport)
+		engine = engineFactory(engineViewport, batch)
 		gameView = GameView(assetManager, inputMultiplexer)
-		viewport.apply()
 	}
 
 	override fun update(deltaTime: Float) {
 		gameView.update(deltaTime)
 
-		viewport.apply()
-		batch.use(viewport.camera) {
-			engine.update(deltaTime)
-		}
+		engine.update(deltaTime)
 
 		gameView.render(batch)
 	}
 
 	override fun resize(width: Int, height: Int) {
-		viewport.update(width, height, false)
+		engineViewport.update(width, height, false)
 		gameView.resize(width, height)
 	}
 
