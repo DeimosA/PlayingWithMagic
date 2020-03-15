@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import no.group15.playmagic.PlayMagic
 import no.group15.playmagic.ecs.engineFactory
+import no.group15.playmagic.ecs.loadGameAssets
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.GameView
 import no.group15.playmagic.ui.views.MainMenuView
@@ -30,7 +31,9 @@ class GamePresenter(
 
 	override fun create() {
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
-		engine = engineFactory(engineViewport, batch)
+		loadGameAssets(assetManager)
+		assetManager.finishLoading()
+		engine = engineFactory(engineViewport, batch, assetManager)
 		gameView = GameView(assetManager, inputMultiplexer)
 	}
 

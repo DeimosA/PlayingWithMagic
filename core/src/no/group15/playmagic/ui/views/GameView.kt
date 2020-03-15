@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.collections.*
 import ktx.graphics.use
+import no.group15.playmagic.ecs.TextureName
 import no.group15.playmagic.ui.views.widgets.VirtualStickWidget
 import no.group15.playmagic.ui.views.widgets.Widget
 
@@ -22,9 +23,9 @@ class GameView(assetManager: AssetManager, inputMultiplexer: InputMultiplexer) {
 
 
 	init {
-		assetManager.load("virtual_joystick.png", Texture::class.java)
-		assetManager.finishLoading()
-		val texture = assetManager.get("virtual_joystick.png", Texture::class.java)
+//		assetManager.load("virtual_joystick.png", Texture::class.java)
+//		assetManager.finishLoading()
+		val texture = assetManager.get<Texture>(TextureName.VIRTUAL_JOYSTICK.fileName)
 	    // Setup widgets based on platform and config
 		widgets.add(VirtualStickWidget(
 			viewport,
