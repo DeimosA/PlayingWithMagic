@@ -31,24 +31,24 @@ class GamePresenter(
 	override fun create() {
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 		engine = engineFactory(batch, viewport)
-		gameView = GameView(viewport, assetManager, inputMultiplexer)
+		gameView = GameView(assetManager, inputMultiplexer)
 		viewport.apply()
 	}
 
 	override fun update(deltaTime: Float) {
+		gameView.update(deltaTime)
+
+		viewport.apply()
 		batch.use(viewport.camera) {
 			engine.update(deltaTime)
-			gameView.update(deltaTime)
-			gameView.render(batch)
 		}
+
+		gameView.render(batch)
 	}
 
 	override fun resize(width: Int, height: Int) {
 		viewport.update(width, height, false)
-		gameView.resize(
-			viewport.worldWidth,
-			viewport.worldHeight
-		)
+		gameView.resize(width, height)
 	}
 
 	override fun back() {

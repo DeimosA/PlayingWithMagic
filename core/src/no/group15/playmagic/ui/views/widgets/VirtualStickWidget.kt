@@ -1,12 +1,10 @@
 package no.group15.playmagic.ui.views.widgets
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.*
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
-import ktx.math.div
 import kotlin.math.pow
 
 
@@ -21,29 +19,39 @@ class VirtualStickWidget(
 	private val padSprite = Sprite(padTexture)
 	private val handleSprite = Sprite(handleTexture)
 	private val handleCenter = Vector2()
-	private val stickPosition = Vector2()
-	private val margin = 1f
+	// Value of the stick in +-1 range for x and y
+	private val stickValue = Vector2()
+	private val margin = 100f
 	private val padRadius = size / 2
 	private val padRadius2 = padRadius.pow(2)
 
-	private var touching = false
 	private var touchIndex = -1
+
+	var drawStickValue = true
+	private val font = BitmapFont()
 
 	private val stickInput = object : InputAdapter() {
 		override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
 			val cursor = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
 			if (handleCenter.dst2(cursor) < padRadius2) {
 				touchIndex = pointer
-				touching = true
+				calculateStickValue(screenX, screenY)
+				return true
+			}
+			return false
+		}
+		override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+			if (pointer == touchIndex) {
+				calculateStickValue(screenX, screenY)
 				return true
 			}
 			return false
 		}
 		override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-			if (touching && pointer == touchIndex) {
-				touching = false
+			if (pointer == touchIndex) {
+				touchIndex = -1
 				handleSprite.setCenter(handleCenter.x, handleCenter.y)
-				stickPosition.setZero()
+				stickValue.setZero()
 				return true
 			}
 			return false
@@ -54,44 +62,48 @@ class VirtualStickWidget(
 	init {
 		val scale = size / padSprite.width
 	    padSprite.setSize(size, size)
+		padSprite.setPosition(margin, margin)
 		handleSprite.setScale(scale)
 		inputMultiplexer.addProcessor(stickInput)
+		font.data.setScale(2f)
 	}
 
-	private var timer = 0f
+	private fun calculateStickValue(screenX: Int, screenY: Int) {
+		// Set position relative to handle center
+		stickValue.set(
+			viewport.unproject(Vector2(
+				screenX.toFloat(),
+				screenY.toFloat())
+			).sub(handleCenter)
+		)
+		// Clamp to pad radius
+		if (stickValue.len2() > padRadius2) {
+			stickValue.setLength2(padRadius2)
+		}
+		// Set draw position
+		handleSprite.setCenter(
+			handleCenter.x + stickValue.x,
+			handleCenter.y + stickValue.y
+		)
+		// Normalize stick value to +-1
+		stickValue.scl(1 / padRadius)
+	}
+
 	override fun update(deltaTime: Float) {
-		if (touching && Gdx.input.isTouched(touchIndex)) {
-			stickPosition.set(
-				viewport.unproject(Vector2(
-					Gdx.input.getX(touchIndex).toFloat(),
-					Gdx.input.getY(touchIndex).toFloat())
-				).sub(handleCenter)
-			)
-			if (stickPosition.len2() > padRadius2) {
-				stickPosition.setLength2(padRadius2)
-			}
-			handleSprite.setCenter(
-				handleCenter.x + stickPosition.x,
-				handleCenter.y + stickPosition.y
-			)
-			stickPosition.div(padRadius)
-			// TODO do something with stick position
-		}
-		timer += deltaTime
-		if (timer >= 1f) {
-			timer -= 1f
-			println("Stick pos: ${stickPosition.x}, ${stickPosition.y}")
-		}
+		// TODO do something with stick value
 	}
 
 	override fun render(batch: SpriteBatch) {
 		padSprite.draw(batch)
 		handleSprite.draw(batch)
+		if(drawStickValue) font.draw(
+			batch,
+			"${"%.2f".format(stickValue.x)} ${"%.2f".format(stickValue.y)}",
+			margin, margin / 2 + 20
+		)
 	}
 
 	override fun resize(width: Float, height: Float) {
-		// Lower left corner
-		padSprite.setPosition(-width / 2 + margin, -height / 2 + margin)
 		handleCenter.set(
 			padSprite.x + padSprite.width / 2,
 			padSprite.y + padSprite.height / 2
@@ -101,5 +113,6 @@ class VirtualStickWidget(
 
 	override fun dispose() {
 		inputMultiplexer.removeProcessor(stickInput)
+		font.dispose()
 	}
 }

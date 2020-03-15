@@ -5,15 +5,20 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.utils.viewport.Viewport
+import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.collections.*
+import ktx.graphics.use
 import no.group15.playmagic.ui.views.widgets.VirtualStickWidget
 import no.group15.playmagic.ui.views.widgets.Widget
 
 
-class GameView(viewport: Viewport, assetManager: AssetManager, inputMultiplexer: InputMultiplexer) {
+class GameView(assetManager: AssetManager, inputMultiplexer: InputMultiplexer) {
 
 	private val widgets = gdxArrayOf<Widget>()
+	private val viewHeight = 1080f
+	private val	viewport = ExtendViewport(
+		4 / 3f * viewHeight, viewHeight, 21 / 9f * viewHeight, viewHeight
+	)
 
 
 	init {
@@ -25,7 +30,7 @@ class GameView(viewport: Viewport, assetManager: AssetManager, inputMultiplexer:
 			viewport,
 			TextureRegion(texture, 0, 0, 300, 300),
 			TextureRegion(texture, 300, 0, 140, 140),
-			2f,
+			250f,
 			inputMultiplexer
 		))
 		widgets.shrink()
@@ -38,14 +43,18 @@ class GameView(viewport: Viewport, assetManager: AssetManager, inputMultiplexer:
 	}
 
 	fun render(batch: SpriteBatch) {
-		for (widget in widgets) {
-			widget.render(batch)
+		viewport.apply()
+		batch.use(viewport.camera) {
+			for (widget in widgets) {
+				widget.render(batch)
+			}
 		}
 	}
 
-	fun resize(width: Float, height: Float) {
+	fun resize(width: Int, height: Int) {
+		viewport.update(width, height, true)
 		for (widget in widgets) {
-			widget.resize(width, height)
+			widget.resize(viewport.worldWidth, viewport.worldHeight)
 		}
 	}
 
