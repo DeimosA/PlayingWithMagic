@@ -7,12 +7,12 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.Viewport
-import ktx.assets.*
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.systems.MovementSystem
 import no.group15.playmagic.ecs.systems.RenderingSystem
+import no.group15.playmagic.utils.assets.GameAssets
 
 
 fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetManager): Engine {
@@ -26,7 +26,7 @@ fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetMan
 	transform.scale.set(2f, 2f)
 	entity.add(transform)
 	val texture = engine.createComponent(TextureComponent::class.java)
-	texture.src = TextureRegion(assetManager.get<Texture>(TextureName.BADLOGIC.fileName))
+	texture.src = TextureRegion(assetManager.get<Texture>(GameAssets.BADLOGIC.desc.fileName))
 	entity.add(texture)
 	entity.add(engine.createComponent(MovementComponent::class.java))
 	engine.addEntity(entity)
@@ -36,15 +36,4 @@ fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetMan
 	engine.addSystem(RenderingSystem(10, viewport, batch))
 
 	return engine
-}
-
-fun loadGameAssets(assetManager: AssetManager) {
-	enumValues<TextureName>().forEach {
-		assetManager.load<Texture>(it.fileName)
-	}
-}
-
-enum class TextureName(val fileName: String) {
-	BADLOGIC("badlogic.jpg"),
-	VIRTUAL_JOYSTICK("virtual_joystick.png")
 }

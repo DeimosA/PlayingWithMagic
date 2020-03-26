@@ -21,28 +21,27 @@ class VirtualStickWidget(
 	private val handleCenter = Vector2()
 	// Value of the stick in +-1 range for x and y
 	private val stickValue = Vector2()
-	private val margin = 100f
+	private val margin = 67f
 	private val padRadius = size / 2
 	private val padRadius2 = padRadius.pow(2)
 
 	private var touchIndex = -1
-
-	var drawStickValue = true
-	private val font = BitmapFont()
+	var stickValueFont: BitmapFont? = null
 
 	private val stickInput = object : InputAdapter() {
 		override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
 			val cursor = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
 			if (handleCenter.dst2(cursor) < padRadius2) {
 				touchIndex = pointer
-				calculateStickValue(screenX, screenY)
+				calculateStickValue(cursor)
 				return true
 			}
 			return false
 		}
 		override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
 			if (pointer == touchIndex) {
-				calculateStickValue(screenX, screenY)
+				val cursor = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
+				calculateStickValue(cursor)
 				return true
 			}
 			return false
@@ -65,17 +64,11 @@ class VirtualStickWidget(
 		padSprite.setPosition(margin, margin)
 		handleSprite.setScale(scale)
 		inputMultiplexer.addProcessor(stickInput)
-		font.data.setScale(2f)
 	}
 
-	private fun calculateStickValue(screenX: Int, screenY: Int) {
+	private fun calculateStickValue(cursor: Vector2) {
 		// Set position relative to handle center
-		stickValue.set(
-			viewport.unproject(Vector2(
-				screenX.toFloat(),
-				screenY.toFloat())
-			).sub(handleCenter)
-		)
+		stickValue.set(cursor.sub(handleCenter))
 		// Clamp to pad radius
 		if (stickValue.len2() > padRadius2) {
 			stickValue.setLength2(padRadius2)
@@ -96,7 +89,7 @@ class VirtualStickWidget(
 	override fun render(batch: SpriteBatch) {
 		padSprite.draw(batch)
 		handleSprite.draw(batch)
-		if(drawStickValue) font.draw(
+		stickValueFont?.draw(
 			batch,
 			"${"%.2f".format(stickValue.x)} ${"%.2f".format(stickValue.y)}",
 			margin, margin / 2 + 20
@@ -113,6 +106,5 @@ class VirtualStickWidget(
 
 	override fun dispose() {
 		inputMultiplexer.removeProcessor(stickInput)
-		font.dispose()
 	}
 }
