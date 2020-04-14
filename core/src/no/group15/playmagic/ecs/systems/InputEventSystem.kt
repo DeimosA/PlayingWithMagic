@@ -4,15 +4,21 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import ktx.ashley.allOf
-import no.group15.playmagic.ecs.components.MovementComponent
+import ktx.ashley.mapperFor
+import ktx.math.toImmutable
+import ktx.math.toMutable
+import no.group15.playmagic.ecs.components.TransformComponent
+import no.group15.playmagic.ecs.move
 
 class InputEventSystem(priority: Int) : EntitySystem(priority), InputProcessor {
 	private lateinit var entities: ImmutableArray<Entity>
+	private val transformMapper = mapperFor<TransformComponent>()
 
 	override fun addedToEngine(engine: Engine) {
-		entities = engine.getEntitiesFor(allOf(MovementComponent::class).get())
+		entities = engine.getEntitiesFor(allOf(TransformComponent::class).get())
 	}
 
 	override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
@@ -27,12 +33,20 @@ class InputEventSystem(priority: Int) : EntitySystem(priority), InputProcessor {
 
 	override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
 
-	override fun keyDown(keycode: Int): Boolean {
-		TODO("Not yet implemented")
+	private fun updatePos(dir: Int, entity: Entity) {
+		val transform = transformMapper.get(entity)
+		transform.position = move(dir, transform.position)
 	}
 
-	override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-		TODO("Not yet implemented")
+	override fun keyDown(keycode: Int): Boolean = when (keycode) {
+
+		in setOf(Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT) -> {
+			entities.forEach {updatePos(keycode, it)}
+			true
+		}
+		else -> false
 	}
+
+	override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 
 }

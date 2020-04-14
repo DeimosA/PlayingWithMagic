@@ -1,16 +1,17 @@
 package no.group15.playmagic.ecs
 
+import ktx.math.ImmutableVector2
+import com.badlogic.gdx.Input
+
+
 /**
  * Commands which the input events are mapped to for the different input events
  */
 
-enum class Direction {
-	UP, DOWN, LEFT, RIGHT
-}
-
-fun move(dir: Direction, pos: Pair<Int, Int>, step: Int = 10) = when (dir) {
-	Direction.UP -> pos.copy(second = pos.second + step)
-	Direction.DOWN -> pos.copy(second = pos.second - step)
-	Direction.LEFT -> pos.copy(pos.first - 1)
-	Direction.RIGHT -> pos.copy(pos.first + 1)
+fun move(dir: Int, pos: ImmutableVector2, step: Int = 10) = when (dir) {
+	Input.Keys.UP -> pos.copy(y = pos.y + step)
+	Input.Keys.DOWN -> pos.copy(y = pos.y - step)
+	Input.Keys.LEFT -> pos.copy(pos.x - step)
+	Input.Keys.RIGHT -> pos.copy(pos.x + step)
+	else -> ImmutableVector2(0f, 0f)
 }
