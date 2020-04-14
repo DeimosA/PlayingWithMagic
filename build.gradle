@@ -46,9 +46,10 @@ project(":desktop") {
     dependencies {
         implementation project(":core")
         api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
-        api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+//        api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
         api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
@@ -92,6 +93,7 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
         api "com.badlogicgames.ashley:ashley:$ashleyVersion"
         api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3"
         implementation "io.github.libktx:ktx-app:$ktxVersion"
         implementation "io.github.libktx:ktx-ashley:$ktxVersion"
         implementation "io.github.libktx:ktx-assets:$ktxVersion"
@@ -103,11 +105,5 @@ project(":core") {
         implementation "io.github.libktx:ktx-json:$ktxVersion"
         implementation "io.github.libktx:ktx-log:$ktxVersion"
         implementation "io.github.libktx:ktx-math:$ktxVersion"
-        implementation "io.github.libktx:ktx-ashley:$ktxVersion"
-        implementation "io.github.libktx:ktx-ashley:$ktxVersion"
-        implementation "io.github.libktx:ktx-ashley:$ktxVersion"
-        implementation "io.github.libktx:ktx-ashley:$ktxVersion"
-        implementation "io.github.libktx:ktx-ashley:$ktxVersion"
-        implementation "io.github.libktx:ktx-ashley:$ktxVersion"
     }
 }

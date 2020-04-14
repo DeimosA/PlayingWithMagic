@@ -9,6 +9,8 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import no.group15.playmagic.PlayMagic
 import no.group15.playmagic.ecs.engineFactory
 import no.group15.playmagic.ecs.loadGameAssets
+import no.group15.playmagic.network.Client
+import no.group15.playmagic.server.Server
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.GameView
 import no.group15.playmagic.ui.views.MainMenuView
@@ -28,13 +30,19 @@ class GamePresenter(
 	private lateinit var engine: Engine
 	private lateinit var gameView: GameView
 
+	private var server: Server? = null
 
 	override fun create() {
+//		server = Server()
+//		val thread = Thread(server)
+//		thread.start()
+
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 		loadGameAssets(assetManager)
 		assetManager.finishLoading()
 		engine = engineFactory(engineViewport, batch, assetManager)
 		gameView = GameView(assetManager, inputMultiplexer)
+		val client = Client()
 	}
 
 	override fun update(deltaTime: Float) {
@@ -61,6 +69,7 @@ class GamePresenter(
 	}
 
 	override fun dispose() {
+		server?.dispose()
 		gameView.dispose()
 		assetManager.dispose()
 	}
