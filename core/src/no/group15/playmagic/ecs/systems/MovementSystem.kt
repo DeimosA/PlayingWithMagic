@@ -42,10 +42,11 @@ class MovementSystem(
 
 			transform.rotation += 10 * deltaTime // remove
 
-			transform.position.x += movement.velocity.x * deltaTime
-			transform.position.y += movement.velocity.y * deltaTime
+			transform.position.copy(x = transform.position.x + movement.velocity.x * deltaTime)
+			transform.position.copy(y = transform.position.y + movement.velocity.y * deltaTime)
 
-			if (transform.position.x > viewport.worldWidth / 2) transform.position.x = -viewport.worldWidth / 2 // remove
+			if (transform.position.x > viewport.worldWidth / 2) transform.position.copy(x = -viewport.worldWidth / 2) // remove
+
 		}
 	}
 

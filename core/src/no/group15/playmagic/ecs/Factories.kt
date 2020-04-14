@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.Viewport
+import ktx.math.ImmutableVector2
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
@@ -22,8 +23,8 @@ fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetMan
 	// test entity
 	val entity = engine.createEntity()
 	val transform = engine.createComponent(TransformComponent::class.java)
-	transform.position.set(0f, 0f)
-	transform.scale.set(2f, 2f)
+	transform.position = ImmutableVector2(0f, 0f)
+	transform.scale = ImmutableVector2(2f, 2f)
 	entity.add(transform)
 	val texture = engine.createComponent(TextureComponent::class.java)
 	texture.src = TextureRegion(assetManager.get<Texture>(GameAssets.BADLOGIC.desc.fileName))
