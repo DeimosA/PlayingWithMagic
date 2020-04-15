@@ -1,8 +1,7 @@
 package no.group15.playmagic.server
 
-class ServerConfig {
-
-	var port = 30715
-	var maxPlayers = 4
-
-}
+class ServerConfig(
+	val host: String? = null,
+	val port: Int = 30715,
+	val maxPlayers: Int = 5
+)

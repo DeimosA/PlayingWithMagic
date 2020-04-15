@@ -6,10 +6,11 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import ktx.inject.Context
 import no.group15.playmagic.PlayMagic
 import no.group15.playmagic.ecs.engineFactory
 import no.group15.playmagic.ecs.loadGameAssets
-import no.group15.playmagic.network.Client
+import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.server.Server
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.GameView
@@ -18,10 +19,12 @@ import no.group15.playmagic.ui.views.MainMenuView
 
 class GamePresenter(
 	private val appContext: PlayMagic,
-	private val batch: SpriteBatch,
-	private val inputMultiplexer: InputMultiplexer
+	private val injectContext: Context,
+	private val networkContext: NetworkContext
 ) : AppState {
 
+	private val batch: SpriteBatch = injectContext.inject()
+	private val inputMultiplexer: InputMultiplexer = injectContext.inject()
 	private val engineViewHeight = 10f
 	private val engineViewport = ExtendViewport(
 		4 / 3f * engineViewHeight, engineViewHeight, 21 / 9f * engineViewHeight, engineViewHeight
@@ -33,16 +36,19 @@ class GamePresenter(
 	private var server: Server? = null
 
 	override fun create() {
-//		server = Server()
-//		val thread = Thread(server)
-//		thread.start()
+		server = networkContext.server
+		if (server != null) {
+			val thread = Thread(server)
+			thread.start()
+		}
 
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 		loadGameAssets(assetManager)
 		assetManager.finishLoading()
 		engine = engineFactory(engineViewport, batch, assetManager)
 		gameView = GameView(assetManager, inputMultiplexer)
-		val client = Client()
+
+		val client = networkContext.client
 	}
 
 	override fun update(deltaTime: Float) {
@@ -59,7 +65,7 @@ class GamePresenter(
 	}
 
 	override fun back() {
-		appContext.appState = MainMenuView(appContext, batch, inputMultiplexer)
+		appContext.setAppState(MainMenuView(appContext, injectContext))
 	}
 
 	override fun pause() {

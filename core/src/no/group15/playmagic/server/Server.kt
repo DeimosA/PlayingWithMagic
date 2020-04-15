@@ -18,8 +18,8 @@ class Server(
 ) : Runnable, Disposable {
 
 	private var running = true
-	private val socket: ServerSocket = Gdx.net.newServerSocket(Net.Protocol.TCP, config.port, ServerSocketHints())
-	private val clients = gdxArrayOf<Socket>(true, config.maxPlayers)
+	private val socket: ServerSocket = Gdx.net.newServerSocket(Net.Protocol.TCP, config.host, config.port, ServerSocketHints())
+	private val clients = gdxArrayOf<Socket>(false, config.maxPlayers)
 //	var serverThread: Thread? = null
 
 

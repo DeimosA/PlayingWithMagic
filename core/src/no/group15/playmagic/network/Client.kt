@@ -5,11 +5,10 @@ import com.badlogic.gdx.Net
 import com.badlogic.gdx.net.SocketHints
 
 class Client(
-	host: String = "playmagic.norwayeast.cloudapp.azure.com",
-	port: Int = 30715
+	config: ClientConfig = ClientConfig()
 ) {
 
-	private val socket = Gdx.net.newClientSocket(Net.Protocol.TCP, host, port, SocketHints())
+	private val socket = Gdx.net.newClientSocket(Net.Protocol.TCP, config.host, config.port, SocketHints())
 
 
 	init {
