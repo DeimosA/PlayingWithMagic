@@ -79,15 +79,14 @@ class CollisionSystem(
 
 
 
-	private fun isNewCollision(entity1: Entity, entity2: Entity): Boolean {
-		return ! entity1[collision]!!.collidingWith.contains(entity2)
-	}
+	private fun isNewCollision(entity1: Entity, entity2: Entity) =
+		! entity1[collision]!!.collidingWith.contains(entity2)
 
 
 
 	private fun areColliding(entity1: Entity, entity2: Entity): Boolean {
-		var shape1: ColliderShape = entity1[collision]!!.shape
-		var shape2: ColliderShape = entity2[collision]!!.shape
+		val shape1: ColliderShape = entity1[collision]!!.shape
+		val shape2: ColliderShape = entity2[collision]!!.shape
 
 		return when (shape1) {
 
