@@ -10,7 +10,6 @@ import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TransformComponent
-import no.group15.playmagic.ecs.move
 
 class InputEventSystem(priority: Int) : EntitySystem(priority), InputProcessor {
 	private lateinit var entities: ImmutableArray<Entity>

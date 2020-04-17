@@ -1,7 +1,7 @@
 package no.group15.playmagic.ecs
 
-import ktx.math.ImmutableVector2
 import com.badlogic.gdx.Input
+import ktx.math.ImmutableVector2
 
 
 /**
