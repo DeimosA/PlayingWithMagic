@@ -8,14 +8,13 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
-import ktx.math.toImmutable
-import ktx.math.toMutable
+import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.move
 
 class InputEventSystem(priority: Int) : EntitySystem(priority), InputProcessor {
 	private lateinit var entities: ImmutableArray<Entity>
-	private val transformMapper = mapperFor<TransformComponent>()
+	private val movementMapper = mapperFor<MovementComponent>()
 
 	override fun addedToEngine(engine: Engine) {
 		entities = engine.getEntitiesFor(allOf(TransformComponent::class).get())
@@ -29,22 +28,34 @@ class InputEventSystem(priority: Int) : EntitySystem(priority), InputProcessor {
 
 	override fun scrolled(amount: Int) = false
 
-	override fun keyUp(keycode: Int) = false
+	override fun keyUp(keycode: Int) = swap(keycode)
 
 	override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
 
-	private fun updatePos(dir: Int, entity: Entity) {
-		val transform = transformMapper.get(entity)
-		transform.position = move(dir, transform.position)
-	}
+	override fun keyDown(keycode: Int): Boolean = swap(keycode)
 
-	override fun keyDown(keycode: Int): Boolean = when (keycode) {
+	private fun swap(keycode: Int): Boolean {
+		val movement = { e: Entity -> movementMapper.get(e) }
 
-		in setOf(Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT) -> {
-			entities.forEach {updatePos(keycode, it)}
-			true
+		return when (keycode) {
+			Input.Keys.UP -> {
+				entities.forEach { movement(it).moveUp = !movement(it).moveUp }
+				true
+			}
+			Input.Keys.DOWN -> {
+				entities.forEach { movement(it).moveDown = !movement(it).moveDown }
+				true
+			}
+			Input.Keys.LEFT -> {
+				entities.forEach { movement(it).moveLeft = !movement(it).moveLeft }
+				true
+			}
+			Input.Keys.RIGHT -> {
+				entities.forEach { movement(it).moveRight = !movement(it).moveRight }
+				true
+			}
+			else -> false
 		}
-		else -> false
 	}
 
 	override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
