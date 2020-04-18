@@ -1,15 +1,19 @@
 package no.group15.playmagic
 
 import com.badlogic.gdx.ApplicationListener
+import com.badlogic.gdx.Gdx
+import ktx.async.KtxAsync
 import no.group15.playmagic.server.Server
 
-class PlayMagicServer : ApplicationListener {
+class PlayMagicServer(private val logLevel: Int) : ApplicationListener {
 
 	private lateinit var server: Server
 
 	override fun create() {
+		Gdx.app.logLevel = logLevel
+		KtxAsync.initiate()
 		server = Server()
-		server.run()
+		server.start()
 	}
 
 	override fun render() {

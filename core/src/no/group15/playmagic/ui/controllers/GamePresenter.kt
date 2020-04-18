@@ -7,9 +7,11 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.inject.Context
+import ktx.log.*
 import no.group15.playmagic.PlayMagic
 import no.group15.playmagic.ecs.engineFactory
 import no.group15.playmagic.ecs.loadGameAssets
+import no.group15.playmagic.network.Client
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.server.Server
 import no.group15.playmagic.ui.AppState
@@ -34,13 +36,12 @@ class GamePresenter(
 	private lateinit var gameView: GameView
 
 	private var server: Server? = null
+	private lateinit var client: Client
 
 	override fun create() {
+		debug { "Rendering thread tid: ${Thread.currentThread().id}" }
 		server = networkContext.server
-		if (server != null) {
-			val thread = Thread(server)
-			thread.start()
-		}
+		server?.start()
 
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 		loadGameAssets(assetManager)
@@ -48,7 +49,11 @@ class GamePresenter(
 		engine = engineFactory(engineViewport, batch, assetManager)
 		gameView = GameView(assetManager, inputMultiplexer)
 
-		val client = networkContext.client
+		client = networkContext.client
+		client.connect()
+		injectContext.register {
+			bindSingleton(client)
+		}
 	}
 
 	override fun update(deltaTime: Float) {
@@ -76,6 +81,7 @@ class GamePresenter(
 
 	override fun dispose() {
 		server?.dispose()
+		injectContext.remove<Client>()
 		gameView.dispose()
 		assetManager.dispose()
 	}

@@ -3,12 +3,13 @@ package no.group15.playmagic
 import com.badlogic.gdx.*
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import ktx.async.KtxAsync
 import ktx.inject.*
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.MainMenuView
 
 
-class PlayMagic : ApplicationListener {
+class PlayMagic(private val logLevel: Int) : ApplicationListener {
 
 	private lateinit var appState: AppState
 	private lateinit var injectContext: Context
@@ -26,6 +27,8 @@ class PlayMagic : ApplicationListener {
 	override fun create() {
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 		Gdx.input.setCatchKey(Input.Keys.BACK, true)
+		Gdx.app.logLevel = logLevel
+		KtxAsync.initiate()
 
 		injectContext = Context()
 		injectContext.register {

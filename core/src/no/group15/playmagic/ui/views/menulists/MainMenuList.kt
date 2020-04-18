@@ -34,7 +34,7 @@ class MainMenuList(
 	init {
 		// Sandbox button
 		itemList.add(object : MenuItemWidget(
-			Rectangle(boundingBox.x, boundingBox.y + 4 * itemHeight, boundingBox.width, itemHeight),
+			Rectangle(boundingBox.x, boundingBox.y + 3 * itemHeight, boundingBox.width, itemHeight),
 			font,
 			"Sandbox",
 			alignment,
@@ -50,7 +50,7 @@ class MainMenuList(
 
 		// Online multiplayer button
 		itemList.add(object : MenuItemWidget(
-			Rectangle(boundingBox.x, boundingBox.y + 3 * itemHeight, boundingBox.width, itemHeight),
+			Rectangle(boundingBox.x, boundingBox.y + 2 * itemHeight, boundingBox.width, itemHeight),
 			font,
 			"Online multiplayer",
 			alignment,
@@ -59,8 +59,8 @@ class MainMenuList(
 			override fun click(x: Float, y: Float) {
 				try {
 					val	context = NetworkContext()
-					// Initialise client and attempt connection
-					context.client
+					// Attempt to connect by initializing socket
+					context.client.socket
 					mainMenu.startGame(context)
 				} catch (e: GdxRuntimeException) {
 					// If connection fails, show error
@@ -69,28 +69,16 @@ class MainMenuList(
 			}
 		})
 
-		// Host local multiplayer button
+		// Local multiplayer button
 		itemList.add(object : MenuItemWidget(
-			Rectangle(boundingBox.x, boundingBox.y + 2 * itemHeight, boundingBox.width, itemHeight),
+			Rectangle(boundingBox.x, boundingBox.y + 1 * itemHeight, boundingBox.width, itemHeight),
 			font,
-			"Host local multiplayer",
+			"Local multiplayer",
 			alignment
 //			hoverBackground
 		) {
 			override fun click(x: Float, y: Float) {
 				// TODO show local IP address and lobby
-			}
-		})
-
-		// Connect local multiplayer button
-		itemList.add(object : MenuItemWidget(
-			Rectangle(boundingBox.x, boundingBox.y + 1 * itemHeight, boundingBox.width, itemHeight),
-			font,
-			"Join local multiplayer",
-			alignment
-//			hoverBackground
-		) {
-			override fun click(x: Float, y: Float) {
 				// TODO connect to IP dialog and then lobby
 			}
 		})
