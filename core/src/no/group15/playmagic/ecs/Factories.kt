@@ -34,6 +34,8 @@ fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetMan
 	entity.add(engine.createComponent(MovementComponent::class.java))
 	engine.addEntity(entity)
 
+	GameMap(assetManager).makeEntities(engine)
+
 	// Add systems
 	engine.addSystem(MovementSystem(0, viewport))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
