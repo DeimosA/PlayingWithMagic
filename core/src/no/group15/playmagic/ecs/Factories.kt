@@ -12,7 +12,6 @@ import ktx.math.ImmutableVector2
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
-import no.group15.playmagic.GameMap
 import no.group15.playmagic.ecs.systems.InputEventSystem
 import no.group15.playmagic.ecs.systems.MovementSystem
 import no.group15.playmagic.ecs.systems.RenderingSystem

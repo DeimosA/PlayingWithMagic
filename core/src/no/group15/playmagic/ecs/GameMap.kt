@@ -1,9 +1,10 @@
-package no.group15.playmagic
+package no.group15.playmagic.ecs
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import ktx.math.ImmutableVector2
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.utils.assets.GameAssets
@@ -22,9 +23,12 @@ class GameMap (
 		EMPTY, WALL, DESTRUCTIBLE
 	}
 
-	private val o: CellType = CellType.EMPTY
-	private val x: CellType = CellType.WALL
-	private val d: CellType = CellType.DESTRUCTIBLE
+	private val o: CellType =
+		CellType.EMPTY
+	private val x: CellType =
+		CellType.WALL
+	private val d: CellType =
+		CellType.DESTRUCTIBLE
 
 	private val mapMatrix: Array<CellType> = arrayOf(
 		o, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x,
@@ -42,7 +46,8 @@ class GameMap (
 	private val discreteWidth: Int = 18
 
 	// TODO: write a public method that set this value
-	private var topLeftCorner: Coordinate = Coordinate(-9f, 4f)
+	private var topLeftCorner: Coordinate =
+		Coordinate(-9f, 4f)
 
 	// TODO: replace PooledEngine with an entity factory?
 	fun makeEntities (engine: PooledEngine) {
@@ -64,8 +69,7 @@ class GameMap (
 					var entity = engine.createEntity()
 
 					var transform = engine.createComponent(TransformComponent::class.java)
-					transform.position.x = offset.x
-					transform.position.y = offset.y
+					transform.position = ImmutableVector2(offset.x, offset.y)
 					entity.add(transform)
 
 					var texture = engine.createComponent(TextureComponent::class.java)
@@ -79,8 +83,7 @@ class GameMap (
 					var entity = engine.createEntity()
 
 					var transform = engine.createComponent(TransformComponent::class.java)
-					transform.position.x = offset.x
-					transform.position.y = offset.y
+					transform.position = ImmutableVector2(offset.x, offset.y)
 					entity.add(transform)
 
 					var texture = engine.createComponent(TextureComponent::class.java)
