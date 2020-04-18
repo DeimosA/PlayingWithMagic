@@ -27,10 +27,10 @@ open class MenuItemWidget(
 
 
 	init {
-		val hAlign = when(alignment) {
-			MenuItem.Alignment.LEFT   -> Align.left
+		val hAlign = when (alignment) {
+			MenuItem.Alignment.LEFT -> Align.left
 			MenuItem.Alignment.CENTER -> Align.center
-			MenuItem.Alignment.RIGHT  -> Align.right
+			MenuItem.Alignment.RIGHT -> Align.right
 		}
 		glyph.setText(font, text, color, boundingBox.width - 2 * (margin + padding), hAlign, false)
 		position.set(

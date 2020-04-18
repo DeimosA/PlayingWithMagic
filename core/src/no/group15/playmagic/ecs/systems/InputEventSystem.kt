@@ -9,14 +9,16 @@ import com.badlogic.gdx.InputProcessor
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 import no.group15.playmagic.ecs.components.MovementComponent
-import no.group15.playmagic.ecs.components.TransformComponent
+
 
 class InputEventSystem(priority: Int) : EntitySystem(priority), InputProcessor {
+
 	private lateinit var entities: ImmutableArray<Entity>
 	private val movementMapper = mapperFor<MovementComponent>()
 
+
 	override fun addedToEngine(engine: Engine) {
-		entities = engine.getEntitiesFor(allOf(TransformComponent::class).get())
+		entities = engine.getEntitiesFor(allOf(MovementComponent::class).get())
 	}
 
 	override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false

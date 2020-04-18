@@ -16,7 +16,7 @@ abstract class MenuListWidget(
 ) : MenuItem {
 
 	protected abstract val itemList: GdxArray<MenuItemWidget>
-	protected val itemHeight = 90f
+	protected val itemHeight = 80f
 
 
 	override fun update(deltaTime: Float) {

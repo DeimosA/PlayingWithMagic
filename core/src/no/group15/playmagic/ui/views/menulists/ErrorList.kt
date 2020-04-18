@@ -4,8 +4,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
-import ktx.collections.GdxArray
-import ktx.collections.gdxArrayOf
+import ktx.collections.*
 import no.group15.playmagic.ui.views.MainMenuView
 import no.group15.playmagic.ui.views.widgets.MenuItem
 import no.group15.playmagic.ui.views.widgets.MenuItemWidget

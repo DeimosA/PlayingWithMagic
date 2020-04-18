@@ -1,23 +1,24 @@
 package no.group15.playmagic.ui.views
 
-import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.collections.*
 import ktx.graphics.use
+import ktx.inject.Context
 import no.group15.playmagic.ui.views.widgets.MessagesWidget
 import no.group15.playmagic.ui.views.widgets.VirtualStickWidget
 import no.group15.playmagic.ui.views.widgets.Widget
 import no.group15.playmagic.utils.assets.*
 
 
-class GameView(assetManager: AssetManager, inputMultiplexer: InputMultiplexer) {
+class GameView(injectContext: Context) {
 
 	private val widgets = gdxArrayOf<Widget>()
+
 	private val viewHeight = 720f
-	private val	viewport = ExtendViewport(
+	private val viewport = ExtendViewport(
 		4 / 3f * viewHeight, viewHeight, 21 / 9f * viewHeight, viewHeight
 	)
 
@@ -25,13 +26,14 @@ class GameView(assetManager: AssetManager, inputMultiplexer: InputMultiplexer) {
 
 
 	init {
-	    // Setup widgets based on platform and config
+		val assetManager: AssetManager = injectContext.inject()
+		// Setup widgets based on platform and config
 		val stick = VirtualStickWidget(
 			viewport,
 			textureRegionFactory(assetManager, VirtualStickAssets.PAD_REGION),
 			textureRegionFactory(assetManager, VirtualStickAssets.HANDLE_REGION),
 			170f,
-			inputMultiplexer
+			injectContext.inject()
 		)
 		font = BitmapFont()
 		stick.stickValueFont = font

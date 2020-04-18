@@ -2,12 +2,13 @@ package no.group15.playmagic.ecs
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.PooledEngine
-import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.Viewport
+import ktx.inject.Context
 import ktx.math.ImmutableVector2
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TextureComponent
@@ -18,7 +19,9 @@ import no.group15.playmagic.ecs.systems.RenderingSystem
 import no.group15.playmagic.utils.assets.GameAssets
 
 
-fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetManager): Engine {
+fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
+	val assetManager: AssetManager = injectContext.inject()
+	val batch: SpriteBatch = injectContext.inject()
 	val engine = PooledEngine()
 
 	// Add entities
@@ -37,10 +40,10 @@ fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetMan
 	GameMap(assetManager).makeEntities(engine)
 
 	// Add systems
-	engine.addSystem(MovementSystem(0, viewport))
-	engine.addSystem(RenderingSystem(10, viewport, batch))
 	engine.addSystem(InputEventSystem(0))
-	Gdx.input.inputProcessor = engine.getSystem(InputEventSystem::class.java)
+	engine.addSystem(MovementSystem(1, viewport))
+	engine.addSystem(RenderingSystem(10, viewport, batch))
+	injectContext.inject<InputMultiplexer>().addProcessor(engine.getSystem(InputEventSystem::class.java))
 
 	return engine
 }

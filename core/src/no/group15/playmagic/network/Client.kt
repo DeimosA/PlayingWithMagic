@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.GdxRuntimeException
 import ktx.log.*
 
+
 class Client(
 	config: ClientConfig = ClientConfig()
 ) : Disposable {
@@ -20,8 +21,8 @@ class Client(
 
 	fun connect() {
 		try {
-		    socket
-	    	log.info { "Connected to server: ${socket.remoteAddress}" }
+			socket
+			log.info { "Connected to server: ${socket.remoteAddress}" }
 			val msg = socket.inputStream.bufferedReader().readLine()
 			log.info { "Server says: $msg" }
 		} catch (e: GdxRuntimeException) {

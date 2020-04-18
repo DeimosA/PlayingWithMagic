@@ -6,13 +6,12 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
-import ktx.inject.Context
+import ktx.inject.*
 import ktx.log.*
-import no.group15.playmagic.ecs.loadGameAssets
+import ktx.freetype.*
 import no.group15.playmagic.network.Client
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.server.Server
-import ktx.freetype.*
 import no.group15.playmagic.PlayMagic
 import no.group15.playmagic.ecs.engineFactory
 import no.group15.playmagic.ui.AppState
@@ -29,23 +28,26 @@ class GamePresenter(
 
 	private val batch: SpriteBatch = injectContext.inject()
 	private val inputMultiplexer: InputMultiplexer = injectContext.inject()
+	private val assetManager: AssetManager = injectContext.inject()
+
 	private val engineViewHeight = 10f
 	private val engineViewport = ExtendViewport(
 		4 / 3f * engineViewHeight, engineViewHeight, 21 / 9f * engineViewHeight, engineViewHeight
 	)
-	private val assetManager = AssetManager()
+
 	private lateinit var engine: Engine
 	private lateinit var gameView: GameView
-
 	private var server: Server? = null
 	private lateinit var client: Client
 
+
 	override fun create() {
+		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 		debug { "Rendering thread tid: ${Thread.currentThread().id}" }
+
+		// Start server if any
 		server = networkContext.server
 		server?.start()
-
-		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
 
 		assetManager.registerFreeTypeFontLoaders()
 		assetManager.load(FontAssets.DRAGONFLY_25.desc)
@@ -53,14 +55,16 @@ class GamePresenter(
 		loadAssets<VirtualStickAssets>(assetManager)
 		assetManager.finishLoading()
 
-		engine = engineFactory(engineViewport, batch, assetManager)
-		gameView = GameView(assetManager, inputMultiplexer)
+		gameView = GameView(injectContext)
 
+		// Connect client to server
 		client = networkContext.client
 		client.connect()
 		injectContext.register {
 			bindSingleton(client)
 		}
+
+		engine = engineFactory(injectContext, engineViewport)
 	}
 
 	override fun update(deltaTime: Float) {
@@ -88,8 +92,9 @@ class GamePresenter(
 
 	override fun dispose() {
 		server?.dispose()
+		client.dispose()
 		injectContext.remove<Client>()
 		gameView.dispose()
-		assetManager.dispose()
+		assetManager.clear()
 	}
 }

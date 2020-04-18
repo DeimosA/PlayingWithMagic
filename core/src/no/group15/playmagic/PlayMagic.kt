@@ -1,6 +1,7 @@
 package no.group15.playmagic
 
 import com.badlogic.gdx.*
+import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import ktx.async.KtxAsync
@@ -34,6 +35,7 @@ class PlayMagic(private val logLevel: Int) : ApplicationListener {
 		injectContext.register {
 			bindSingleton(SpriteBatch())
 			bindSingleton(InputMultiplexer())
+			bindSingleton(AssetManager())
 		}
 
 		val inputMultiplexer: InputMultiplexer = injectContext.inject()
@@ -51,6 +53,7 @@ class PlayMagic(private val logLevel: Int) : ApplicationListener {
 		appState.dispose()
 		initAppState(newState)
 	}
+
 	private fun initAppState(appState: AppState) {
 		this.appState = appState
 		this.appState.create()

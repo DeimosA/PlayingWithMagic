@@ -8,14 +8,12 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.ExtendViewport
-import ktx.freetype.registerFreeTypeFontLoaders
-import ktx.graphics.use
-import ktx.inject.Context
+import ktx.freetype.*
+import ktx.graphics.*
+import ktx.inject.*
 import no.group15.playmagic.PlayMagic
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.ui.AppState
@@ -33,13 +31,14 @@ class MainMenuView(
 
 	private val batch: SpriteBatch = injectContext.inject()
 	private val inputMultiplexer: InputMultiplexer = injectContext.inject()
+	private val assetManager: AssetManager = injectContext.inject()
+
 	// Reference height of menus
 	private val viewHeight = 720f
-	// Extend to support 5:4 through 32:9 ratios
+	// Extend to support 4:3 through 21:9 ratios
 	private val viewport = ExtendViewport(
-		5 / 4f * viewHeight, viewHeight, 32 / 9f * viewHeight, viewHeight
+		4 / 3f * viewHeight, viewHeight, 21 / 9f * viewHeight, viewHeight
 	)
-	private val assetManager = AssetManager()
 
 	private lateinit var menuFont: BitmapFont
 	private lateinit var titleFontBig: BitmapFont
@@ -63,7 +62,7 @@ class MainMenuView(
 		}
 		override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
 			val cursor = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
-			if(menuList?.contains(cursor.x, cursor.y) == true) {
+			if (menuList?.contains(cursor.x, cursor.y) == true) {
 				menuList?.click(cursor.x, cursor.y)
 				return true
 			}
@@ -74,6 +73,7 @@ class MainMenuView(
 			return true
 		}
 	}
+
 
 	override fun create() {
 		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1f)
@@ -93,7 +93,7 @@ class MainMenuView(
 		clickSound = assetManager.get(MenuAssets.SOUND_CLICK.desc.fileName)
 
 		// TODO change to using asset manager after merge with master, also fix text size and hover mess
-		val hoverBackground = TextureRegion(Texture("menuhoverbackground.png"))
+		val hoverBackground = TextureRegion(assetManager.get<Texture>(MenuAssets.HOVER_BACKGROUND.desc.fileName))
 		val width = 622f
 		menuList = MainMenuList(
 			Rectangle(viewport.worldWidth - width - 50f, 50f, width, 620f),
@@ -145,7 +145,7 @@ class MainMenuView(
 	}
 
 	override fun dispose() {
-		assetManager.dispose()
+		assetManager.clear()
 		inputMultiplexer.removeProcessor(menuInput)
 		menuList?.dispose()
 	}

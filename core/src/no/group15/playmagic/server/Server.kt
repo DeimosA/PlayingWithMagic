@@ -83,7 +83,7 @@ class Server(
 		} else {
 			// Reject client
 			log.debug { "Client tried to connect while server was full" }
-			val writer= socket.outputStream.bufferedWriter()
+			val writer = socket.outputStream.bufferedWriter()
 			writer.write("Server is full\n")
 			writer.close()
 			socket.dispose()
