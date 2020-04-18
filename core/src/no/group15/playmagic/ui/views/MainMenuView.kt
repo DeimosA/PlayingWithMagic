@@ -1,6 +1,7 @@
 package no.group15.playmagic.ui.views
 
 import com.badlogic.gdx.*
+import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import ktx.freetype.registerFreeTypeFontLoaders
 import ktx.graphics.use
 import ktx.inject.Context
 import no.group15.playmagic.PlayMagic
@@ -20,6 +22,8 @@ import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.controllers.GamePresenter
 import no.group15.playmagic.ui.views.menulists.MainMenuList
 import no.group15.playmagic.ui.views.widgets.MenuListWidget
+import no.group15.playmagic.utils.assets.MenuAssets
+import no.group15.playmagic.utils.assets.loadAssets
 
 
 class MainMenuView(
@@ -30,20 +34,22 @@ class MainMenuView(
 	private val batch: SpriteBatch = injectContext.inject()
 	private val inputMultiplexer: InputMultiplexer = injectContext.inject()
 	// Reference height of menus
-	private val refMenuHeight = 720f
+	private val viewHeight = 720f
 	// Extend to support 5:4 through 32:9 ratios
 	private val viewport = ExtendViewport(
-		900f, refMenuHeight, 2560f, refMenuHeight
+		5 / 4f * viewHeight, viewHeight, 32 / 9f * viewHeight, viewHeight
 	)
+	private val assetManager = AssetManager()
+
 	private lateinit var menuFont: BitmapFont
 	private lateinit var titleFontBig: BitmapFont
 	private lateinit var titleFontSmall: BitmapFont
 	private val title1 = GlyphLayout()
-	private val title1pos = Vector2(50f, refMenuHeight - 50)
+	private val title1pos = Vector2(50f, viewHeight - 50)
 	private val title2 = GlyphLayout()
-	private val title2pos = Vector2(240f, refMenuHeight - 146)
+	private val title2pos = Vector2(240f, viewHeight - 146)
 	private val title3 = GlyphLayout()
-	private val title3pos = Vector2(50f, refMenuHeight - 155)
+	private val title3pos = Vector2(50f, viewHeight - 155)
 
 	private lateinit var clickSound: Sound
 
@@ -72,22 +78,19 @@ class MainMenuView(
 	override fun create() {
 		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1f)
 
-		val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Dragonfly-z9jl.ttf"))
-		val parameter = FreeTypeFontParameter()
-		parameter.size = 70
-		menuFont = generator.generateFont(parameter)
-		parameter.size = 120
-		titleFontBig = generator.generateFont(parameter)
-		parameter.size = 59
-		titleFontSmall = generator.generateFont(parameter)
-		generator.dispose()
+		assetManager.registerFreeTypeFontLoaders()
+		loadAssets<MenuAssets>(assetManager)
+		assetManager.finishLoading()
+
+		menuFont = assetManager.get(MenuAssets.DRAGONFLY_70.desc.fileName)
+		titleFontBig = assetManager.get(MenuAssets.DRAGONFLY_120.desc.fileName)
+		titleFontSmall = assetManager.get(MenuAssets.DRAGONFLY_59.desc.fileName)
 
 		title1.setText(titleFontBig, "Playing")
 		title2.setText(titleFontSmall, "with")
 		title3.setText(titleFontBig, "Magic")
 
-		clickSound = Gdx.audio.newSound(Gdx.files.internal("sounds/click.wav"))
-//		clickSound.play()
+		clickSound = assetManager.get(MenuAssets.SOUND_CLICK.desc.fileName)
 
 		// TODO change to using asset manager after merge with master, also fix text size and hover mess
 		val hoverBackground = TextureRegion(Texture("menuhoverbackground.png"))
@@ -142,10 +145,7 @@ class MainMenuView(
 	}
 
 	override fun dispose() {
-		menuFont.dispose()
-		titleFontBig.dispose()
-		titleFontSmall.dispose()
-		clickSound.dispose()
+		assetManager.dispose()
 		inputMultiplexer.removeProcessor(menuInput)
 		menuList?.dispose()
 	}

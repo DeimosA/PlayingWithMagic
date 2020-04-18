@@ -8,15 +8,17 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.inject.Context
 import ktx.log.*
-import no.group15.playmagic.PlayMagic
-import no.group15.playmagic.ecs.engineFactory
 import no.group15.playmagic.ecs.loadGameAssets
 import no.group15.playmagic.network.Client
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.server.Server
+import ktx.freetype.*
+import no.group15.playmagic.PlayMagic
+import no.group15.playmagic.ecs.engineFactory
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.GameView
 import no.group15.playmagic.ui.views.MainMenuView
+import no.group15.playmagic.utils.assets.*
 
 
 class GamePresenter(
@@ -44,8 +46,13 @@ class GamePresenter(
 		server?.start()
 
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
-		loadGameAssets(assetManager)
+
+		assetManager.registerFreeTypeFontLoaders()
+		assetManager.load(FontAssets.DRAGONFLY_25.desc)
+		loadAssets<GameAssets>(assetManager)
+		loadAssets<VirtualStickAssets>(assetManager)
 		assetManager.finishLoading()
+
 		engine = engineFactory(engineViewport, batch, assetManager)
 		gameView = GameView(assetManager, inputMultiplexer)
 
