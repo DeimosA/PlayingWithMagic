@@ -22,7 +22,7 @@ class PlayMagic(private val logLevel: Int) : ApplicationListener {
 	private val commonInput = object : InputAdapter() {
 		override fun keyUp(keycode: Int): Boolean {
 			// Uses the back button on Android or escape key to navigate "back" with the state defining what back means
-			if (keycode in setOf(Input.Keys.ESCAPE, keycode == Input.Keys.BACK)) {
+			if (keycode in setOf(Input.Keys.ESCAPE, Input.Keys.BACK)) {
 				appState.back()
 				return true
 			// F11 to toggle full screen
