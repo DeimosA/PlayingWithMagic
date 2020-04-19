@@ -41,10 +41,12 @@ class MainMenuList(
 			hoverBackground
 		) {
 			override fun click(x: Float, y: Float) {
-				mainMenu.startGame(NetworkContext(
-					ClientConfig(host = "localhost"),
-					ServerConfig(host = "localhost", maxPlayers = 1)
-				))
+				mainMenu.startGame(
+					NetworkContext(
+						ClientConfig(host = "localhost"),
+						ServerConfig(host = "localhost", maxPlayers = 1)
+					)
+				)
 			}
 		})
 
@@ -58,7 +60,7 @@ class MainMenuList(
 		) {
 			override fun click(x: Float, y: Float) {
 				try {
-					val	context = NetworkContext()
+					val context = NetworkContext()
 					// Attempt to connect by initializing socket
 					context.client.socket
 					mainMenu.startGame(context)
@@ -90,7 +92,7 @@ class MainMenuList(
 			"Exit",
 			alignment,
 			hoverBackground
-		){
+		) {
 			override fun click(x: Float, y: Float) {
 				back()
 			}

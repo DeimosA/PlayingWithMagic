@@ -7,6 +7,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import no.group15.playmagic.PlayMagic
 import no.group15.playmagic.PlayMagicServer
+import no.group15.playmagic.WINDOW_HEIGHT
+import no.group15.playmagic.WINDOW_WIDTH
 
 object DesktopLauncher {
 	@JvmStatic
@@ -30,7 +32,7 @@ object DesktopLauncher {
 		} else {
 			val config = Lwjgl3ApplicationConfiguration()
 			config.setTitle("Playing with Magic")
-			config.setWindowedMode(1280, 720)
+			config.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT)
 			Lwjgl3Application(PlayMagic(logLevel), config)
 		}
 	}

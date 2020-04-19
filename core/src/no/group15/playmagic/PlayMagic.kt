@@ -10,15 +10,30 @@ import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.MainMenuView
 
 
+const val WINDOW_WIDTH = 1280
+const val WINDOW_HEIGHT = 720
+
 class PlayMagic(private val logLevel: Int) : ApplicationListener {
 
 	private lateinit var appState: AppState
 	private lateinit var injectContext: Context
 
+	// Application wide input commands
 	private val commonInput = object : InputAdapter() {
 		override fun keyUp(keycode: Int): Boolean {
-			if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {
+			// Uses the back button on Android or escape key to navigate "back" with the state defining what back means
+			if (keycode in setOf(Input.Keys.ESCAPE, keycode == Input.Keys.BACK)) {
 				appState.back()
+				return true
+			// F11 to toggle full screen
+			} else if (keycode == Input.Keys.F11) {
+				if (Gdx.graphics.isFullscreen) {
+					// Go windowed
+					Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT)
+				} else {
+					// Go fullscreen
+					Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+				}
 				return true
 			}
 			return false
