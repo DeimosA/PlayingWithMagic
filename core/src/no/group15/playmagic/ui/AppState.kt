@@ -1,5 +1,6 @@
 package no.group15.playmagic.ui
 
+
 interface AppState {
 
 	/**
