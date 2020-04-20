@@ -8,6 +8,7 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.utils.viewport.Viewport
 import ktx.ashley.mapperFor
+import no.group15.playmagic.ecs.GameMap
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.move
@@ -17,7 +18,8 @@ import no.group15.playmagic.ecs.move
 
 class MovementSystem(
 	priority: Int,
-	private val viewport: Viewport
+	private val viewport: Viewport,
+	private val gameMap: GameMap
 ) : EntitySystem(
 	priority
 ) {
@@ -47,6 +49,16 @@ class MovementSystem(
 				movement.moveUp -> transform.position = move(Input.Keys.UP, transform.position)
 				movement.moveLeft -> transform.position = move(Input.Keys.LEFT, transform.position)
 				movement.moveRight -> transform.position = move(Input.Keys.RIGHT, transform.position)
+			}
+
+			if (gameMap.overlappingWithWall(entity)) {
+				//REVERT MOVEMENT
+				when {
+					movement.moveDown -> transform.position = move(Input.Keys.UP, transform.position)
+					movement.moveUp -> transform.position = move(Input.Keys.DOWN, transform.position)
+					movement.moveLeft -> transform.position = move(Input.Keys.RIGHT, transform.position)
+					movement.moveRight -> transform.position = move(Input.Keys.LEFT, transform.position)
+				}
 			}
 
 			if (transform.position.x > viewport.worldWidth / 2) transform.position.copy(x = -viewport.worldWidth / 2) // remove
