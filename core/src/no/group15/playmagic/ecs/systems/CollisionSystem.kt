@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.*
 import ktx.ashley.allOf
 import ktx.ashley.get
 import ktx.ashley.mapperFor
-import no.group15.playmagic.ecs.components.ColliderShape
 import no.group15.playmagic.ecs.components.CollisionComponent
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
@@ -86,37 +85,8 @@ class CollisionSystem(
 
 
 
-	private fun areColliding(entity1: Entity, entity2: Entity): Boolean {
-		val shape1: ColliderShape = entity1[collision]!!.shape
-		val shape2: ColliderShape = entity2[collision]!!.shape
-
-		return when (shape1) {
-
-			ColliderShape.CIRCLE -> when (shape2) {
-				ColliderShape.CIRCLE -> Intersector.overlaps(circleOf(entity1), circleOf(entity2))
-				ColliderShape.RECTANGLE -> Intersector.overlaps(circleOf(entity1), rectangleOf(entity2))
-			}
-
-			ColliderShape.RECTANGLE -> when (shape2) {
-				ColliderShape.CIRCLE -> Intersector.overlaps(circleOf(entity2), rectangleOf(entity1)) // swap order
-				ColliderShape.RECTANGLE -> Intersector.overlaps(rectangleOf(entity1), rectangleOf(entity2))
-			}
-
-		}
-
-	}
-
-
-
-	private fun circleOf(entity: Entity): Circle {
-		//TODO: check correctness of this values
-		//TODO: how to handle rotation?
-		return Circle(
-			entity[transform]!!.position.x,
-			entity[transform]!!.position.y,
-			entity[texture]!!.size.x
-		)
-	}
+	private fun areColliding(entity1: Entity, entity2: Entity) =
+		rectangleOf(entity1).overlaps(rectangleOf(entity2))
 
 
 
@@ -166,10 +136,9 @@ fun addCollisionEntity (engine: PooledEngine, i: Int) {
 	val texture = engine.createComponent(TextureComponent::class.java)
 	val transform = engine.createComponent(TransformComponent::class.java)
 	texture.src = TextureRegion(Texture("badlogic.jpg"))
-	//transform.position = transform.position.copy(x = 2f * i)
-	transform.position.x = 2f * i
+	transform.position = transform.position.copy(x = 2f * i)
 	//collision1.boundingBox.set(Vector3(10f, 10f, 10f), Vector3(10f, 10f, 10f))
-	collision1.shape = ColliderShape.RECTANGLE
+	//collision1.shape = ColliderShape.RECTANGLE
 	c1.add(collision1)
 	c1.add(texture)
 	c1.add(transform)
