@@ -71,7 +71,7 @@ class GameMap (
 
 
 
-	// TODO: replace PooledEngine with an entity factory?
+	//TODO remove entity creation
 	fun makeEntities (engine: PooledEngine) {
 		var offset = Coordinate(topLeftCorner.x, topLeftCorner.y)
 
@@ -84,7 +84,6 @@ class GameMap (
 				//println("" + offset.x + ", " + offset.y)
 
 
-				// TODO: move entity creation to entity factories
 				when (cellType) {
 
 					//CellType.EMPTY -> println("empty")
@@ -129,7 +128,15 @@ class GameMap (
 	}
 
 
-
+	/**
+	 * Returns the map coordinate of the tiles around the
+	 * entity. If the entity is the one marked with 'e' in the diagram
+	 *     t t t
+	 *     t e t
+	 *     t t t
+	 * the function return all the eight tiles marked with 't'
+	 * plus the one marked with 'e'
+	 */
 	private fun nearTiles(entity: Entity): Iterable<Coordinate> {
 		val list = LinkedList<Coordinate>()
 		val center = Vector2()
@@ -158,7 +165,9 @@ class GameMap (
 	}
 
 
-
+	/**
+	 * Translate the world coordinate to the matrix indexes.
+	 */
 	private fun toMatrixIndexes(coordinate: Coordinate): Coordinate {
 		return Coordinate(coordinate.x - topLeftCorner.x, topLeftCorner.y - coordinate.y)
 	}
