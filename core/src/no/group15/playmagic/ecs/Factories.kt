@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.Viewport
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
+import no.group15.playmagic.ecs.systems.CollisionSystem
 import no.group15.playmagic.ecs.systems.MovementSystem
 import no.group15.playmagic.ecs.systems.RenderingSystem
 import no.group15.playmagic.utils.assets.GameAssets
@@ -34,6 +35,7 @@ fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetMan
 	// Add systems
 	engine.addSystem(MovementSystem(0, viewport))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
+	engine.addSystem(CollisionSystem(0))
 
 	return engine
 }
