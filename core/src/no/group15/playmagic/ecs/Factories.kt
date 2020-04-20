@@ -41,7 +41,7 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 
 	// Add systems
 	engine.addSystem(InputEventSystem(0))
-	engine.addSystem(MovementSystem(1, viewport))
+	engine.addSystem(MovementSystem(1, injectContext))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
 	injectContext.inject<InputMultiplexer>().addProcessor(engine.getSystem(InputEventSystem::class.java))
 

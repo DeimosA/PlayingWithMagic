@@ -15,7 +15,7 @@ class MovementComponent : Component, Pool.Poolable {
 
 	// Constants
 	val acceleration = 1f
-	val maxSpeed = 1f
+	val maxSpeed = 2f
 
 
 	override fun reset() {

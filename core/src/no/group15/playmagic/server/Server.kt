@@ -65,7 +65,7 @@ class Server(
 				if (diff < tickTimeNano) {
 					delay(TimeUtils.nanosToMillis(tickTimeNano - diff))
 				} else {
-					log.error { "Server is lagging behind" }
+//					log.error { "Server is lagging behind" }
 				}
 
 				tickLoop()

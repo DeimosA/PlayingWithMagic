@@ -13,6 +13,7 @@ import no.group15.playmagic.network.Client
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.server.Server
 import no.group15.playmagic.PlayMagic
+import no.group15.playmagic.commands.CommandDispatcher
 import no.group15.playmagic.ecs.engineFactory
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.GameView
@@ -49,6 +50,11 @@ class GamePresenter(
 		server = networkContext.server
 		server?.start()
 
+		injectContext.register {
+			bindSingleton(CommandDispatcher())
+//			bindSingleton(networkContext.client)
+		}
+
 		assetManager.registerFreeTypeFontLoaders()
 		assetManager.load(FontAssets.DRAGONFLY_25.desc)
 		loadAssets<GameAssets>(assetManager)
@@ -60,9 +66,6 @@ class GamePresenter(
 		// Connect client to server
 		client = networkContext.client
 		client.connect()
-		injectContext.register {
-			bindSingleton(client)
-		}
 
 		engine = engineFactory(injectContext, engineViewport)
 	}
@@ -93,6 +96,7 @@ class GamePresenter(
 	override fun dispose() {
 		server?.dispose()
 		client.dispose()
+		injectContext.remove<CommandDispatcher>()
 		injectContext.remove<Client>()
 		gameView.dispose()
 		assetManager.clear()
