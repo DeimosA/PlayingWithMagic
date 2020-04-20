@@ -156,3 +156,22 @@ class CollisionSystem(
 
 
 }
+
+
+
+// TEST
+fun addCollisionEntity (engine: PooledEngine, i: Int) {
+	val c1 = engine.createEntity()
+	val collision1 = engine.createComponent(CollisionComponent::class.java)
+	val texture = engine.createComponent(TextureComponent::class.java)
+	val transform = engine.createComponent(TransformComponent::class.java)
+	texture.src = TextureRegion(Texture("badlogic.jpg"))
+	//transform.position = transform.position.copy(x = 2f * i)
+	transform.position.x = 2f * i
+	//collision1.boundingBox.set(Vector3(10f, 10f, 10f), Vector3(10f, 10f, 10f))
+	collision1.shape = ColliderShape.RECTANGLE
+	c1.add(collision1)
+	c1.add(texture)
+	c1.add(transform)
+	engine.addEntity(c1)
+}
