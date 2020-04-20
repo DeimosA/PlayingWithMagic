@@ -26,7 +26,7 @@ object DesktopLauncher {
 
 		if (headless) {
 			val config = HeadlessApplicationConfiguration()
-			config.renderInterval = -1f
+			config.renderInterval = 1f
 			HeadlessApplication(PlayMagicServer(logLevel), config)
 
 		} else {
