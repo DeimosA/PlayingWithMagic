@@ -23,18 +23,20 @@ class GameView(assetManager: AssetManager, inputMultiplexer: InputMultiplexer) {
 
 
 	init {
-//		assetManager.load("virtual_joystick.png", Texture::class.java)
-//		assetManager.finishLoading()
-		val texture = assetManager.get<Texture>(TextureName.VIRTUAL_JOYSTICK.fileName)
+
+		val stickTexture = assetManager.get<Texture>(TextureName.VIRTUAL_JOYSTICK.fileName)
 	    // Setup widgets based on platform and config
 		widgets.add(VirtualStickWidget(
 			viewport,
-			TextureRegion(texture, 0, 0, 300, 300),
-			TextureRegion(texture, 300, 0, 140, 140),
+			TextureRegion(stickTexture, 0, 0, 300, 300),
+			TextureRegion(stickTexture, 300, 0, 140, 140),
 			250f,
 			inputMultiplexer
 		))
 		widgets.shrink()
+
+
+
 	}
 
 	fun update(deltaTime: Float) {

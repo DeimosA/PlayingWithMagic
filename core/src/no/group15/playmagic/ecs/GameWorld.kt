@@ -13,6 +13,7 @@ import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.systems.MovementSystem
 import no.group15.playmagic.ecs.systems.RenderingSystem
+import no.group15.playmagic.levelmap.Level1
 
 
 fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetManager): Engine {
@@ -31,6 +32,9 @@ fun engineFactory(viewport: Viewport, batch: SpriteBatch, assetManager: AssetMan
 	entity.add(engine.createComponent(MovementComponent::class.java))
 	engine.addEntity(entity)
 
+	// Temporarily hardcode to use level1
+	val level: Level1 = Level1(assetManager, engine)
+
 	// Add systems
 	engine.addSystem(MovementSystem(0, viewport))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
@@ -46,5 +50,6 @@ fun loadGameAssets(assetManager: AssetManager) {
 
 enum class TextureName(val fileName: String) {
 	BADLOGIC("badlogic.jpg"),
-	VIRTUAL_JOYSTICK("virtual_joystick.png")
+	VIRTUAL_JOYSTICK("virtual_joystick.png"),
+	TILE_SET("hyptosis_tile-art-batch-1.png")
 }

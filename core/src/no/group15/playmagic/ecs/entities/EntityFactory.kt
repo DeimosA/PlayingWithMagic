@@ -6,7 +6,7 @@ import no.group15.playmagic.ecs.components.*
 
 class EntityFactory {
 	companion object{
-		fun makeEntity(engine: PooledEngine, type: Type){
+		fun makeEntity(engine: PooledEngine, type: Type) : Entity{
 			when(type){
 				Type.ROCK -> makeRock(engine)
 				Type.BOMB -> makeBomb(engine)
