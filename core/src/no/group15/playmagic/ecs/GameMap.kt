@@ -5,6 +5,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import ktx.math.ImmutableVector2
+import no.group15.playmagic.ecs.components.CollisionComponent
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.utils.assets.GameAssets
@@ -76,6 +77,8 @@ class GameMap (
 					texture.src = TextureRegion(assetManager.get<Texture>(GameAssets.WALL.desc.fileName))
 					entity.add(texture)
 
+					entity.add(engine.createComponent(CollisionComponent::class.java))
+
 					engine.addEntity(entity)
 				}
 
@@ -89,6 +92,8 @@ class GameMap (
 					var texture = engine.createComponent(TextureComponent::class.java)
 					texture.src = TextureRegion(assetManager.get<Texture>(GameAssets.DESTRUCTIBLE_WALL.desc.fileName))
 					entity.add(texture)
+
+					entity.add(engine.createComponent(CollisionComponent::class.java))
 
 					engine.addEntity(entity)
 				}
