@@ -8,6 +8,7 @@ import com.badlogic.gdx.net.Socket
 import com.badlogic.gdx.net.SocketHints
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.GdxRuntimeException
+import com.badlogic.gdx.utils.Json
 import kotlinx.coroutines.*
 import ktx.async.*
 import ktx.collections.*
@@ -15,13 +16,15 @@ import ktx.log.*
 
 
 class Server(
-	private val config: ServerConfig = ServerConfig()
+	val config: ServerConfig = ServerConfig()
 ) : Disposable, CoroutineScope by CoroutineScope(newSingleThreadAsyncContext()) {
 
-	private var running = false
+	var running = false
+		private set
 	private var socket: ServerSocket? = null
 	private val clients = gdxMapOf<Int, ServerClient>()
 	private val log = logger<Server>()
+	val json = Json()
 	private var nextClientId = 1
 		get() = field++
 
@@ -30,7 +33,6 @@ class Server(
 		if (running) return@launch
 		running = true
 
-		val acceptExecutor = newSingleThreadAsyncContext()
 //		val executor = newAsyncContext(2)
 
 		val serverSocketHints = ServerSocketHints()
@@ -39,13 +41,13 @@ class Server(
 			socket = Gdx.net.newServerSocket(Net.Protocol.TCP, config.host, config.port, serverSocketHints)
 			log.info { "Server started on tid ${Thread.currentThread().id}" }
 		} catch (e: GdxRuntimeException) {
-			// Failed starting server
 			log.error(e) { "Failed to start server" }
 			running = false
 			return@launch
 		}
 
 		// Accept incoming connections on its own thread
+		val acceptExecutor = newSingleThreadAsyncContext()
 		launch(acceptExecutor) {
 			acceptSocket()
 			log.debug { "Exiting acceptSocket" }
@@ -76,17 +78,14 @@ class Server(
 	private fun acceptClient(socket: Socket) = launch {
 		if (clients.size < config.maxPlayers) {
 			val id = nextClientId
-			val serverClient = ServerClient(id, socket)
+			val serverClient = ServerClient(id, socket, this@Server)
 			clients[id] = serverClient
 			log.info { "Client with id ${serverClient.id} connected from ${socket.remoteAddress},  Client count: ${clients.size}" }
 
 		} else {
 			// Reject client
 			log.debug { "Client tried to connect while server was full" }
-			val writer = socket.outputStream.bufferedWriter()
-			writer.write("Server is full\n")
-			writer.close()
-			socket.dispose()
+			ServerClient.rejectClient(socket, json.toJson(Message(0, Message.Type.REJECT, "Server is full")))
 		}
 	}
 
@@ -102,11 +101,31 @@ class Server(
 			// Close connections and cleanup
 			try { socket?.dispose() } catch (e: GdxRuntimeException) {}
 			clients.values().forEach {
-				try { it.dispose() } catch (e: GdxRuntimeException) {}
+				it.dispose()
 			}
 			clients.clear()
 			socket = null
 			log.info { "Server closed" }
+		}
+	}
+
+	class Message() {
+		var clientId: Int = 0
+		var type: Type = Type.INFO
+		var text: String = ""
+		var params: GdxMap<String, Any>? = null
+
+		constructor(clientId: Int, type: Type, text: String) : this() {
+			this.clientId = clientId
+			this.type = type
+			this.text = text
+		}
+
+		enum class Type {
+			WELCOME,
+			INFO,
+			ERROR,
+			REJECT
 		}
 	}
 }
