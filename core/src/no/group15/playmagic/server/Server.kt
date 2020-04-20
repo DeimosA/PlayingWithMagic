@@ -9,6 +9,7 @@ import com.badlogic.gdx.net.SocketHints
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.badlogic.gdx.utils.Json
+import com.badlogic.gdx.utils.TimeUtils
 import kotlinx.coroutines.*
 import ktx.async.*
 import ktx.collections.*
@@ -52,6 +53,28 @@ class Server(
 			acceptSocket()
 			log.debug { "Exiting acceptSocket" }
 		}
+
+		launch {
+			val tickTimeNano = 1000000000 / config.tickRate.toLong()
+			var prevTime = TimeUtils.nanoTime()
+			while (running) {
+				// Calculate actual tick time and sleep accordingly
+				val currentTime = TimeUtils.nanoTime()
+				val diff = currentTime - prevTime
+				prevTime = currentTime
+				if (diff < tickTimeNano) {
+					delay(TimeUtils.nanosToMillis(tickTimeNano - diff))
+				} else {
+					log.error { "Server is lagging behind" }
+				}
+
+				tickLoop()
+			}
+		}
+	}
+
+	private fun tickLoop() {
+		// Do server logic stuff
 	}
 
 	/**

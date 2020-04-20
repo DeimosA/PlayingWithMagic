@@ -59,9 +59,13 @@ class Client(
 		receive()
 	}
 
+	private fun handleMessage(string: String) {
+
+	}
+
 	override fun dispose() {
-		socket.dispose()
-		reader?.close()
-		writer?.close()
+		try { socket.dispose() } catch (e: RuntimeException) {}
+		try { reader?.close() } catch (e: RuntimeException) {}
+		try { writer?.close() } catch (e: RuntimeException) {}
 	}
 }
