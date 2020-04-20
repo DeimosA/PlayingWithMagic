@@ -9,6 +9,8 @@ import ktx.freetype.*
 
 enum class GameAssets(override val desc: AssetDescriptor<out Any>) : AssetDesc {
 	BADLOGIC(AssetDescriptor("badlogic.jpg", Texture::class.java)),
+	WALL(AssetDescriptor("wall.png", Texture::class.java)),
+	DESTRUCTIBLE_WALL(AssetDescriptor("destructible_wall.png", Texture::class.java))
 }
 
 enum class VirtualStickAssets(override val desc: AssetDescriptor<out Any>, override val region: Region) : AssetDescRegion {
@@ -32,6 +34,7 @@ enum class FontAssets(override val desc: AssetDescriptor<out Any>) : AssetDesc {
 }
 
 enum class MenuAssets(override val desc: AssetDescriptor<out Any>) : AssetDesc {
+	HOVER_BACKGROUND(AssetDescriptor("menuhoverbackground.png", Texture::class.java)),
 	SOUND_CLICK(AssetDescriptor("sounds/click.wav", Sound::class.java)),
 	DRAGONFLY_59(AssetDescriptor(
 		"Dragonfly-59.ttf", BitmapFont::class.java,
@@ -42,7 +45,7 @@ enum class MenuAssets(override val desc: AssetDescriptor<out Any>) : AssetDesc {
 	DRAGONFLY_70(AssetDescriptor(
 		"Dragonfly-70.ttf", BitmapFont::class.java,
 		freeTypeFontParameters("fonts/Dragonfly-z9jl.ttf") {
-			size = 70
+			size = 65
 		}
 	)),
 	DRAGONFLY_120(AssetDescriptor(
