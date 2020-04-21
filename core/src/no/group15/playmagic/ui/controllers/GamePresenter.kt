@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.inject.*
 import ktx.log.*
 import ktx.freetype.*
-import no.group15.playmagic.network.Client
+import no.group15.playmagic.network.GameClient
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.server.Server
 import no.group15.playmagic.PlayMagic
@@ -39,7 +39,7 @@ class GamePresenter(
 	private lateinit var engine: Engine
 	private lateinit var gameView: GameView
 	private var server: Server? = null
-	private lateinit var client: Client
+	private lateinit var client: GameClient
 
 
 	override fun create() {
@@ -97,7 +97,7 @@ class GamePresenter(
 		server?.dispose()
 		client.dispose()
 		injectContext.remove<CommandDispatcher>()
-		injectContext.remove<Client>()
+		injectContext.remove<GameClient>()
 		gameView.dispose()
 		assetManager.clear()
 	}

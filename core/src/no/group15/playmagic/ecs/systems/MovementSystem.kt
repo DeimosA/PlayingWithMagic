@@ -27,7 +27,9 @@ class MovementSystem(
 	private val movementMapper = mapperFor<MovementComponent>()
 	private val transformMapper = mapperFor<TransformComponent>()
 
+	private var localPlayerId = 0
 	private var moveCommand: MoveCommand? = null
+
 
 	override fun addedToEngine(engine: Engine) {
 		entities = engine.getEntitiesFor(
@@ -38,6 +40,8 @@ class MovementSystem(
 
 	override fun update(deltaTime: Float) {
 
+		// TODO move command only for local player
+		// TODO handle position commands
 		for (entity in entities) {
 			val movement = movementMapper.get(entity)
 			val transform = transformMapper.get(entity)
@@ -48,6 +52,7 @@ class MovementSystem(
 					command.x * movement.maxSpeed * deltaTime,
 					command.y * movement.maxSpeed * deltaTime
 				)
+				// Move commands are relative and transient so clean up
 				command.free()
 				moveCommand = null
 			}
@@ -66,6 +71,7 @@ class MovementSystem(
 	}
 
 	override fun receive(command: Command) {
+		// TODO several input devices can be active so check if exists, and choose one (largest movement?)
 		if (command is MoveCommand) moveCommand = command
 	}
 }
