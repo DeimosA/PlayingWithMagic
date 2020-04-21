@@ -41,27 +41,51 @@ class MovementSystem(
 			val transform = transformMapper.get(entity)
 
 			// If move command, accelerate (also, this is demo stuff, so adapt or remove)
-			movement.velocity.x += movement.acceleration * deltaTime * (movement.maxSpeed - movement.velocity.len())
+//			movement.velocity.x += movement.acceleration * deltaTime * (movement.maxSpeed - movement.velocity.len())
 			// If not decelerate
 
 			when {
-				movement.moveDown -> transform.position = move(Input.Keys.DOWN, transform.position)
-				movement.moveUp -> transform.position = move(Input.Keys.UP, transform.position)
-				movement.moveLeft -> transform.position = move(Input.Keys.LEFT, transform.position)
-				movement.moveRight -> transform.position = move(Input.Keys.RIGHT, transform.position)
+				movement.moveDown -> {
+					transform.position.add(0f, -deltaTime * movement.maxSpeed)
+					transform.boundingBox.setCenter(transform.position)
+				}
+				movement.moveUp -> {
+					transform.position.add(0f, deltaTime * movement.maxSpeed)
+					transform.boundingBox.setCenter(transform.position)
+				}
+				movement.moveLeft -> {
+					transform.position.add(-deltaTime * movement.maxSpeed, 0f)
+					transform.boundingBox.setCenter(transform.position)
+				}
+				movement.moveRight -> {
+					transform.position.add(deltaTime * movement.maxSpeed, 0f)
+					transform.boundingBox.setCenter(transform.position)
+				}
 			}
 
 			if (gameMap.overlappingWithWall(entity)) {
 				//REVERT MOVEMENT
 				when {
-					movement.moveDown -> transform.position = move(Input.Keys.UP, transform.position)
-					movement.moveUp -> transform.position = move(Input.Keys.DOWN, transform.position)
-					movement.moveLeft -> transform.position = move(Input.Keys.RIGHT, transform.position)
-					movement.moveRight -> transform.position = move(Input.Keys.LEFT, transform.position)
+					movement.moveDown -> {
+						transform.position.add(0f, deltaTime * movement.maxSpeed)
+						transform.boundingBox.setCenter(transform.position)
+					}
+					movement.moveUp -> {
+						transform.position.add(0f, -deltaTime * movement.maxSpeed)
+						transform.boundingBox.setCenter(transform.position)
+					}
+					movement.moveLeft -> {
+						transform.position.add(deltaTime * movement.maxSpeed, 0f)
+						transform.boundingBox.setCenter(transform.position)
+					}
+					movement.moveRight -> {
+						transform.position.add(-deltaTime * movement.maxSpeed, 0f)
+						transform.boundingBox.setCenter(transform.position)
+					}
 				}
 			}
 
-			if (transform.position.x > viewport.worldWidth / 2) transform.position.copy(x = -viewport.worldWidth / 2) // remove
+//			if (transform.position.x > viewport.worldWidth / 2) transform.position.copy(x = -viewport.worldWidth / 2) // remove
 
 		}
 	}

@@ -91,13 +91,12 @@ class CollisionSystem(
 
 
 	private fun rectangleOf(entity: Entity): Rectangle {
-		//TODO: check correctness of this values
-		//TODO: how to handle rotation?
+		// TODO replace this with boundingbox in transform
 		return Rectangle(
-			entity[transform]!!.position.x,
-			entity[transform]!!.position.y,
-			entity[texture]!!.size.x * entity[transform]!!.scale.x,
-			entity[texture]!!.size.y * entity[transform]!!.scale.y
+			entity[transform]!!.boundingBox.x,
+			entity[transform]!!.boundingBox.y,
+			entity[transform]!!.boundingBox.width * entity[transform]!!.scale.x,
+			entity[transform]!!.boundingBox.height * entity[transform]!!.scale.y
 		)
 	}
 
@@ -136,7 +135,7 @@ fun addCollisionEntity (engine: PooledEngine, i: Int) {
 	val texture = engine.createComponent(TextureComponent::class.java)
 	val transform = engine.createComponent(TransformComponent::class.java)
 	texture.src = TextureRegion(Texture("badlogic.jpg"))
-	transform.position = transform.position.copy(x = 2f * i)
+	transform.position.x = 2f * i
 	//collision1.boundingBox.set(Vector3(10f, 10f, 10f), Vector3(10f, 10f, 10f))
 	//collision1.shape = ColliderShape.RECTANGLE
 	c1.add(collision1)

@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
 import ktx.inject.Context
 import ktx.math.ImmutableVector2
@@ -27,7 +28,7 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	// test entity
 	val entity = engine.createEntity()
 	val transform = engine.createComponent(TransformComponent::class.java)
-	transform.position = ImmutableVector2(0f, 0f)
+	transform.position = Vector2()
 	//transform.scale = ImmutableVector2(.8f, .8f)
 	entity.add(transform)
 	val texture = engine.createComponent(TextureComponent::class.java)

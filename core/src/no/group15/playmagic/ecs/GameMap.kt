@@ -92,7 +92,7 @@ class GameMap (
 						var entity = engine.createEntity()
 
 						var transform = engine.createComponent(TransformComponent::class.java)
-						transform.position = ImmutableVector2(offset.x, offset.y)
+						transform.position.set(offset.x, offset.y)
 						entity.add(transform)
 
 						var texture = engine.createComponent(TextureComponent::class.java)
@@ -108,7 +108,7 @@ class GameMap (
 						var entity = engine.createEntity()
 
 						var transform = engine.createComponent(TransformComponent::class.java)
-						transform.position = ImmutableVector2(offset.x, offset.y)
+						transform.position.set(offset.x, offset.y)
 						entity.add(transform)
 
 						var texture = engine.createComponent(TextureComponent::class.java)
@@ -152,6 +152,7 @@ class GameMap (
 
 
 	private fun boundingBox (entity: Entity): Rectangle {
+		// TODO replace this with existing boundingbox in transform component
 		val transform = entity.getComponent(TransformComponent::class.java)
 		val texture = entity.getComponent(TextureComponent::class.java)
 		val coordinate = toMatrixIndexes(Coordinate(transform.position.x, transform.position.y))
@@ -159,8 +160,8 @@ class GameMap (
 		return Rectangle(
 			coordinate.x,
 			coordinate.y,
-			texture.size.x * transform.scale.x,
-			texture.size.y * transform.scale.y
+			transform.boundingBox.width * transform.scale.x,
+			transform.boundingBox.width * transform.scale.y
 		)
 	}
 

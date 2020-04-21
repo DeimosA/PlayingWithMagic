@@ -44,9 +44,9 @@ class RenderingSystem(
 
 				batch.draw(
 					texture.src,
-					transform.position.x, transform.position.y,
+					transform.boundingBox.x, transform.boundingBox.y,
 					texture.origin.x, texture.origin.y,
-					texture.size.x, texture.size.y,
+					transform.boundingBox.width, transform.boundingBox.height,
 					transform.scale.x, transform.scale.y,
 					transform.rotation
 				)
