@@ -10,30 +10,41 @@ import com.badlogic.gdx.utils.Json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ktx.async.*
-import ktx.collections.*
+import ktx.collections.gdxArrayOf
 import ktx.json.*
 import ktx.log.*
+import no.group15.playmagic.commands.Command
+import no.group15.playmagic.commands.CommandReceiver
 import no.group15.playmagic.server.Server
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.IOException
 
 
-class Client(
+class GameClient(
 	config: ClientConfig = ClientConfig()
-) : Disposable, CoroutineScope by CoroutineScope(newAsyncContext(2)) {
+) : Disposable, CommandReceiver, CoroutineScope by CoroutineScope(newAsyncContext(2)) {
 
 	val socket: Socket by lazy {
 		Gdx.net.newClientSocket(Net.Protocol.TCP, config.host, config.port, SocketHints())
 	}
-	private val log = logger<Client>()
+	private val log = logger<GameClient>()
 	private var reader: BufferedReader? = null
 	private var writer: BufferedWriter? = null
 	private val json = Json()
+	private val commandList = gdxArrayOf<Command>()
 
 	private var id: Int = 0
 
 
+	init {
+		// Register receiver
+	    Command.Type.SEND_POSITION.receiver = this
+	}
+
+	/**
+	 * Connect and start listening
+	 */
 	fun connect() = launch {
 		try {
 			socket
@@ -47,6 +58,9 @@ class Client(
 		}
 	}
 
+	/**
+	 * Listen for incoming message
+	 */
 	private tailrec fun receive() {
 		try {
 			val line = reader?.readLine() ?: return
@@ -59,8 +73,17 @@ class Client(
 		receive()
 	}
 
+	/**
+	 * Handle incoming message
+	 */
 	private fun handleMessage(string: String) {
 
+	}
+
+	override fun receive(command: Command) {
+		launch {
+			commandList.add(command)
+		}
 	}
 
 	override fun dispose() {

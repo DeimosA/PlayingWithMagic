@@ -7,7 +7,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.Viewport
-import ktx.ashley.mapperFor
+import ktx.ashley.*
 import ktx.graphics.use
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
@@ -25,10 +25,10 @@ class RenderingSystem(
 	private val transformMapper = mapperFor<TransformComponent>()
 	private val textureMapper = mapperFor<TextureComponent>()
 
+
 	override fun addedToEngine(engine: Engine) {
-		// May need to re-fetch on update if list changes
 		entities = engine.getEntitiesFor(
-			Family.all(TransformComponent::class.java, TextureComponent::class.java).get()
+			allOf(TransformComponent::class, TextureComponent::class).get()
 		)
 	}
 

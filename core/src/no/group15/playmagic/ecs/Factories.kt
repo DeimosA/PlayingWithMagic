@@ -43,9 +43,10 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 
 	// Add systems
 	engine.addSystem(InputEventSystem(0))
-	engine.addSystem(MovementSystem(1, viewport, gameMap))
+	engine.addSystem(MovementSystem(1, injectContext, gameMap))
+	engine.addSystem(CollisionSystem(2))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
-	engine.addSystem(CollisionSystem(0)) // TODO priority?
+
 	injectContext.inject<InputMultiplexer>().addProcessor(engine.getSystem(InputEventSystem::class.java))
 
 	return engine
