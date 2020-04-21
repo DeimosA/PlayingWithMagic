@@ -43,6 +43,9 @@ class GameView(injectContext: Context) {
 			assetManager.get(FontAssets.DRAGONFLY_25.desc.fileName)
 		))
 		widgets.shrink()
+
+
+
 	}
 
 	fun update(deltaTime: Float) {

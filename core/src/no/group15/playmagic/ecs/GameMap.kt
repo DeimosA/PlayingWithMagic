@@ -11,6 +11,7 @@ import ktx.math.ImmutableVector2
 import no.group15.playmagic.ecs.components.CollisionComponent
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
+import no.group15.playmagic.ecs.entities.EntityFactory
 import no.group15.playmagic.utils.assets.GameAssets
 import java.util.*
 import kotlin.math.max
@@ -89,37 +90,22 @@ class GameMap (
 					//CellType.EMPTY -> println("empty")
 
 					CellType.WALL -> {
-						var entity = engine.createEntity()
 
-						var transform = engine.createComponent(TransformComponent::class.java)
+						var entity = EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
+
+						var transform : TransformComponent = entity.getComponent(TransformComponent::class.java)
 						transform.boundingBox.set(offset.x, offset.y, 1f, 1f)
 						transform.position = transform.boundingBox.getCenter(transform.position)
-						entity.add(transform)
 
-						var texture = engine.createComponent(TextureComponent::class.java)
-						texture.src = TextureRegion(assetManager.get<Texture>(GameAssets.WALL.desc.fileName))
-						entity.add(texture)
-
-						entity.add(engine.createComponent(CollisionComponent::class.java))
-
-						engine.addEntity(entity)
 					}
 
 					CellType.DESTRUCTIBLE -> {
-						var entity = engine.createEntity()
+						var entity = EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
 
-						var transform = engine.createComponent(TransformComponent::class.java)
+						var transform : TransformComponent = entity.getComponent(TransformComponent::class.java)
 						transform.boundingBox.set(offset.x, offset.y, 1f, 1f)
 						transform.position = transform.boundingBox.getCenter(transform.position)
-						entity.add(transform)
 
-						var texture = engine.createComponent(TextureComponent::class.java)
-						texture.src = TextureRegion(assetManager.get<Texture>(GameAssets.DESTRUCTIBLE_WALL.desc.fileName))
-						entity.add(texture)
-
-						entity.add(engine.createComponent(CollisionComponent::class.java))
-
-						engine.addEntity(entity)
 					}
 
 				}
