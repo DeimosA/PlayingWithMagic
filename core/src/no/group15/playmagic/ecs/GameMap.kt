@@ -29,7 +29,7 @@ class GameMap (
 		override fun toString() = "($x, $y)"
 	}
 
-	private enum class CellType {
+	enum class CellType {
 		EMPTY, WALL, DESTRUCTIBLE
 	}
 
@@ -40,7 +40,7 @@ class GameMap (
 	private val d: CellType =
 		CellType.DESTRUCTIBLE
 
-	private val mapMatrix: Array<Array<CellType>> = arrayOf(
+	val mapMatrix: Array<Array<CellType>> = arrayOf(
 		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x),
 		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
 		arrayOf(x, o, x, d, d, x, x, x, o, o, x, x, x, d, x, x, o, x),

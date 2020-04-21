@@ -40,19 +40,19 @@ class InputEventSystem(priority: Int) : EntitySystem(priority), InputProcessor {
 
 		return when (keycode) {
 			Input.Keys.UP -> {
-				entities.forEach { movement(it).moveUp = !movement(it).moveUp }
+//				entities.forEach { movement(it).moveUp = !movement(it).moveUp }
 				true
 			}
 			Input.Keys.DOWN -> {
-				entities.forEach { movement(it).moveDown = !movement(it).moveDown }
+//				entities.forEach { movement(it).moveDown = !movement(it).moveDown }
 				true
 			}
 			Input.Keys.LEFT -> {
-				entities.forEach { movement(it).moveLeft = !movement(it).moveLeft }
+//				entities.forEach { movement(it).moveLeft = !movement(it).moveLeft }
 				true
 			}
 			Input.Keys.RIGHT -> {
-				entities.forEach { movement(it).moveRight = !movement(it).moveRight }
+//				entities.forEach { movement(it).moveRight = !movement(it).moveRight }
 				true
 			}
 			else -> false

@@ -5,21 +5,14 @@ import com.badlogic.gdx.utils.Pool
 
 open class PositionCommand() : Command {
 
-	@Transient protected lateinit var pool: Pool<PositionCommand>
-
 	override val type = Command.Type.POSITION
 
-	var x = 0f
-	var y = 0f
-	var playerId = 0
+	open var x = 0f
+	open var y = 0f
+	open var playerId = 0
 
-
-	constructor(pool: Pool<PositionCommand>) : this() {
-		this.pool = pool
-	}
 
 	override fun free() {
-		pool.free(this)
 	}
 
 	override fun reset() {
@@ -29,6 +22,8 @@ open class PositionCommand() : Command {
 	}
 }
 
-class PlayerPositionCommand() : PositionCommand() {
+class SendPositionCommand : PositionCommand() {
+
+	override val type = Command.Type.SEND_POSITION
 
 }

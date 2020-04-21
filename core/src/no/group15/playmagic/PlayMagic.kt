@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import ktx.async.KtxAsync
 import ktx.inject.*
+import no.group15.playmagic.commands.CommandDispatcher
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.MainMenuView
 
@@ -51,6 +52,7 @@ class PlayMagic(private val logLevel: Int = Application.LOG_INFO) : ApplicationL
 			bindSingleton(SpriteBatch())
 			bindSingleton(InputMultiplexer())
 			bindSingleton(AssetManager())
+			bindSingleton(CommandDispatcher())
 		}
 
 		val inputMultiplexer: InputMultiplexer = injectContext.inject()
@@ -88,7 +90,7 @@ class PlayMagic(private val logLevel: Int = Application.LOG_INFO) : ApplicationL
 	}
 
 	override fun dispose() {
-		injectContext.dispose()
 		appState.dispose()
+		injectContext.dispose()
 	}
 }

@@ -36,12 +36,11 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	gameMap.makeEntities(engine)
 
 	// Add systems
-	engine.addSystem(InputEventSystem(0))
 	engine.addSystem(MovementSystem(1, injectContext, gameMap))
 	engine.addSystem(CollisionSystem(2))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
 
-	injectContext.inject<InputMultiplexer>().addProcessor(engine.getSystem(InputEventSystem::class.java))
+//	injectContext.inject<InputMultiplexer>().addProcessor(engine.getSystem(InputEventSystem::class.java))
 
 	return engine
 }
