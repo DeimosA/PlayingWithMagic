@@ -5,6 +5,10 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.*
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
+import ktx.inject.Context
+import no.group15.playmagic.commands.Command
+import no.group15.playmagic.commands.CommandDispatcher
+import no.group15.playmagic.commands.MoveCommand
 import kotlin.math.pow
 
 
@@ -13,9 +17,11 @@ class VirtualStickWidget(
 	padTexture: TextureRegion,
 	handleTexture: TextureRegion,
 	size: Float,
-	private val inputMultiplexer: InputMultiplexer
+	injectContext: Context
 ) : Widget {
 
+	private val inputMultiplexer: InputMultiplexer = injectContext.inject()
+	private val commandDispatcher: CommandDispatcher = injectContext.inject()
 	private val padSprite = Sprite(padTexture)
 	private val handleSprite = Sprite(handleTexture)
 	private val handleCenter = Vector2()
@@ -84,6 +90,10 @@ class VirtualStickWidget(
 
 	override fun update(deltaTime: Float) {
 		// TODO do something with stick value
+		val command: MoveCommand = commandDispatcher.createCommand(Command.Type.MOVE) as MoveCommand
+		command.x = stickValue.x
+		command.y = stickValue.y
+		commandDispatcher.send(command)
 	}
 
 	override fun render(batch: SpriteBatch) {

@@ -9,10 +9,11 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.inject.*
 import ktx.log.*
 import ktx.freetype.*
-import no.group15.playmagic.network.Client
+import no.group15.playmagic.network.GameClient
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.server.Server
 import no.group15.playmagic.PlayMagic
+import no.group15.playmagic.commands.CommandDispatcher
 import no.group15.playmagic.ecs.engineFactory
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.GameView
@@ -38,7 +39,7 @@ class GamePresenter(
 	private lateinit var engine: Engine
 	private lateinit var gameView: GameView
 	private var server: Server? = null
-	private lateinit var client: Client
+	private lateinit var client: GameClient
 
 
 	override fun create() {
@@ -48,6 +49,11 @@ class GamePresenter(
 		// Start server if any
 		server = networkContext.server
 		server?.start()
+
+		injectContext.register {
+			bindSingleton(CommandDispatcher())
+//			bindSingleton(networkContext.client)
+		}
 
 		assetManager.registerFreeTypeFontLoaders()
 		assetManager.load(FontAssets.DRAGONFLY_25.desc)
@@ -60,9 +66,6 @@ class GamePresenter(
 		// Connect client to server
 		client = networkContext.client
 		client.connect()
-		injectContext.register {
-			bindSingleton(client)
-		}
 
 		engine = engineFactory(injectContext, engineViewport)
 	}
@@ -93,7 +96,8 @@ class GamePresenter(
 	override fun dispose() {
 		server?.dispose()
 		client.dispose()
-		injectContext.remove<Client>()
+		injectContext.remove<CommandDispatcher>()
+		injectContext.remove<GameClient>()
 		gameView.dispose()
 		assetManager.clear()
 	}

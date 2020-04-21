@@ -13,8 +13,8 @@ class NetworkContext(
 	val serverConfig: ServerConfig? = null
 ) {
 
-	val client: Client by lazy {
-		Client(clientConfig)
+	val client: GameClient by lazy {
+		GameClient(clientConfig)
 	}
 
 	val server: Server? by lazy {

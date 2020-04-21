@@ -2,19 +2,44 @@ package no.group15.playmagic.ecs.entities
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import no.group15.playmagic.ecs.components.*
+import no.group15.playmagic.utils.assets.GameAssets
 
 class EntityFactory {
 	companion object{
-		fun makeEntity(engine: PooledEngine, type: Type) : Entity{
-			when(type){
-				Type.ROCK -> makeRock(engine)
-				Type.BOMB -> makeBomb(engine)
-				Type.PICKUP -> makePickup(engine)
+		fun makeEntity(assetManager: AssetManager, engine: PooledEngine, type: Type) : Entity{
+			return when(type){
+				Type.PLAYER -> makePlayer(assetManager, engine)
+				Type.ROCK ->  makeRock(assetManager, engine)
+				Type.BOMB ->  makeBomb(assetManager, engine)
+				Type.PICKUP ->  makePickup(assetManager, engine)
+				Type.WALL -> makeWall(assetManager, engine)
 			}
 		}
 
-		private fun makeRock(engine: PooledEngine){
+		private fun makePlayer(assetManager: AssetManager, engine: PooledEngine) : Entity{
+			val player: Entity = engine.createEntity()
+
+			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
+			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
+			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
+			val movementComponent : MovementComponent = engine.createComponent(MovementComponent::class.java)
+
+			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BADLOGIC.desc.fileName))
+
+			player.add(collisionComponent)
+			player.add(movementComponent)
+			player.add(transformComponent)
+			player.add(textureComponent)
+
+			engine.addEntity(player)
+			return player
+		}
+
+		private fun makeRock(assetManager: AssetManager, engine: PooledEngine) : Entity{
 			val rock: Entity = engine.createEntity()
 
 			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
@@ -22,15 +47,18 @@ class EntityFactory {
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
 
+			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.DESTRUCTIBLE_WALL.desc.fileName))
+
 			rock.add(collisionComponent)
 			rock.add(destructibleComponent)
 			rock.add(transformComponent)
 			rock.add(textureComponent)
 
 			engine.addEntity(rock)
+			return rock
 		}
 
-		private fun makeBomb(engine: PooledEngine){
+		private fun makeBomb(assetManager: AssetManager, engine: PooledEngine) : Entity{
 			val bomb: Entity = engine.createEntity()
 
 			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
@@ -46,9 +74,10 @@ class EntityFactory {
 			bomb.add(timerComponent)
 
 			engine.addEntity(bomb)
+			return bomb
 		}
 
-		private fun makePickup(engine: PooledEngine){
+		private fun makePickup(assetManager: AssetManager, engine: PooledEngine) : Entity{
 			val pickup: Entity = engine.createEntity()
 
 			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
@@ -60,13 +89,35 @@ class EntityFactory {
 			pickup.add(textureComponent)
 
 			engine.addEntity(pickup)
+			return pickup
+		}
+
+		private fun makeWall(assetManager: AssetManager, engine: PooledEngine) : Entity{
+			val wall: Entity = engine.createEntity()
+
+			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
+			val destructibleComponent: DestructibleComponent = engine.createComponent(DestructibleComponent::class.java)
+			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
+			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
+
+			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.WALL.desc.fileName))
+
+			wall.add(collisionComponent)
+			wall.add(destructibleComponent)
+			wall.add(transformComponent)
+			wall.add(textureComponent)
+
+			engine.addEntity(wall)
+			return wall
 		}
 	}
 
 
 	enum class Type{
+		PLAYER,
 		ROCK,
 		BOMB,
-		PICKUP
+		PICKUP,
+		WALL
 	}
 }

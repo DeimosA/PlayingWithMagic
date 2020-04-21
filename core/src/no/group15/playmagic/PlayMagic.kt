@@ -13,7 +13,7 @@ import no.group15.playmagic.ui.views.MainMenuView
 const val WINDOW_WIDTH = 1280
 const val WINDOW_HEIGHT = 720
 
-class PlayMagic(private val logLevel: Int) : ApplicationListener {
+class PlayMagic(private val logLevel: Int = Application.LOG_INFO) : ApplicationListener {
 
 	private lateinit var appState: AppState
 	private lateinit var injectContext: Context

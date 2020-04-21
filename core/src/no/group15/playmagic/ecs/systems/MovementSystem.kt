@@ -5,53 +5,80 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.Input
-import com.badlogic.gdx.utils.viewport.Viewport
-import ktx.ashley.mapperFor
+import com.badlogic.gdx.math.Vector2
+import ktx.ashley.*
+import ktx.inject.*
+import no.group15.playmagic.ecs.GameMap
+import no.group15.playmagic.commands.Command
+import no.group15.playmagic.commands.CommandReceiver
+import no.group15.playmagic.commands.MoveCommand
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TransformComponent
-import no.group15.playmagic.ecs.move
 
-
-// reference https://github.com/libgdx/ashley/wiki/How-to-use-Ashley
 
 class MovementSystem(
 	priority: Int,
-	private val viewport: Viewport
+	private val injectContext: Context,
+	private val gameMap: GameMap
 ) : EntitySystem(
 	priority
-) {
+), CommandReceiver {
 
 	private lateinit var entities: ImmutableArray<Entity>
-	private val movementMapper = mapperFor<MovementComponent>()
 	private val transformMapper = mapperFor<TransformComponent>()
+	private val movementMapper = mapperFor<MovementComponent>()
+
+	private var localPlayerId = 0
+	private var moveCommand: MoveCommand? = null
+
 
 	override fun addedToEngine(engine: Engine) {
 		entities = engine.getEntitiesFor(
-			Family.all(MovementComponent::class.java, TransformComponent::class.java).get()
+			allOf(MovementComponent::class, TransformComponent::class).get()
 		)
+		Command.Type.MOVE.receiver = this
 	}
 
 	override fun update(deltaTime: Float) {
 
+		// TODO
+		//  -move command only for local player
+		//  -send position command to network
+		//  -handle position commands for other players
 		for (entity in entities) {
-			val movement = movementMapper.get(entity)
 			val transform = transformMapper.get(entity)
+			val movement = movementMapper.get(entity)
 
-			// If move command, accelerate (also, this is demo stuff, so adapt or remove)
-			movement.velocity.x += movement.acceleration * deltaTime * (movement.maxSpeed - movement.velocity.len())
-			// If not decelerate
+			val command = moveCommand
+			if (command != null) {
+				val deltaX = command.x * movement.maxSpeed * deltaTime
+				val deltaY = command.y * movement.maxSpeed * deltaTime
 
-			when {
-				movement.moveDown -> transform.position = move(Input.Keys.DOWN, transform.position)
-				movement.moveUp -> transform.position = move(Input.Keys.UP, transform.position)
-				movement.moveLeft -> transform.position = move(Input.Keys.LEFT, transform.position)
-				movement.moveRight -> transform.position = move(Input.Keys.RIGHT, transform.position)
+				transform.position.add(
+					deltaX,
+					deltaY
+				)
+				transform.boundingBox.setCenter(transform.position)
+
+				// TODO the overlapping function could maybe just take in the boundingbox Rectangle and the delta position to check beforehand so we don't need to revert
+				if (gameMap.overlappingWithWall(entity)) {
+					//REVERT MOVEMENT
+					transform.position.add(
+						-deltaX,
+						-deltaY
+					)
+					transform.boundingBox.setCenter(transform.position)
+				}
+
+				// Move commands are relative and transient so clean up
+				command.free()
+				moveCommand = null
 			}
-
-			if (transform.position.x > viewport.worldWidth / 2) transform.position.copy(x = -viewport.worldWidth / 2) // remove
-
 		}
 	}
 
+	override fun receive(command: Command) {
+		// TODO several input devices can be active so check if exists, and choose one (largest movement?), discard the other. remember to clean up the unused one
+		if (command is MoveCommand) moveCommand = command
+	}
 }
