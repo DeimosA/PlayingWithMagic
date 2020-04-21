@@ -28,6 +28,7 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	// test entity
 	val entity = engine.createEntity()
 	val transform = engine.createComponent(TransformComponent::class.java)
+	transform.boundingBox.setSize(.8f, .8f)
 	//transform.scale = ImmutableVector2(.8f, .8f)
 	entity.add(transform)
 	val texture = engine.createComponent(TextureComponent::class.java)

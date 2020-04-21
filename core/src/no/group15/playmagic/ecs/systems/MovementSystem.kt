@@ -61,7 +61,7 @@ class MovementSystem(
 				transform.boundingBox.setCenter(transform.position)
 
 				// TODO the overlapping function could maybe just take in the boundingbox Rectangle and the delta position to check beforehand so we don't need to revert
-				if (gameMap.overlappingWithWall(entity)) {
+				if (gameMap.willOverlapWithWall(transform.boundingBox, deltaX, deltaY)) {
 					//REVERT MOVEMENT
 					transform.position.add(
 						-deltaX,
