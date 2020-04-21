@@ -18,7 +18,7 @@ class TimerSystem(
 	override fun processEntity(entity: Entity, deltaTime: Float) {
 		val timer = timerMapper.get(entity)
 
-		timer.timeLeft =- deltaTime
+		timer.timeLeft -= deltaTime
 	}
 
 }
