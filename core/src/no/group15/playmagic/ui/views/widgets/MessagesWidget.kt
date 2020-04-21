@@ -3,56 +3,35 @@ package no.group15.playmagic.ui.views.widgets
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.Pool
 import ktx.collections.gdxListOf
+import no.group15.playmagic.commands.Command
+import no.group15.playmagic.commands.CommandReceiver
+import no.group15.playmagic.commands.MessageCommand
 
 
 class MessagesWidget(
 	private val margin: Float,
 	private val font: BitmapFont
-) : Widget {
+) : Widget, CommandReceiver {
 
-	private class Message : Pool.Poolable {
-		var text = ""
-		var timestamp = 0f
-		fun set(text: String, timestamp: Float) {
-			this.text = text
-			this.timestamp = timestamp
-		}
-		override fun reset() {
-			text = ""
-			timestamp = 0f
-		}
-	}
-
-	private val msgPool = object : Pool<Message>(3) {
-		override fun newObject() = Message()
-	}
-	private val messages = gdxListOf<Message>()
-	private var currentTime = 0f
+	private val messages = gdxListOf<MessageCommand>()
 	private val msgShowTime = 5f
 	private val topLeftPos = Vector2()
 	private val lineHeight = font.lineHeight * 1.2f
 
 
 	init {
-	    // add test messages
-		val message = msgPool.obtain()
-		message.set("Hello world", currentTime)
-		messages.add(message)
-		val msg2 = msgPool.obtain()
-		msg2.set("Player joined", currentTime + 2f)
-		messages.add(msg2)
+		Command.Type.MESSAGE.receiver = this
 	}
 
 	override fun update(deltaTime: Float) {
 		for (msg in messages) {
-			if (msg.timestamp + msgShowTime <= currentTime) {
+			if (msg.timestamp > msgShowTime) {
 				messages.remove()
-				msgPool.free(msg)
+				msg.free()
 			}
+			msg.timestamp += deltaTime
 		}
-		currentTime += deltaTime
 	}
 
 	override fun render(batch: SpriteBatch) {
@@ -68,7 +47,11 @@ class MessagesWidget(
 	}
 
 	override fun dispose() {
-		messages.forEach { msgPool.free(it) }
+		messages.forEach { it.free() }
 		messages.clear()
+	}
+
+	override fun receive(command: Command) {
+		if (command is MessageCommand) messages.add(command)
 	}
 }

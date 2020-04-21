@@ -3,15 +3,11 @@ package no.group15.playmagic.ecs.systems
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.math.Vector2
 import ktx.ashley.*
 import ktx.inject.*
+import no.group15.playmagic.commands.*
 import no.group15.playmagic.ecs.GameMap
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.CommandReceiver
-import no.group15.playmagic.commands.MoveCommand
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 
@@ -28,6 +24,7 @@ class MovementSystem(
 	private val transformMapper = mapperFor<TransformComponent>()
 	private val movementMapper = mapperFor<MovementComponent>()
 
+	private val commandDispatcher: CommandDispatcher = injectContext.inject()
 	private var localPlayerId = 0
 	private var moveCommand: MoveCommand? = null
 
@@ -37,6 +34,8 @@ class MovementSystem(
 			allOf(MovementComponent::class, TransformComponent::class).get()
 		)
 		Command.Type.MOVE.receiver = this
+		Command.Type.CONFIG.receiver = this
+		Command.Type.SPAWN_PLAYER.receiver = this
 	}
 
 	override fun update(deltaTime: Float) {
@@ -70,6 +69,12 @@ class MovementSystem(
 					transform.boundingBox.setCenter(transform.position)
 				}
 
+				// Send position command for local player
+				val sendCommand = commandDispatcher.createCommand(Command.Type.SEND_POSITION) as SendPositionCommand
+				sendCommand.x = transform.position.x
+				sendCommand.y = transform.position.y
+				sendCommand.playerId = localPlayerId
+				commandDispatcher.send(sendCommand)
 				// Move commands are relative and transient so clean up
 				command.free()
 				moveCommand = null
@@ -79,6 +84,23 @@ class MovementSystem(
 
 	override fun receive(command: Command) {
 		// TODO several input devices can be active so check if exists, and choose one (largest movement?), discard the other. remember to clean up the unused one
-		if (command is MoveCommand) moveCommand = command
+		when (command) {
+			is MoveCommand -> {
+				moveCommand = command
+			}
+			is ConfigCommand -> {
+				localPlayerId = command.playerId
+				// TODO should spawn entity here
+				for (entity in entities) {
+					movementMapper.get(entity).playerId = command.playerId
+//					val transform = transformMapper.get(entity)
+//					transform.position.set(command.spawnPosX, command.spawnPosY)
+//					transform.boundingBox.setCenter(transform.position)
+				}
+			}
+			is SpawnPlayerCommand -> {
+				// TODO spawn player
+			}
+		}
 	}
 }

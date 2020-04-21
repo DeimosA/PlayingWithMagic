@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.utils.GdxRuntimeException
 import ktx.collections.GdxArray
 import ktx.collections.gdxArrayOf
+import ktx.inject.Context
 import no.group15.playmagic.network.ClientConfig
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.server.ServerConfig
@@ -20,7 +21,8 @@ class MainMenuList(
 	boundingBox: Rectangle,
 	font: BitmapFont,
 	hoverBackground: TextureRegion,
-	mainMenu: MainMenuView
+	mainMenu: MainMenuView,
+	injectContext: Context
 ) : MenuListWidget(
 	boundingBox,
 	font,
@@ -43,6 +45,7 @@ class MainMenuList(
 			override fun click(x: Float, y: Float) {
 				mainMenu.startGame(
 					NetworkContext(
+						injectContext,
 						ClientConfig(host = "localhost"),
 						ServerConfig(host = "localhost", maxPlayers = 1)
 					)
@@ -60,13 +63,13 @@ class MainMenuList(
 		) {
 			override fun click(x: Float, y: Float) {
 				try {
-					val context = NetworkContext()
+					val context = NetworkContext(injectContext)
 					// Attempt to connect by initializing socket
 					context.client.socket
 					mainMenu.startGame(context)
 				} catch (e: GdxRuntimeException) {
 					// If connection fails, show error
-					mainMenu.setMenuList(ErrorList(boundingBox, font, hoverBackground, mainMenu, "Could not connect!"))
+					mainMenu.setMenuList(ErrorList(boundingBox, font, hoverBackground, mainMenu, "Could not connect!", injectContext))
 				}
 			}
 		})

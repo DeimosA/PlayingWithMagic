@@ -50,11 +50,6 @@ class GamePresenter(
 		server = networkContext.server
 		server?.start()
 
-		injectContext.register {
-			bindSingleton(CommandDispatcher())
-//			bindSingleton(networkContext.client)
-		}
-
 		assetManager.registerFreeTypeFontLoaders()
 		assetManager.load(FontAssets.DRAGONFLY_25.desc)
 		loadAssets<GameAssets>(assetManager)
@@ -96,8 +91,7 @@ class GamePresenter(
 	override fun dispose() {
 		server?.dispose()
 		client.dispose()
-		injectContext.remove<CommandDispatcher>()
-		injectContext.remove<GameClient>()
+		injectContext.inject<CommandDispatcher>().dispose()
 		gameView.dispose()
 		assetManager.clear()
 	}
