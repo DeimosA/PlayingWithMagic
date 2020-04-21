@@ -92,7 +92,8 @@ class GameMap (
 						var entity = engine.createEntity()
 
 						var transform = engine.createComponent(TransformComponent::class.java)
-						transform.position.set(offset.x, offset.y)
+						transform.boundingBox.set(offset.x, offset.y, 1f, 1f)
+						transform.position = transform.boundingBox.getCenter(transform.position)
 						entity.add(transform)
 
 						var texture = engine.createComponent(TextureComponent::class.java)
@@ -108,7 +109,8 @@ class GameMap (
 						var entity = engine.createEntity()
 
 						var transform = engine.createComponent(TransformComponent::class.java)
-						transform.position.set(offset.x, offset.y)
+						transform.boundingBox.set(offset.x, offset.y, 1f, 1f)
+						transform.position = transform.boundingBox.getCenter(transform.position)
 						entity.add(transform)
 
 						var texture = engine.createComponent(TextureComponent::class.java)

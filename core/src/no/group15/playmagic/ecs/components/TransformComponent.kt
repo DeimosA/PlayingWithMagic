@@ -9,15 +9,16 @@ import com.badlogic.gdx.utils.Pool
 
 class TransformComponent : Component, Pool.Poolable {
 
-	var boundingBox: Rectangle = Rectangle()
+	var boundingBox: Rectangle = Rectangle(0f, 0f, 1f, 1f)
 	var position: Vector2 = Vector2() // should be Centered position
 	var scale: ImmutableVector2 = ImmutableVector2(1f, 1f)
 	var rotation: Float = 0f
 
 
 	override fun reset() {
-		boundingBox.set(0f, 0f, 0f, 0f)
 		position.set(0f, 0f)
+		boundingBox.setSize(1f)
+		boundingBox.setCenter(position)
 		scale = ImmutableVector2(1f, 1f)
 		rotation = 0f
 	}
