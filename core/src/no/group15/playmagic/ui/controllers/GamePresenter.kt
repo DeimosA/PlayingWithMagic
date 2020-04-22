@@ -30,6 +30,7 @@ class GamePresenter(
 	private val batch: SpriteBatch = injectContext.inject()
 	private val inputMultiplexer: InputMultiplexer = injectContext.inject()
 	private val assetManager: AssetManager = injectContext.inject()
+	private val keyboardController = KeyboardController(injectContext.inject())
 
 	private val engineViewHeight = 10f
 	private val engineViewport = ExtendViewport(
@@ -63,13 +64,13 @@ class GamePresenter(
 		client.connect()
 
 		engine = engineFactory(injectContext, engineViewport)
+		inputMultiplexer.addProcessor(keyboardController)
 	}
 
 	override fun update(deltaTime: Float) {
+		keyboardController.update(deltaTime)
 		gameView.update(deltaTime)
-
 		engine.update(deltaTime)
-
 		gameView.render(batch)
 	}
 
@@ -89,6 +90,7 @@ class GamePresenter(
 	}
 
 	override fun dispose() {
+		inputMultiplexer.removeProcessor(keyboardController)
 		server?.dispose()
 		client.dispose()
 		injectContext.inject<CommandDispatcher>().dispose()

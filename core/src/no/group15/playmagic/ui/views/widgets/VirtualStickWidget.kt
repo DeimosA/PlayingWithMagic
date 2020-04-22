@@ -89,11 +89,12 @@ class VirtualStickWidget(
 	}
 
 	override fun update(deltaTime: Float) {
-		// TODO do something with stick value
-		val command: MoveCommand = commandDispatcher.createCommand(Command.Type.MOVE) as MoveCommand
-		command.x = stickValue.x
-		command.y = stickValue.y
-		commandDispatcher.send(command)
+		if (stickValue.x != 0f || stickValue.y != 0f) {
+			val command: MoveCommand = commandDispatcher.createCommand(Command.Type.MOVE) as MoveCommand
+			command.x = stickValue.x
+			command.y = stickValue.y
+			commandDispatcher.send(command)
+		}
 	}
 
 	override fun render(batch: SpriteBatch) {
