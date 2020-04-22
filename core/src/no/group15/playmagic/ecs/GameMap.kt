@@ -54,8 +54,8 @@ class GameMap(
 
 	//TODO remove entity creation
 	fun makeEntities(engine: PooledEngine) {
-		var base = toWorldCoordinate(MatrixIndexes(0, 0))
-		var center = WorldCoordinate(0f, 0f)
+		val base = toWorldCoordinate(MatrixIndexes(0, 0))
+		val center = WorldCoordinate(0f, 0f)
 
 		for ((y, row) in mapMatrix.withIndex()) {
 			for ((x, cellType) in row.withIndex()) {
@@ -149,12 +149,13 @@ class GameMap(
 	}
 
 
+
 	/**
 	 * Translate the world coordinate to the matrix indexes.
 	 */
 	private fun toMatrixIndexes(c: WorldCoordinate): MatrixIndexes {
-		var xFloor = floor(c.x).toInt()
-		var yFloor = floor(c.y).toInt()
+		val xFloor = floor(c.x).toInt()
+		val yFloor = floor(c.y).toInt()
 
 		return MatrixIndexes(xFloor + width() / 2, (height() - 1) / 2 - yFloor)
 	}
@@ -163,9 +164,9 @@ class GameMap(
 	/**
 	 * Translate the matrix indexes to the world coordinate.
 	 */
-	private fun toWorldCoordinate(m: MatrixIndexes): WorldCoordinate {
-		return WorldCoordinate(m.x - width() / 2 + .5f, (height() - 1) / 2 - m.y + .5f)
-	}
+	private fun toWorldCoordinate(m: MatrixIndexes) = WorldCoordinate(m.x - width() / 2 + .5f, (height() - 1) / 2 - m.y + .5f)
+
+
 
 	private class WorldCoordinate(
 		var x: Float,
