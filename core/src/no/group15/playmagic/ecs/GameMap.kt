@@ -10,6 +10,7 @@ import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.round
 
 
 class GameMap {
@@ -20,6 +21,38 @@ class GameMap {
 	fun width() = mapMatrix[0].size
 	fun height() = mapMatrix.size
 
+	fun willCollideX(worldPosX: Float, yBottom: Float, yTop: Float): Boolean {
+		val matrixX = toMatrixCoordX(worldPosX)
+		val matrixY1 = toMatrixCoordY(yBottom)
+		val matrixY2 = toMatrixCoordY(yTop)
+		return isRigidTile(matrixX, matrixY1) || isRigidTile(matrixX, matrixY2)
+	}
+
+	fun willCollideY(worldPosY: Float, xLeft: Float, xRight: Float): Boolean {
+		val matrixY = toMatrixCoordY(worldPosY)
+		val matrixX1 = toMatrixCoordX(xLeft)
+		val matrixX2 = toMatrixCoordX(xRight)
+		return isRigidTile(matrixX1, matrixY) || isRigidTile(matrixX2, matrixY)
+	}
+
+	fun willCollide(worldPosX: Float, worldPosY: Float): Boolean {
+		val matrixX = toMatrixCoordX(worldPosX)
+		val matrixY = toMatrixCoordY(worldPosY)
+		return isRigidTile(matrixX, matrixY)
+	}
+
+	private fun toMatrixCoordX(worldPosX: Float): Int {
+		val offset = -width() / 2f + 0.5f
+		val relPos = worldPosX - offset
+
+		return round(relPos).toInt()
+	}
+	private fun toMatrixCoordY(worldPosY: Float): Int {
+		val offset = -height() / 2f + 0.5f
+		val relPos = worldPosY - offset
+
+		return height() - 1 - round(relPos).toInt()
+	}
 
 	fun overlappingWithWall(rectangle: Rectangle): Boolean {
 		val rectangleTile = toMatrixIndexes(WorldCoordinate(rectangle.getCenter(Vector2())))
@@ -49,13 +82,14 @@ class GameMap {
 	//TODO remove entity creation
 	fun makeEntities(engine: PooledEngine, assetManager: AssetManager) {
 		val base = toWorldCoordinate(MatrixIndexes(0, 0))
-		val center = WorldCoordinate(0f, 0f)
+//		val center = WorldCoordinate(0f, 0f)
+		val mapHeight = height()
 
 		for ((y, row) in mapMatrix.withIndex()) {
 			for ((x, cellType) in row.withIndex()) {
 
-				center.x = base.x + x
-				center.y = base.y - y
+				val centerX = base.x + x
+				val centerY = base.y - y
 
 				val entity = when (cellType) {
 					CellType.EMPTY -> null
@@ -65,8 +99,10 @@ class GameMap {
 
 				if (entity != null) {
 					val transform = entity.getComponent(TransformComponent::class.java)
-					transform.boundingBox.setCenter(center.x, center.y).setSize(1f, 1f)
-					transform.position = transform.boundingBox.getCenter(transform.position)
+					transform.boundingBox.setSize(1f)
+					transform.setPosition(centerX, centerY)
+//					transform.boundingBox.setCenter(center.x, center.y).setSize(1f, 1f)
+//					transform.position = transform.boundingBox.getCenter(transform.position)
 				}
 			}
 
@@ -91,6 +127,10 @@ class GameMap {
 
 	private fun isRigidTile(tile: MatrixIndexes): Boolean {
 		return mapMatrix[tile.y][tile.x] != CellType.EMPTY
+	}
+
+	private fun isRigidTile(x: Int, y: Int): Boolean {
+		return mapMatrix[y][x] != CellType.EMPTY
 	}
 
 	/**

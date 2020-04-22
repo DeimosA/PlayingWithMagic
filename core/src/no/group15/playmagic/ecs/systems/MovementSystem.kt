@@ -56,10 +56,34 @@ class MovementSystem(
 				val deltaY = command.y * movement.maxSpeed * deltaTime
 
 				// do the movement only if there will be no overlapping with walls
-				if (!gameMap.willOverlapWithWall(transform.boundingBox, deltaX, 0f)) {
+//				if (!gameMap.willOverlapWithWall(transform.boundingBox, deltaX, 0f)) {
+//					transform.position.x += deltaX
+//				}
+//				if (!gameMap.willOverlapWithWall(transform.boundingBox, 0f, deltaY)) {
+//					transform.position.y += deltaY
+//				}
+
+				if (deltaX > 0f && !gameMap.willCollideX(
+						transform.boundingBox.x + transform.boundingBox.width + deltaX,
+						transform.boundingBox.y, transform.boundingBox.y + transform.boundingBox.height
+					)) {
+					transform.position.x += deltaX
+				} else if (deltaX < 0f && !gameMap.willCollideX(
+						transform.boundingBox.x + deltaX,
+						transform.boundingBox.y, transform.boundingBox.y + transform.boundingBox.height
+					)) {
 					transform.position.x += deltaX
 				}
-				if (!gameMap.willOverlapWithWall(transform.boundingBox, 0f, deltaY)) {
+
+				if (deltaY > 0f && !gameMap.willCollideY(
+						transform.boundingBox.y + transform.boundingBox.height + deltaY,
+						transform.boundingBox.x, transform.boundingBox.x + transform.boundingBox.width
+					)) {
+					transform.position.y += deltaY
+				} else if (deltaY < 0f && !gameMap.willCollideY(
+						transform.boundingBox.y + deltaY,
+						transform.boundingBox.x, transform.boundingBox.x + transform.boundingBox.width
+					)) {
 					transform.position.y += deltaY
 				}
 
