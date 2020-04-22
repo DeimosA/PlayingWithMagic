@@ -55,18 +55,11 @@ class MovementSystem(
 				val deltaX = command.x * movement.maxSpeed * deltaTime
 				val deltaY = command.y * movement.maxSpeed * deltaTime
 
-				transform.position.add(
-					deltaX,
-					deltaY
-				)
-				transform.boundingBox.setCenter(transform.position)
-
-				// TODO the overlapping function could maybe just take in the boundingbox Rectangle and the delta position to check beforehand so we don't need to revert
-				if (gameMap.willOverlapWithWall(transform.boundingBox, deltaX, deltaY)) {
-					//REVERT MOVEMENT
+				// do the movement only if there will be no overlapping with walls
+				if (!gameMap.willOverlapWithWall(transform.boundingBox, deltaX, deltaY)) {
 					transform.position.add(
-						-deltaX,
-						-deltaY
+						deltaX,
+						deltaY
 					)
 					transform.boundingBox.setCenter(transform.position)
 				}
