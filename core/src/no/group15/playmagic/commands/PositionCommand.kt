@@ -1,7 +1,5 @@
 package no.group15.playmagic.commands
 
-import com.badlogic.gdx.utils.Pool
-
 
 open class PositionCommand() : Command {
 
@@ -16,9 +14,6 @@ open class PositionCommand() : Command {
 	}
 
 	override fun reset() {
-		x = 0f
-		y = 0f
-		playerId = 0
 	}
 }
 

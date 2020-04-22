@@ -7,7 +7,6 @@ interface Command : Pool.Poolable {
 
 	val type: Type
 
-
 	/**
 	 * Free the command to the pool if it has any
 	 */

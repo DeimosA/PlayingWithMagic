@@ -3,6 +3,7 @@ package no.group15.playmagic.ecs.systems
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
+import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import ktx.ashley.*
 import ktx.inject.*
@@ -10,6 +11,7 @@ import no.group15.playmagic.commands.*
 import no.group15.playmagic.ecs.GameMap
 import no.group15.playmagic.ecs.components.MovementComponent
 import no.group15.playmagic.ecs.components.TransformComponent
+import no.group15.playmagic.ecs.entities.EntityFactory
 
 
 class MovementSystem(
@@ -90,16 +92,13 @@ class MovementSystem(
 			}
 			is ConfigCommand -> {
 				localPlayerId = command.playerId
-				// TODO should spawn entity here
-				for (entity in entities) {
-					movementMapper.get(entity).playerId = command.playerId
-//					val transform = transformMapper.get(entity)
-//					transform.position.set(command.spawnPosX, command.spawnPosY)
-//					transform.boundingBox.setCenter(transform.position)
-				}
+				// Spawn local player entity here
+				val entity = EntityFactory.makeEntity(injectContext.inject(), engine as PooledEngine, EntityFactory.Type.PLAYER)
+				movementMapper.get(entity).playerId = command.playerId
+				transformMapper.get(entity).setPosition(command.spawnPosX, command.spawnPosY)
 			}
 			is SpawnPlayerCommand -> {
-				// TODO spawn player
+				// TODO spawn other player
 			}
 		}
 	}

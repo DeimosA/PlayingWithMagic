@@ -1,5 +1,6 @@
 package no.group15.playmagic.commands
 
+
 interface CommandReceiver {
 
 	/**
