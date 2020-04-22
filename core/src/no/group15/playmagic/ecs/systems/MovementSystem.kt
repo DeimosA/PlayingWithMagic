@@ -62,30 +62,52 @@ class MovementSystem(
 //				if (!gameMap.willOverlapWithWall(transform.boundingBox, 0f, deltaY)) {
 //					transform.position.y += deltaY
 //				}
-
-				if (deltaX > 0f && !gameMap.willCollideX(
-						transform.boundingBox.x + transform.boundingBox.width + deltaX,
-						transform.boundingBox.y, transform.boundingBox.y + transform.boundingBox.height
-					)) {
-					transform.position.x += deltaX
-				} else if (deltaX < 0f && !gameMap.willCollideX(
-						transform.boundingBox.x + deltaX,
-						transform.boundingBox.y, transform.boundingBox.y + transform.boundingBox.height
-					)) {
-					transform.position.x += deltaX
+				if (deltaX != 0f) {
+					// x is deltaX + either left side or right side of bounding box
+					val x = deltaX + transform.boundingBox.x + if (deltaX > 0f) transform.boundingBox.width else 0f
+					if (!gameMap.willCollideX(
+							x,
+							transform.boundingBox.y,
+							transform.boundingBox.y + transform.boundingBox.height
+						)) {
+						transform.position.x += deltaX
+					}
 				}
 
-				if (deltaY > 0f && !gameMap.willCollideY(
-						transform.boundingBox.y + transform.boundingBox.height + deltaY,
-						transform.boundingBox.x, transform.boundingBox.x + transform.boundingBox.width
-					)) {
-					transform.position.y += deltaY
-				} else if (deltaY < 0f && !gameMap.willCollideY(
-						transform.boundingBox.y + deltaY,
-						transform.boundingBox.x, transform.boundingBox.x + transform.boundingBox.width
-					)) {
-					transform.position.y += deltaY
+				if (deltaY != 0f) {
+					val y = deltaY + transform.boundingBox.y + if (deltaY > 0f) transform.boundingBox.height else 0f
+					if (!gameMap.willCollideY(
+							y,
+							transform.boundingBox.x,
+							transform.boundingBox.x + transform.boundingBox.width
+						)) {
+						transform.position.y += deltaY
+					}
 				}
+
+//				if (deltaX > 0f && !gameMap.willCollideX(
+//						transform.boundingBox.x + transform.boundingBox.width + deltaX,
+//						transform.boundingBox.y, transform.boundingBox.y + transform.boundingBox.height
+//					)) {
+//					transform.position.x += deltaX
+//				} else if (deltaX < 0f && !gameMap.willCollideX(
+//						transform.boundingBox.x + deltaX,
+//						transform.boundingBox.y, transform.boundingBox.y + transform.boundingBox.height
+//					)) {
+//					transform.position.x += deltaX
+//				}
+
+//				if (deltaY > 0f && !gameMap.willCollideY(
+//						transform.boundingBox.y + transform.boundingBox.height + deltaY,
+//						transform.boundingBox.x, transform.boundingBox.x + transform.boundingBox.width
+//					)) {
+//					transform.position.y += deltaY
+//				} else if (deltaY < 0f && !gameMap.willCollideY(
+//						transform.boundingBox.y + deltaY,
+//						transform.boundingBox.x, transform.boundingBox.x + transform.boundingBox.width
+//					)) {
+//					transform.position.y += deltaY
+//				}
 
 				transform.boundingBox.setCenter(transform.position)
 
