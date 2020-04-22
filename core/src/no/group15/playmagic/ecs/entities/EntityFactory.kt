@@ -29,6 +29,8 @@ class EntityFactory {
 			val movementComponent : MovementComponent = engine.createComponent(MovementComponent::class.java)
 
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BADLOGIC.desc.fileName))
+			transformComponent.boundingBox.setSize(0.9f)
+			transformComponent.boundingBox.setCenter(transformComponent.position)
 
 			player.add(collisionComponent)
 			player.add(movementComponent)
@@ -95,15 +97,11 @@ class EntityFactory {
 		private fun makeWall(assetManager: AssetManager, engine: PooledEngine) : Entity{
 			val wall: Entity = engine.createEntity()
 
-//			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
-//			val destructibleComponent: DestructibleComponent = engine.createComponent(DestructibleComponent::class.java)
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
 
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.WALL.desc.fileName))
 
-//			wall.add(collisionComponent)
-//			wall.add(destructibleComponent)
 			wall.add(transformComponent)
 			wall.add(textureComponent)
 
