@@ -28,7 +28,5 @@ class TransformComponent : Component, Pool.Poolable {
 		position.set(0f, 0f)
 		boundingBox.setSize(size)
 		boundingBox.setCenter(position)
-//		scale = ImmutableVector2(1f, 1f)
-//		rotation = 0f
 	}
 }

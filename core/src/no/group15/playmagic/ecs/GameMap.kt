@@ -35,18 +35,13 @@ class GameMap {
 		return isRigidTile(matrixX1, matrixY) || isRigidTile(matrixX2, matrixY)
 	}
 
-//	fun willCollide(worldPosX: Float, worldPosY: Float): Boolean {
-//		val matrixX = toMatrixCoordX(worldPosX)
-//		val matrixY = toMatrixCoordY(worldPosY)
-//		return isRigidTile(matrixX, matrixY)
-//	}
-
 	private fun toMatrixCoordX(worldPosX: Float): Int {
 		val offset = -width() / 2f + 0.5f
 		val relPos = worldPosX - offset
 
 		return round(relPos).toInt()
 	}
+
 	private fun toMatrixCoordY(worldPosY: Float): Int {
 		val offset = -height() / 2f + 0.5f
 		val relPos = worldPosY - offset
@@ -92,9 +87,9 @@ class GameMap {
 				val centerY = base.y - y
 
 				val entity = when (cellType) {
-					CellType.EMPTY -> null
-					CellType.WALL -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
-					CellType.DESTRUCTIBLE -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
+					TileType.EMPTY, TileType.SPAWN -> null
+					TileType.WALL -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
+					TileType.DESTRUCTIBLE -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
 				}
 
 				if (entity != null) {
@@ -130,7 +125,8 @@ class GameMap {
 //	}
 
 	private fun isRigidTile(x: Int, y: Int): Boolean {
-		return mapMatrix[y][x] != CellType.EMPTY
+		val tile = mapMatrix[y][x]
+		return tile == TileType.WALL || tile == TileType.DESTRUCTIBLE
 	}
 
 	/**
@@ -173,7 +169,6 @@ class GameMap {
 	private fun toWorldCoordinate(m: MatrixIndexes) = WorldCoordinate(m.x - width() / 2 + .5f, (height() - 1) / 2 - m.y + .5f)
 
 
-
 	private class WorldCoordinate(
 		var x: Float,
 		var y: Float
@@ -193,25 +188,25 @@ class GameMap {
 
 	// --- MAP DATA ---
 
-	enum class CellType {
-		EMPTY, WALL, DESTRUCTIBLE
+	enum class TileType {
+		EMPTY, WALL, DESTRUCTIBLE, SPAWN
 	}
 
-	private val o: CellType = CellType.EMPTY
-	private val x: CellType = CellType.WALL
-	private val d: CellType = CellType.DESTRUCTIBLE
+	private val o: TileType = TileType.EMPTY
+	private val x: TileType = TileType.WALL
+	private val d: TileType = TileType.DESTRUCTIBLE
+	private val s: TileType = TileType.SPAWN
 
-	val mapMatrix: Array<Array<CellType>> = arrayOf(
-		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x),
-		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
-		arrayOf(x, o, x, d, d, x, x, x, o, o, x, x, x, d, x, x, o, x),
-		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
-		arrayOf(x, o, x, o, x, o, x, o, o, o, o, x, o, x, o, x, o, x),
-		arrayOf(x, o, x, o, x, o, o, x, o, o, x, o, o, x, o, x, o, x),
-		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
-		arrayOf(x, o, x, d, d, x, x, x, o, o, x, x, d, x, x, x, o, x),
-		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
-		arrayOf(x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x)
+	val mapMatrix: Array<Array<TileType>> = arrayOf(
+		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x),
+		arrayOf(x, s, o, o, o, o, o, o, o, o, o, o, s, x),
+		arrayOf(x, o, x, x, d, x, o, o, x, d, x, x, o, x),
+		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, x),
+		arrayOf(x, o, x, d, x, o, o, o, o, x, d, x, o, x),
+		arrayOf(x, o, x, s, x, x, o, o, x, x, s, x, o, x),
+		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, x),
+		arrayOf(x, o, x, d, x, x, o, o, x, x, d, x, o, x),
+		arrayOf(x, s, o, o, o, o, o, o, o, o, o, o, s, x),
+		arrayOf(x, x, x, x, x, x, x, x, x, x, x, x, x, x)
 	)
-
 }
