@@ -56,13 +56,14 @@ class MovementSystem(
 				val deltaY = command.y * movement.maxSpeed * deltaTime
 
 				// do the movement only if there will be no overlapping with walls
-				if (!gameMap.willOverlapWithWall(transform.boundingBox, deltaX, deltaY)) {
-					transform.position.add(
-						deltaX,
-						deltaY
-					)
-					transform.boundingBox.setCenter(transform.position)
+				if (!gameMap.willOverlapWithWall(transform.boundingBox, deltaX, 0f)) {
+					transform.position.x += deltaX
 				}
+				if (!gameMap.willOverlapWithWall(transform.boundingBox, 0f, deltaY)) {
+					transform.position.y += deltaY
+				}
+
+				transform.boundingBox.setCenter(transform.position)
 
 				// Send position command for local player
 				val sendCommand = commandDispatcher.createCommand(Command.Type.SEND_POSITION) as SendPositionCommand
