@@ -35,8 +35,8 @@ class GameView(injectContext: Context) {
 			170f,
 			injectContext.inject()
 		)
-		font = BitmapFont()
-		stick.stickValueFont = font
+//		font = BitmapFont()
+//		stick.stickValueFont = font
 		widgets.add(stick)
 		widgets.add(MessagesWidget(
 			33f,
