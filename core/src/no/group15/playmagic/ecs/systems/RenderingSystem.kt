@@ -1,11 +1,13 @@
 package no.group15.playmagic.ecs.systems
 
-import com.badlogic.ashley.core.*
+import com.badlogic.ashley.core.Engine
+import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.Viewport
-import ktx.ashley.mapperFor
-import ktx.graphics.use
+import ktx.ashley.*
+import ktx.graphics.*
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 
@@ -22,17 +24,16 @@ class RenderingSystem(
 	private val transformMapper = mapperFor<TransformComponent>()
 	private val textureMapper = mapperFor<TextureComponent>()
 
+
 	override fun addedToEngine(engine: Engine) {
-		// May need to re-fetch on update if list changes
 		entities = engine.getEntitiesFor(
-			Family.all(TransformComponent::class.java, TextureComponent::class.java).get()
+			allOf(TransformComponent::class, TextureComponent::class).get()
 		)
 	}
 
 	override fun update(deltaTime: Float) {
 		viewport.apply()
 		batch.use(viewport.camera) {
-			// TODO draw level
 
 			// Draw entities
 			for (entity in entities) {
@@ -41,9 +42,9 @@ class RenderingSystem(
 
 				batch.draw(
 					texture.src,
-					transform.position.x, transform.position.y,
+					transform.boundingBox.x, transform.boundingBox.y,
 					texture.origin.x, texture.origin.y,
-					texture.size.x, texture.size.y,
+					transform.boundingBox.width, transform.boundingBox.height,
 					transform.scale.x, transform.scale.y,
 					transform.rotation
 				)

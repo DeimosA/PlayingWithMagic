@@ -1,40 +1,51 @@
 package no.group15.playmagic.ui.views
 
-import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.collections.*
 import ktx.graphics.use
-import no.group15.playmagic.ecs.TextureName
+import ktx.inject.Context
+import no.group15.playmagic.ui.views.widgets.MessagesWidget
 import no.group15.playmagic.ui.views.widgets.VirtualStickWidget
 import no.group15.playmagic.ui.views.widgets.Widget
+import no.group15.playmagic.utils.assets.*
 
 
-class GameView(assetManager: AssetManager, inputMultiplexer: InputMultiplexer) {
+class GameView(injectContext: Context) {
 
 	private val widgets = gdxArrayOf<Widget>()
-	private val viewHeight = 1080f
-	private val	viewport = ExtendViewport(
+
+	private val viewHeight = 720f
+	private val viewport = ExtendViewport(
 		4 / 3f * viewHeight, viewHeight, 21 / 9f * viewHeight, viewHeight
 	)
 
+	private var font: BitmapFont? = null
+
 
 	init {
-//		assetManager.load("virtual_joystick.png", Texture::class.java)
-//		assetManager.finishLoading()
-		val texture = assetManager.get<Texture>(TextureName.VIRTUAL_JOYSTICK.fileName)
-	    // Setup widgets based on platform and config
-		widgets.add(VirtualStickWidget(
+		val assetManager: AssetManager = injectContext.inject()
+		// Setup widgets based on platform and config
+		val stick = VirtualStickWidget(
 			viewport,
-			TextureRegion(texture, 0, 0, 300, 300),
-			TextureRegion(texture, 300, 0, 140, 140),
-			250f,
-			inputMultiplexer
+			textureRegionFactory(assetManager, VirtualStickAssets.PAD_REGION),
+			textureRegionFactory(assetManager, VirtualStickAssets.HANDLE_REGION),
+			170f,
+			injectContext.inject()
+		)
+		font = BitmapFont()
+		stick.stickValueFont = font
+		widgets.add(stick)
+		widgets.add(MessagesWidget(
+			33f,
+			assetManager.get(FontAssets.DRAGONFLY_25.desc.fileName)
 		))
 		widgets.shrink()
+
+
+
 	}
 
 	fun update(deltaTime: Float) {
@@ -63,5 +74,6 @@ class GameView(assetManager: AssetManager, inputMultiplexer: InputMultiplexer) {
 		for (widget in widgets) {
 			widget.dispose()
 		}
+		font?.dispose()
 	}
 }
