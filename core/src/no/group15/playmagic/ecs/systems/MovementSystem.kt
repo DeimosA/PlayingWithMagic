@@ -30,7 +30,7 @@ class MovementSystem(
 	private val commandDispatcher: CommandDispatcher = injectContext.inject()
 	private var localPlayerId = 0
 	private var moveCommand: MoveCommand? = null
-	private val positionCommands = gdxMapOf<Int, PositionCommand>()
+	private val positionCommands = gdxMapOf<Int, PositionCommand?>()
 
 
 	override fun addedToEngine(engine: Engine) {
@@ -55,56 +55,60 @@ class MovementSystem(
 			val movement = movementMapper.get(entity)
 
 			if (movement.playerId == localPlayerId) {
-				// This player
+				// Local player
+				val command = moveCommand
+				moveCommand = null
+				if (command != null) {
+
+					val deltaX = command.x * movement.maxSpeed * deltaTime
+					val deltaY = command.y * movement.maxSpeed * deltaTime
+					// Move commands are relative and transient so clean up
+					command.free()
+
+					// - Check if moving along axis
+					// - Find edge of bounding box in the direction of movement
+					// - Check if we will collide with wall in this direction
+					// Then move
+					if (deltaX != 0f) {
+						// x is deltaX + either left side or right side of bounding box
+						val x = deltaX + transform.boundingBox.x + if (deltaX > 0f) transform.boundingBox.width else 0f
+						if (!gameMap.willCollideX(
+								x,
+								transform.boundingBox.y,
+								transform.boundingBox.y + transform.boundingBox.height
+							)) {
+							transform.position.x += deltaX
+						}
+					}
+
+					if (deltaY != 0f) {
+						val y = deltaY + transform.boundingBox.y + if (deltaY > 0f) transform.boundingBox.height else 0f
+						if (!gameMap.willCollideY(
+								y,
+								transform.boundingBox.x,
+								transform.boundingBox.x + transform.boundingBox.width
+							)) {
+							transform.position.y += deltaY
+						}
+					}
+
+					transform.boundingBox.setCenter(transform.position)
+
+					// Send position command for local player
+					val sendCommand = commandDispatcher.createCommand(Command.Type.SEND_POSITION) as SendPositionCommand
+					sendCommand.x = transform.position.x
+					sendCommand.y = transform.position.y
+					sendCommand.playerId = localPlayerId
+					commandDispatcher.send(sendCommand)
+				}
 
 			} else {
 				// Other player
-
-			}
-
-			val command = moveCommand
-			if (command != null) {
-
-
-
-				val deltaX = command.x * movement.maxSpeed * deltaTime
-				val deltaY = command.y * movement.maxSpeed * deltaTime
-
-				// do the movement only if there will be no overlapping with walls
-				if (deltaX != 0f) {
-					// x is deltaX + either left side or right side of bounding box
-					val x = deltaX + transform.boundingBox.x + if (deltaX > 0f) transform.boundingBox.width else 0f
-					if (!gameMap.willCollideX(
-							x,
-							transform.boundingBox.y,
-							transform.boundingBox.y + transform.boundingBox.height
-						)) {
-						transform.position.x += deltaX
-					}
+				val command = positionCommands[movement.playerId]
+				if (command != null) {
+					transform.setPosition(command.x, command.y)
+					positionCommands[movement.playerId] = null
 				}
-
-				if (deltaY != 0f) {
-					val y = deltaY + transform.boundingBox.y + if (deltaY > 0f) transform.boundingBox.height else 0f
-					if (!gameMap.willCollideY(
-							y,
-							transform.boundingBox.x,
-							transform.boundingBox.x + transform.boundingBox.width
-						)) {
-						transform.position.y += deltaY
-					}
-				}
-
-				transform.boundingBox.setCenter(transform.position)
-
-				// Send position command for local player
-				val sendCommand = commandDispatcher.createCommand(Command.Type.SEND_POSITION) as SendPositionCommand
-				sendCommand.x = transform.position.x
-				sendCommand.y = transform.position.y
-				sendCommand.playerId = localPlayerId
-				commandDispatcher.send(sendCommand)
-				// Move commands are relative and transient so clean up
-				command.free()
-				moveCommand = null
 			}
 		}
 	}
