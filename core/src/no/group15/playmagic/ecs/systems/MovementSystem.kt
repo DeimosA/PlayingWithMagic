@@ -8,6 +8,7 @@ import com.badlogic.ashley.utils.ImmutableArray
 import ktx.ashley.*
 import ktx.collections.*
 import ktx.inject.*
+import ktx.log.debug
 import no.group15.playmagic.commands.*
 import no.group15.playmagic.ecs.GameMap
 import no.group15.playmagic.ecs.components.MovementComponent
@@ -103,7 +104,7 @@ class MovementSystem(
 				val command = positionCommands[movement.playerId]
 				if (command != null) {
 					transform.setPosition(command.x, command.y)
-					positionCommands[movement.playerId] = null
+//					positionCommands[movement.playerId] = null
 				}
 			}
 		}
@@ -116,6 +117,7 @@ class MovementSystem(
 				moveCommand = command
 			}
 			is PositionCommand -> {
+//				debug { "Position command: ${command.playerId}" }
 				positionCommands[command.playerId] = command
 			}
 			is ConfigCommand -> {

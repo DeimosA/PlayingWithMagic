@@ -6,10 +6,7 @@ import com.badlogic.gdx.net.ServerSocket
 import com.badlogic.gdx.net.ServerSocketHints
 import com.badlogic.gdx.net.Socket
 import com.badlogic.gdx.net.SocketHints
-import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.GdxRuntimeException
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.TimeUtils
+import com.badlogic.gdx.utils.*
 import kotlinx.coroutines.*
 import ktx.async.*
 import ktx.collections.*
@@ -83,22 +80,15 @@ class Server(
 	}
 
 	private fun serverTick(deltaTime: Float) {
-		// TODO
-		//  -handle incoming commands
-		//  -send commands to other clients
+		// -handle incoming commands
+		// -send commands to other clients
 		launch {
-			sendToAll(commandQueue)
-			commandQueue.clear()
+			for (client in ObjectMap.Values(clients)) {
+//				log.debug { "From ${client.id}, ${client.receiveQueue.size}" }
+				sendToAllExcept(client.id, client.receiveQueue)
+				client.receiveQueue.clear()
+			}
 		}
-	}
-
-	/**
-	 * Handle incoming data
-	 */
-	fun handleMessage(string: String) = launch {
-		val array = json.fromJson<GdxArray<Command>>(string)
-		commandQueue.addAll(array)
-//		log.debug { string }
 	}
 
 	/**
@@ -140,6 +130,14 @@ class Server(
 	}
 
 	/**
+	 * Remove client with [id]
+	 */
+	fun removeClient(id: Int) = launch {
+		val client = clients.remove(id)
+		client?.dispose()
+	}
+
+	/**
 	 * Spawn [playerClient] on all players and all players on [playerClient]
 	 */
 	private fun spawnPlayers(playerClient: ServerClient) {
@@ -173,17 +171,10 @@ class Server(
 	private fun sendToAllExcept(playerId: Int, array: GdxArray<Command>) {
 		for (client in clients.values()) {
 			if (client.id != playerId) {
+//				log.debug { "From $playerId to ${client.id} , ${array.size}" }
 				client.sendCommands(array)
 			}
 		}
-	}
-
-	/**
-	 * Remove client with [id]
-	 */
-	fun removeClient(id: Int) = launch {
-		val client = clients.remove(id)
-		client?.dispose()
 	}
 
 	override fun dispose() {

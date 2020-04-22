@@ -1,7 +1,7 @@
 package no.group15.playmagic.commands
 
 
-open class PositionCommand() : Command {
+open class PositionCommand : Command {
 
 	override val type = Command.Type.POSITION
 
