@@ -2,6 +2,8 @@ package no.group15.playmagic.ecs
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.math.Vector2
+import ktx.collections.*
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.entities.EntityFactory
 import kotlin.math.round
@@ -129,4 +131,22 @@ class GameMap {
 		arrayOf(x, s, o, o, o, o, o, o, o, o, o, o, s, x),
 		arrayOf(x, x, x, x, x, x, x, x, x, x, x, x, x, x)
 	)
+
+	private val spawnList: GdxArray<Vector2> by lazy {
+		val array = gdxArrayOf<Vector2>()
+		for ((y, row) in mapMatrix.withIndex()) {
+			for ((x, tile) in row.withIndex()) {
+				if (tile == TileType.SPAWN) {
+					val position = toWorldCoordinate(MatrixIndexes(x, y))
+					array.add(Vector2(position.x, position.y))
+				}
+			}
+		}
+		array.random()
+		array
+	}
+
+	fun getRandomSpawn(): Vector2 {
+		return spawnList.pop()
+	}
 }
