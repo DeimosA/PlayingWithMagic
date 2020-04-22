@@ -2,14 +2,10 @@ package no.group15.playmagic.ecs
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import no.group15.playmagic.ecs.components.CollisionComponent
-import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
-import no.group15.playmagic.utils.assets.GameAssets
+import no.group15.playmagic.ecs.entities.EntityFactory
 import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
@@ -63,44 +59,16 @@ class GameMap(
 				center.x = base.x + x
 				center.y = base.y - y
 
-				when (cellType) {
+				var entity = when (cellType) {
+					CellType.EMPTY -> null
+					CellType.WALL -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
+					CellType.DESTRUCTIBLE -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
+				}
 
-					//CellType.EMPTY -> println("empty")
-
-					CellType.WALL -> {
-						var entity = engine.createEntity()
-
-						var transform = engine.createComponent(TransformComponent::class.java)
-						transform.boundingBox.setCenter(center.x, center.y).setSize(1f, 1f)
-						transform.position = transform.boundingBox.getCenter(transform.position)
-						entity.add(transform)
-
-						var texture = engine.createComponent(TextureComponent::class.java)
-						texture.src = TextureRegion(assetManager.get<Texture>(GameAssets.WALL.desc.fileName))
-						entity.add(texture)
-
-						entity.add(engine.createComponent(CollisionComponent::class.java))
-
-						engine.addEntity(entity)
-					}
-
-					CellType.DESTRUCTIBLE -> {
-						var entity = engine.createEntity()
-
-						var transform = engine.createComponent(TransformComponent::class.java)
-						transform.boundingBox.setCenter(center.x, center.y).setSize(1f, 1f)
-						transform.position = transform.boundingBox.getCenter(transform.position)
-						entity.add(transform)
-
-						var texture = engine.createComponent(TextureComponent::class.java)
-						texture.src = TextureRegion(assetManager.get<Texture>(GameAssets.DESTRUCTIBLE_WALL.desc.fileName))
-						entity.add(texture)
-
-						entity.add(engine.createComponent(CollisionComponent::class.java))
-
-						engine.addEntity(entity)
-					}
-
+				if (entity != null) {
+					var transform = entity.getComponent(TransformComponent::class.java)
+					transform.boundingBox.setCenter(center.x, center.y).setSize(1f, 1f)
+					transform.position = transform.boundingBox.getCenter(transform.position)
 				}
 			}
 
@@ -187,7 +155,7 @@ class GameMap(
 
 	// --- MAP DATA ---
 
-	private enum class CellType {
+	enum class CellType {
 		EMPTY, WALL, DESTRUCTIBLE
 	}
 
@@ -195,7 +163,7 @@ class GameMap(
 	private val x: CellType = CellType.WALL
 	private val d: CellType = CellType.DESTRUCTIBLE
 
-	private val mapMatrix: Array<Array<CellType>> = arrayOf(
+	val mapMatrix: Array<Array<CellType>> = arrayOf(
 		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x),
 		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
 		arrayOf(x, o, x, d, d, x, x, x, o, o, x, x, x, d, x, x, o, x),

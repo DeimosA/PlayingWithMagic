@@ -15,6 +15,7 @@ import ktx.freetype.*
 import ktx.graphics.*
 import ktx.inject.*
 import no.group15.playmagic.PlayMagic
+import no.group15.playmagic.commands.CommandDispatcher
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.controllers.GamePresenter
@@ -99,7 +100,8 @@ class MainMenuView(
 			Rectangle(viewport.worldWidth - width - 50f, 50f, width, 620f),
 			menuFont,
 			hoverBackground,
-			this
+			this,
+			injectContext
 		)
 		inputMultiplexer.addProcessor(menuInput)
 		viewport.apply()
@@ -147,6 +149,7 @@ class MainMenuView(
 	override fun dispose() {
 		assetManager.clear()
 		inputMultiplexer.removeProcessor(menuInput)
+		injectContext.inject<CommandDispatcher>().dispose()
 		menuList?.dispose()
 	}
 }

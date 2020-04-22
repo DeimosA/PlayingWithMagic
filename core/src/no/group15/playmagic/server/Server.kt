@@ -13,7 +13,12 @@ import com.badlogic.gdx.utils.TimeUtils
 import kotlinx.coroutines.*
 import ktx.async.*
 import ktx.collections.*
+import ktx.json.*
 import ktx.log.*
+import no.group15.playmagic.commands.Command
+import no.group15.playmagic.commands.SpawnPlayerCommand
+import java.lang.Exception
+import kotlin.concurrent.thread
 
 
 class Server(
@@ -26,6 +31,7 @@ class Server(
 	private val clients = gdxMapOf<Int, ServerClient>()
 	private val log = logger<Server>()
 	val json = Json()
+	private val commandQueue = gdxArrayOf<Command>()
 	private var nextClientId = 1
 		get() = field++
 
@@ -33,8 +39,6 @@ class Server(
 	fun start() = launch {
 		if (running) return@launch
 		running = true
-
-//		val executor = newAsyncContext(2)
 
 		val serverSocketHints = ServerSocketHints()
 		serverSocketHints.acceptTimeout = 0
@@ -51,30 +55,48 @@ class Server(
 		val acceptExecutor = newSingleThreadAsyncContext()
 		launch(acceptExecutor) {
 			acceptSocket()
-			log.debug { "Exiting acceptSocket" }
 		}
 
-		launch {
-			val tickTimeNano = 1000000000 / config.tickRate.toLong()
-			var prevTime = TimeUtils.nanoTime()
+		thread {
+			val nanosPerSec = 1000000000L
+			val tickTimeNano = (nanosPerSec / config.tickRate).toLong()
+			var lastTime = TimeUtils.nanoTime()
+			var sleepTime = 0L
 			while (running) {
 				// Calculate actual tick time and sleep accordingly
 				val currentTime = TimeUtils.nanoTime()
-				val diff = currentTime - prevTime
-				prevTime = currentTime
-				if (diff < tickTimeNano) {
-					delay(TimeUtils.nanosToMillis(tickTimeNano - diff))
+				val deltaTime = currentTime - lastTime
+				lastTime = currentTime
+				val newSleepTime = tickTimeNano - (deltaTime - sleepTime)
+				if (newSleepTime > 0) {
+					Thread.sleep(TimeUtils.nanosToMillis(newSleepTime))
+					sleepTime = TimeUtils.nanoTime() - lastTime
 				} else {
-//					log.error { "Server is lagging behind" }
+					log.debug { "Server is lagging behind: $deltaTime" }
 				}
 
-				tickLoop()
+				serverTick(deltaTime / nanosPerSec.toFloat())
 			}
 		}
 	}
 
-	private fun tickLoop() {
-		// Do server logic stuff
+	private fun serverTick(deltaTime: Float) {
+		// TODO
+		//  -handle incoming commands
+		//  -send commands to other clients
+		launch {
+			sendToAll(commandQueue)
+			commandQueue.clear()
+		}
+	}
+
+	/**
+	 * Handle incoming data
+	 */
+	fun handleMessage(string: String) = launch {
+		val array = json.fromJson<GdxArray<Command>>(string)
+		commandQueue.addAll(array)
+//		log.debug { string }
 	}
 
 	/**
@@ -104,14 +126,58 @@ class Server(
 			val serverClient = ServerClient(id, socket, this@Server)
 			clients[id] = serverClient
 			log.info { "Client with id ${serverClient.id} connected from ${socket.remoteAddress},  Client count: ${clients.size}" }
+			// Notify players
+			spawnPlayers(serverClient)
 
 		} else {
 			// Reject client
 			log.debug { "Client tried to connect while server was full" }
-			ServerClient.rejectClient(socket, json.toJson(Message(0, Message.Type.REJECT, "Server is full")))
+			// TODO redo reject client with command
+//			ServerClient.rejectClient(socket, json.toJson(Message(0, Message.Type.REJECT, "Server is full")))
 		}
 	}
 
+	/**
+	 * Spawn [playerClient] on all players and all players on [playerClient]
+	 */
+	private fun spawnPlayers(playerClient: ServerClient) {
+		val newPlayer = gdxArrayOf<Command>()
+		val oldPlayers = gdxArrayOf<Command>()
+		newPlayer.add(SpawnPlayerCommand(playerClient.id, playerClient.position.x, playerClient.position.y))
+
+		for (client in clients.values()) {
+			if (client.id != playerClient.id) {
+				client.sendCommands(newPlayer)
+				oldPlayers.add(SpawnPlayerCommand(client.id, client.position.x, client.position.y))
+			}
+		}
+
+		playerClient.sendCommands(oldPlayers)
+	}
+
+	/**
+	 * Send [array] to all players
+	 */
+	private fun sendToAll(array: GdxArray<Command>) {
+		for (client in clients.values()) {
+			client.sendCommands(array)
+		}
+	}
+
+	/**
+	 * Send [array] to all players except player with [playerId]
+	 */
+	private fun sendToAllExcept(playerId: Int, array: GdxArray<Command>) {
+		for (client in clients.values()) {
+			if (client.id != playerId) {
+				client.sendCommands(array)
+			}
+		}
+	}
+
+	/**
+	 * Remove client with [id]
+	 */
 	fun removeClient(id: Int) = launch {
 		val client = clients.remove(id)
 		client?.dispose()
@@ -122,33 +188,13 @@ class Server(
 
 		launch {
 			// Close connections and cleanup
-			try { socket?.dispose() } catch (e: GdxRuntimeException) {}
+			try { socket?.dispose() } catch (e: Exception) {}
 			clients.values().forEach {
 				it.dispose()
 			}
 			clients.clear()
 			socket = null
 			log.info { "Server closed" }
-		}
-	}
-
-	class Message() {
-		var clientId: Int = 0
-		var type: Type = Type.INFO
-		var text: String = ""
-		var params: GdxMap<String, Any>? = null
-
-		constructor(clientId: Int, type: Type, text: String) : this() {
-			this.clientId = clientId
-			this.type = type
-			this.text = text
-		}
-
-		enum class Type {
-			WELCOME,
-			INFO,
-			ERROR,
-			REJECT
 		}
 	}
 }

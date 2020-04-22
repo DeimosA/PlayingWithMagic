@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Pool
 
 class MoveCommand() : Command {
 
-	@Transient private lateinit var pool: Pool<MoveCommand>
+	@Transient private var pool: Pool<MoveCommand>? = null
 
 	override val type = Command.Type.MOVE
 
@@ -18,7 +18,7 @@ class MoveCommand() : Command {
 	}
 
 	override fun free() {
-		pool.free(this)
+		pool?.free(this)
 	}
 
 	override fun reset() {

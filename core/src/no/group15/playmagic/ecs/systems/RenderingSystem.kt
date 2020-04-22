@@ -3,12 +3,11 @@ package no.group15.playmagic.ecs.systems
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.Viewport
 import ktx.ashley.*
-import ktx.graphics.use
+import ktx.graphics.*
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 
@@ -35,7 +34,6 @@ class RenderingSystem(
 	override fun update(deltaTime: Float) {
 		viewport.apply()
 		batch.use(viewport.camera) {
-			// TODO draw level
 
 			// Draw entities
 			for (entity in entities) {

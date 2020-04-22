@@ -9,6 +9,7 @@ import ktx.ashley.mapperFor
 import no.group15.playmagic.ecs.components.HealthComponent
 import no.group15.playmagic.events.ExplosionHitsPlayerEvent
 
+
 const val BOMB_EXPLOSION_DAMAGE = 10 //TODO chose a good value (and a good place in the source code?)
 
 class HealthSystem(
@@ -18,6 +19,7 @@ class HealthSystem(
 ), Listener<ExplosionHitsPlayerEvent> {
 
 	private val health = mapperFor<HealthComponent>()
+
 
 	override fun receive(signal: Signal<ExplosionHitsPlayerEvent>,
 						 event: ExplosionHitsPlayerEvent) {

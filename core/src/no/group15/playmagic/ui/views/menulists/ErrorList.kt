@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import ktx.collections.*
+import ktx.inject.Context
 import no.group15.playmagic.ui.views.MainMenuView
 import no.group15.playmagic.ui.views.widgets.MenuItem
 import no.group15.playmagic.ui.views.widgets.MenuItemWidget
@@ -15,7 +16,8 @@ class ErrorList(
 	font: BitmapFont,
 	override val hoverBackground: TextureRegion,
 	private val mainMenu: MainMenuView,
-	errorMessage: String
+	errorMessage: String,
+	private val injectContext: Context
 ) : MenuListWidget(
 	boundingBox,
 	font,
@@ -49,7 +51,7 @@ class ErrorList(
 	}
 
 	override fun back() {
-		mainMenu.setMenuList(MainMenuList(boundingBox, font, hoverBackground, mainMenu))
+		mainMenu.setMenuList(MainMenuList(boundingBox, font, hoverBackground, mainMenu, injectContext))
 	}
 
 
