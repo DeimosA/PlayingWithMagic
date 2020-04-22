@@ -151,6 +151,7 @@ class Server(
 				oldPlayers.add(SpawnPlayerCommand(client.id, client.position.x, client.position.y))
 			}
 		}
+		log.debug { "Sending spawn commands: ${newPlayer.size} new, ${oldPlayers.size} old" }
 
 		playerClient.sendCommands(oldPlayers)
 	}

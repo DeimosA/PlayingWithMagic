@@ -95,10 +95,14 @@ class MovementSystem(
 				// Spawn local player entity here
 				val entity = EntityFactory.makeEntity(injectContext.inject(), engine as PooledEngine, EntityFactory.Type.PLAYER)
 				movementMapper.get(entity).playerId = command.playerId
-				transformMapper.get(entity).setPosition(command.spawnPosX, command.spawnPosY)
+				// TODO set position when spawn points are ready
+//				transformMapper.get(entity).setPosition(command.spawnPosX, command.spawnPosY)
 			}
 			is SpawnPlayerCommand -> {
-				// TODO spawn other player
+				// Spawn other player
+				val entity = EntityFactory.makeEntity(injectContext.inject(), engine as PooledEngine, EntityFactory.Type.PLAYER)
+				movementMapper.get(entity).playerId = command.playerId
+				transformMapper.get(entity).setPosition(command.posX, command.posY)
 			}
 		}
 	}
