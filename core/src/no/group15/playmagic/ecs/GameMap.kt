@@ -2,14 +2,8 @@ package no.group15.playmagic.ecs
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.math.Vector2
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.entities.EntityFactory
-import java.util.*
-import kotlin.math.floor
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.round
 
 
@@ -35,50 +29,8 @@ class GameMap {
 		return isRigidTile(matrixX1, matrixY) || isRigidTile(matrixX2, matrixY)
 	}
 
-	private fun toMatrixCoordX(worldPosX: Float): Int {
-		val offset = -width() / 2f + 0.5f
-		val relPos = worldPosX - offset
-
-		return round(relPos).toInt()
-	}
-
-	private fun toMatrixCoordY(worldPosY: Float): Int {
-		val offset = -height() / 2f + 0.5f
-		val relPos = worldPosY - offset
-
-		return height() - 1 - round(relPos).toInt()
-	}
-
-//	fun overlappingWithWall(rectangle: Rectangle): Boolean {
-//		val rectangleTile = toMatrixIndexes(WorldCoordinate(rectangle.getCenter(Vector2())))
-//		for (tile in nearTiles(rectangleTile)) {
-//			if (isRigidTile(tile) and overlapping(rectangle, tile)) {
-//				return true
-//			}
-//		}
-//		return false
-//	}
-
-
-//	fun willOverlapWithWall(rectangle: Rectangle, deltaX: Float, deltaY: Float): Boolean {
-//		rectangle.x += deltaX
-//		rectangle.y += deltaY
-//
-//		val isOverlapping = overlappingWithWall(rectangle)
-//
-//		//revert changes to object
-//		rectangle.x -= deltaX
-//		rectangle.y -= deltaY
-//
-//		return isOverlapping
-//	}
-
-
-	//TODO remove entity creation
 	fun makeEntities(engine: PooledEngine, assetManager: AssetManager) {
 		val base = toWorldCoordinate(MatrixIndexes(0, 0))
-//		val center = WorldCoordinate(0f, 0f)
-		val mapHeight = height()
 
 		for ((y, row) in mapMatrix.withIndex()) {
 			for ((x, cellType) in row.withIndex()) {
@@ -96,72 +48,42 @@ class GameMap {
 					val transform = entity.getComponent(TransformComponent::class.java)
 					transform.boundingBox.setSize(1f)
 					transform.setPosition(centerX, centerY)
-//					transform.boundingBox.setCenter(center.x, center.y).setSize(1f, 1f)
-//					transform.position = transform.boundingBox.getCenter(transform.position)
 				}
 			}
-
 		}
-
 	}
 
 
 	// --- IMPLEMENTATION ---
 
 
-//	private fun overlapping(rectangle: Rectangle, tile: MatrixIndexes): Boolean {
-//		val tile = toWorldCoordinate(tile)
-//		val tileBoundingBox = Rectangle()
-//		tileBoundingBox.height = 1f
-//		tileBoundingBox.width = 1f
-//		tileBoundingBox.setCenter(Vector2(tile.x, tile.y))
-//
-//		return rectangle.overlaps(tileBoundingBox)
-//	}
+	/**
+	 * Translate the world coordinate for [worldPosX] to the matrix indexes.
+	 */
+	private fun toMatrixCoordX(worldPosX: Float): Int {
+		val offset = -width() / 2f + 0.5f
+		val relPos = worldPosX - offset
 
+		return round(relPos).toInt()
+	}
 
-//	private fun isRigidTile(tile: MatrixIndexes): Boolean {
-//		return mapMatrix[tile.y][tile.x] != CellType.EMPTY
-//	}
+	/**
+	 * Translate the world coordinate for [worldPosY] to the matrix indexes.
+	 */
+	private fun toMatrixCoordY(worldPosY: Float): Int {
+		val offset = -height() / 2f + 0.5f
+		val relPos = worldPosY - offset
 
+		return height() - 1 - round(relPos).toInt()
+	}
+
+	/**
+	 * Check if matrix coordinates is a rigid tile
+	 */
 	private fun isRigidTile(x: Int, y: Int): Boolean {
 		val tile = mapMatrix[y][x]
 		return tile == TileType.WALL || tile == TileType.DESTRUCTIBLE
 	}
-
-	/**
-	 * Returns the map coordinate of the tiles around the
-	 * entity. If the entity is the one marked with 'e' in the diagram
-	 *     t t t
-	 *     t e t
-	 *     t t t
-	 * the function return all the eight tiles marked with 't'
-	 * plus the one marked with 'e'.
-	 */
-//	private fun nearTiles(tile: MatrixIndexes): Iterable<MatrixIndexes> {
-//		val list = LinkedList<MatrixIndexes>()
-//
-//		for (i in max(0, tile.x - 1)..min(tile.x + 1, width() - 1)) {
-//			for (j in max(0, tile.y - 1)..min(tile.y + 1, height() - 1)) {
-//				list.add(MatrixIndexes(i, j))
-//			}
-//		}
-//
-//		return list
-//	}
-
-
-
-	/**
-	 * Translate the world coordinate to the matrix indexes.
-	 */
-//	private fun toMatrixIndexes(c: WorldCoordinate): MatrixIndexes {
-//		val xFloor = floor(c.x).toInt()
-//		val yFloor = floor(c.y).toInt()
-//
-//		return MatrixIndexes(xFloor + width() / 2, (height() - 1) / 2 - yFloor)
-//	}
-
 
 	/**
 	 * Translate the matrix indexes to the world coordinate.
@@ -173,8 +95,6 @@ class GameMap {
 		var x: Float,
 		var y: Float
 	) {
-		constructor(vector: Vector2) : this(vector.x, vector.y)
-
 		override fun toString() = "($x, $y)"
 	}
 
