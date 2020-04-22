@@ -12,9 +12,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-class GameMap(
-	private val assetManager: AssetManager
-) {
+class GameMap {
 
 
 	// --- PUBLIC INTERFACE ---
@@ -49,7 +47,7 @@ class GameMap(
 
 
 	//TODO remove entity creation
-	fun makeEntities(engine: PooledEngine) {
+	fun makeEntities(engine: PooledEngine, assetManager: AssetManager) {
 		val base = toWorldCoordinate(MatrixIndexes(0, 0))
 		val center = WorldCoordinate(0f, 0f)
 
@@ -59,14 +57,14 @@ class GameMap(
 				center.x = base.x + x
 				center.y = base.y - y
 
-				var entity = when (cellType) {
+				val entity = when (cellType) {
 					CellType.EMPTY -> null
 					CellType.WALL -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
 					CellType.DESTRUCTIBLE -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
 				}
 
 				if (entity != null) {
-					var transform = entity.getComponent(TransformComponent::class.java)
+					val transform = entity.getComponent(TransformComponent::class.java)
 					transform.boundingBox.setCenter(center.x, center.y).setSize(1f, 1f)
 					transform.position = transform.boundingBox.getCenter(transform.position)
 				}

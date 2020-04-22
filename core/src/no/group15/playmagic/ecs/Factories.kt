@@ -14,8 +14,8 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	val batch: SpriteBatch = injectContext.inject()
 	val engine = PooledEngine()
 
-	val gameMap = GameMap(assetManager)
-	gameMap.makeEntities(engine)
+	val gameMap = GameMap()
+	gameMap.makeEntities(engine, assetManager)
 
 	// Add systems
 	engine.addSystem(MovementSystem(1, injectContext, gameMap))
