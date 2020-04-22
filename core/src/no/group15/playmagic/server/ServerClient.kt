@@ -1,6 +1,5 @@
 package no.group15.playmagic.server
 
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.net.Socket
 import com.badlogic.gdx.utils.Disposable
@@ -20,18 +19,16 @@ import java.lang.Exception
 class ServerClient(
 	val id: Int,
 	private val socket: Socket,
-	private val server: Server
+	private val server: Server,
+	val position: Vector2
 ) : Disposable, CoroutineScope by CoroutineScope(newSingleThreadAsyncContext()) {
 
 	private val reader = socket.inputStream.bufferedReader()
 	private val writer = socket.outputStream.bufferedWriter()
 	private val json = server.json
-	val position = Vector2()
 
 
 	init {
-		position.x = MathUtils.random(-4f, 4f)
-		position.y = MathUtils.random(-4f, 4f)
 		launch { receive() }
 		sendWelcome()
 	}

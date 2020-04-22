@@ -17,6 +17,7 @@ import ktx.json.*
 import ktx.log.*
 import no.group15.playmagic.commands.Command
 import no.group15.playmagic.commands.SpawnPlayerCommand
+import no.group15.playmagic.ecs.GameMap
 import java.lang.Exception
 import kotlin.concurrent.thread
 
@@ -31,6 +32,7 @@ class Server(
 	private val clients = gdxMapOf<Int, ServerClient>()
 	private val log = logger<Server>()
 	val json = Json()
+	private val gameMap = GameMap()
 	private val commandQueue = gdxArrayOf<Command>()
 	private var nextClientId = 1
 		get() = field++
@@ -123,7 +125,7 @@ class Server(
 	private fun acceptClient(socket: Socket) = launch {
 		if (clients.size < config.maxPlayers) {
 			val id = nextClientId
-			val serverClient = ServerClient(id, socket, this@Server)
+			val serverClient = ServerClient(id, socket, this@Server, gameMap.getRandomSpawn())
 			clients[id] = serverClient
 			log.info { "Client with id ${serverClient.id} connected from ${socket.remoteAddress},  Client count: ${clients.size}" }
 			// Notify players

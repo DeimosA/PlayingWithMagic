@@ -46,10 +46,6 @@ class MovementSystem(
 
 	override fun update(deltaTime: Float) {
 
-		// TODO
-		//  -move command only for local player
-		//  -send position command to network
-		//  -handle position commands for other players
 		for (entity in entities) {
 			val transform = transformMapper.get(entity)
 			val movement = movementMapper.get(entity)
@@ -127,8 +123,7 @@ class MovementSystem(
 				// Spawn local player entity here
 				val entity = EntityFactory.makeEntity(injectContext.inject(), engine as PooledEngine, EntityFactory.Type.PLAYER)
 				movementMapper.get(entity).playerId = command.playerId
-				// TODO set position when spawn points are ready
-//				transformMapper.get(entity).setPosition(command.spawnPosX, command.spawnPosY)
+				transformMapper.get(entity).setPosition(command.spawnPosX, command.spawnPosY)
 			}
 			is SpawnPlayerCommand -> {
 				// Spawn other player
