@@ -35,11 +35,11 @@ class GameMap {
 		return isRigidTile(matrixX1, matrixY) || isRigidTile(matrixX2, matrixY)
 	}
 
-	fun willCollide(worldPosX: Float, worldPosY: Float): Boolean {
-		val matrixX = toMatrixCoordX(worldPosX)
-		val matrixY = toMatrixCoordY(worldPosY)
-		return isRigidTile(matrixX, matrixY)
-	}
+//	fun willCollide(worldPosX: Float, worldPosY: Float): Boolean {
+//		val matrixX = toMatrixCoordX(worldPosX)
+//		val matrixY = toMatrixCoordY(worldPosY)
+//		return isRigidTile(matrixX, matrixY)
+//	}
 
 	private fun toMatrixCoordX(worldPosX: Float): Int {
 		val offset = -width() / 2f + 0.5f
@@ -54,29 +54,29 @@ class GameMap {
 		return height() - 1 - round(relPos).toInt()
 	}
 
-	fun overlappingWithWall(rectangle: Rectangle): Boolean {
-		val rectangleTile = toMatrixIndexes(WorldCoordinate(rectangle.getCenter(Vector2())))
-		for (tile in nearTiles(rectangleTile)) {
-			if (isRigidTile(tile) and overlapping(rectangle, tile)) {
-				return true
-			}
-		}
-		return false
-	}
+//	fun overlappingWithWall(rectangle: Rectangle): Boolean {
+//		val rectangleTile = toMatrixIndexes(WorldCoordinate(rectangle.getCenter(Vector2())))
+//		for (tile in nearTiles(rectangleTile)) {
+//			if (isRigidTile(tile) and overlapping(rectangle, tile)) {
+//				return true
+//			}
+//		}
+//		return false
+//	}
 
 
-	fun willOverlapWithWall(rectangle: Rectangle, deltaX: Float, deltaY: Float): Boolean {
-		rectangle.x += deltaX
-		rectangle.y += deltaY
-
-		val isOverlapping = overlappingWithWall(rectangle)
-
-		//revert changes to object
-		rectangle.x -= deltaX
-		rectangle.y -= deltaY
-
-		return isOverlapping
-	}
+//	fun willOverlapWithWall(rectangle: Rectangle, deltaX: Float, deltaY: Float): Boolean {
+//		rectangle.x += deltaX
+//		rectangle.y += deltaY
+//
+//		val isOverlapping = overlappingWithWall(rectangle)
+//
+//		//revert changes to object
+//		rectangle.x -= deltaX
+//		rectangle.y -= deltaY
+//
+//		return isOverlapping
+//	}
 
 
 	//TODO remove entity creation
@@ -114,20 +114,20 @@ class GameMap {
 	// --- IMPLEMENTATION ---
 
 
-	private fun overlapping(rectangle: Rectangle, tile: MatrixIndexes): Boolean {
-		val tile = toWorldCoordinate(tile)
-		val tileBoundingBox = Rectangle()
-		tileBoundingBox.height = 1f
-		tileBoundingBox.width = 1f
-		tileBoundingBox.setCenter(Vector2(tile.x, tile.y))
+//	private fun overlapping(rectangle: Rectangle, tile: MatrixIndexes): Boolean {
+//		val tile = toWorldCoordinate(tile)
+//		val tileBoundingBox = Rectangle()
+//		tileBoundingBox.height = 1f
+//		tileBoundingBox.width = 1f
+//		tileBoundingBox.setCenter(Vector2(tile.x, tile.y))
+//
+//		return rectangle.overlaps(tileBoundingBox)
+//	}
 
-		return rectangle.overlaps(tileBoundingBox)
-	}
 
-
-	private fun isRigidTile(tile: MatrixIndexes): Boolean {
-		return mapMatrix[tile.y][tile.x] != CellType.EMPTY
-	}
+//	private fun isRigidTile(tile: MatrixIndexes): Boolean {
+//		return mapMatrix[tile.y][tile.x] != CellType.EMPTY
+//	}
 
 	private fun isRigidTile(x: Int, y: Int): Boolean {
 		return mapMatrix[y][x] != CellType.EMPTY
@@ -142,29 +142,29 @@ class GameMap {
 	 * the function return all the eight tiles marked with 't'
 	 * plus the one marked with 'e'.
 	 */
-	private fun nearTiles(tile: MatrixIndexes): Iterable<MatrixIndexes> {
-		val list = LinkedList<MatrixIndexes>()
-
-		for (i in max(0, tile.x - 1)..min(tile.x + 1, width() - 1)) {
-			for (j in max(0, tile.y - 1)..min(tile.y + 1, height() - 1)) {
-				list.add(MatrixIndexes(i, j))
-			}
-		}
-
-		return list
-	}
+//	private fun nearTiles(tile: MatrixIndexes): Iterable<MatrixIndexes> {
+//		val list = LinkedList<MatrixIndexes>()
+//
+//		for (i in max(0, tile.x - 1)..min(tile.x + 1, width() - 1)) {
+//			for (j in max(0, tile.y - 1)..min(tile.y + 1, height() - 1)) {
+//				list.add(MatrixIndexes(i, j))
+//			}
+//		}
+//
+//		return list
+//	}
 
 
 
 	/**
 	 * Translate the world coordinate to the matrix indexes.
 	 */
-	private fun toMatrixIndexes(c: WorldCoordinate): MatrixIndexes {
-		val xFloor = floor(c.x).toInt()
-		val yFloor = floor(c.y).toInt()
-
-		return MatrixIndexes(xFloor + width() / 2, (height() - 1) / 2 - yFloor)
-	}
+//	private fun toMatrixIndexes(c: WorldCoordinate): MatrixIndexes {
+//		val xFloor = floor(c.x).toInt()
+//		val yFloor = floor(c.y).toInt()
+//
+//		return MatrixIndexes(xFloor + width() / 2, (height() - 1) / 2 - yFloor)
+//	}
 
 
 	/**
