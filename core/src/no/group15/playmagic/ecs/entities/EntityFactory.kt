@@ -29,6 +29,8 @@ class EntityFactory {
 			val movementComponent : MovementComponent = engine.createComponent(MovementComponent::class.java)
 
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BADLOGIC.desc.fileName))
+			transformComponent.boundingBox.setSize(0.9f)
+			transformComponent.boundingBox.setCenter(transformComponent.position)
 
 			player.add(collisionComponent)
 			player.add(movementComponent)
