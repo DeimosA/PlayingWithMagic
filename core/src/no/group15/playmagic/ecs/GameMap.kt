@@ -1,44 +1,167 @@
 package no.group15.playmagic.ecs
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import ktx.math.ImmutableVector2
-import no.group15.playmagic.ecs.components.CollisionComponent
-import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.entities.EntityFactory
-import no.group15.playmagic.utils.assets.GameAssets
 import java.util.*
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
 
-class GameMap (
+class GameMap(
 	private val assetManager: AssetManager
 ) {
 
-	private class Coordinate (
+
+	// --- PUBLIC INTERFACE ---
+
+	fun width() = mapMatrix[0].size
+	fun height() = mapMatrix.size
+
+
+	fun overlappingWithWall(rectangle: Rectangle): Boolean {
+		val rectangleTile = toMatrixIndexes(WorldCoordinate(rectangle.getCenter(Vector2())))
+		for (tile in nearTiles(rectangleTile)) {
+			if (isRigidTile(tile) and overlapping(rectangle, tile)) {
+				return true
+			}
+		}
+		return false
+	}
+
+
+	fun willOverlapWithWall(rectangle: Rectangle, deltaX: Float, deltaY: Float): Boolean {
+		rectangle.x += deltaX
+		rectangle.y += deltaY
+
+		val isOverlapping = overlappingWithWall(rectangle)
+
+		//revert changes to object
+		rectangle.x -= deltaX
+		rectangle.y -= deltaY
+
+		return isOverlapping
+	}
+
+
+	//TODO remove entity creation
+	fun makeEntities(engine: PooledEngine) {
+		val base = toWorldCoordinate(MatrixIndexes(0, 0))
+		val center = WorldCoordinate(0f, 0f)
+
+		for ((y, row) in mapMatrix.withIndex()) {
+			for ((x, cellType) in row.withIndex()) {
+
+				center.x = base.x + x
+				center.y = base.y - y
+
+				var entity = when (cellType) {
+					CellType.EMPTY -> null
+					CellType.WALL -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
+					CellType.DESTRUCTIBLE -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
+				}
+
+				if (entity != null) {
+					var transform = entity.getComponent(TransformComponent::class.java)
+					transform.boundingBox.setCenter(center.x, center.y).setSize(1f, 1f)
+					transform.position = transform.boundingBox.getCenter(transform.position)
+				}
+			}
+
+		}
+
+	}
+
+
+	// --- IMPLEMENTATION ---
+
+
+	private fun overlapping(rectangle: Rectangle, tile: MatrixIndexes): Boolean {
+		val tile = toWorldCoordinate(tile)
+		val tileBoundingBox = Rectangle()
+		tileBoundingBox.height = 1f
+		tileBoundingBox.width = 1f
+		tileBoundingBox.setCenter(Vector2(tile.x, tile.y))
+
+		return rectangle.overlaps(tileBoundingBox)
+	}
+
+
+	private fun isRigidTile(tile: MatrixIndexes): Boolean {
+		return mapMatrix[tile.y][tile.x] != CellType.EMPTY
+	}
+
+	/**
+	 * Returns the map coordinate of the tiles around the
+	 * entity. If the entity is the one marked with 'e' in the diagram
+	 *     t t t
+	 *     t e t
+	 *     t t t
+	 * the function return all the eight tiles marked with 't'
+	 * plus the one marked with 'e'.
+	 */
+	private fun nearTiles(tile: MatrixIndexes): Iterable<MatrixIndexes> {
+		val list = LinkedList<MatrixIndexes>()
+
+		for (i in max(0, tile.x - 1)..min(tile.x + 1, width() - 1)) {
+			for (j in max(0, tile.y - 1)..min(tile.y + 1, height() - 1)) {
+				list.add(MatrixIndexes(i, j))
+			}
+		}
+
+		return list
+	}
+
+
+
+	/**
+	 * Translate the world coordinate to the matrix indexes.
+	 */
+	private fun toMatrixIndexes(c: WorldCoordinate): MatrixIndexes {
+		val xFloor = floor(c.x).toInt()
+		val yFloor = floor(c.y).toInt()
+
+		return MatrixIndexes(xFloor + width() / 2, (height() - 1) / 2 - yFloor)
+	}
+
+
+	/**
+	 * Translate the matrix indexes to the world coordinate.
+	 */
+	private fun toWorldCoordinate(m: MatrixIndexes) = WorldCoordinate(m.x - width() / 2 + .5f, (height() - 1) / 2 - m.y + .5f)
+
+
+
+	private class WorldCoordinate(
 		var x: Float,
 		var y: Float
 	) {
+		constructor(vector: Vector2) : this(vector.x, vector.y)
+
 		override fun toString() = "($x, $y)"
 	}
+
+	private class MatrixIndexes(
+		var x: Int,
+		var y: Int
+	) {
+		override fun toString() = "($x, $y)"
+	}
+
+
+	// --- MAP DATA ---
 
 	enum class CellType {
 		EMPTY, WALL, DESTRUCTIBLE
 	}
 
-	private val o: CellType =
-		CellType.EMPTY
-	private val x: CellType =
-		CellType.WALL
-	private val d: CellType =
-		CellType.DESTRUCTIBLE
+	private val o: CellType = CellType.EMPTY
+	private val x: CellType = CellType.WALL
+	private val d: CellType = CellType.DESTRUCTIBLE
 
 	val mapMatrix: Array<Array<CellType>> = arrayOf(
 		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x),
@@ -52,130 +175,5 @@ class GameMap (
 		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
 		arrayOf(x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x)
 	)
-
-	//private val discreteWidth: Int = 18
-
-	// TODO: write a public method that set this value
-	private var topLeftCorner: Coordinate =
-		Coordinate(-9f, 4f)
-
-
-
-	fun overlappingWithWall(entity: Entity): Boolean {
-		for (tile in nearTiles(entity)) {
-			if (isRigidTile(tile) and overlapping(entity, tile)) {
-				return true
-			}
-		}
-		return false
-	}
-
-
-
-	//TODO remove entity creation
-	fun makeEntities (engine: PooledEngine) {
-		var offset = Coordinate(topLeftCorner.x, topLeftCorner.y)
-
-		for ( (y, row) in mapMatrix.withIndex()) {
-			for ( (x, cellType) in row.withIndex()) {
-
-				offset.x = topLeftCorner.x + x
-				offset.y = topLeftCorner.y - y
-
-				//println("" + offset.x + ", " + offset.y)
-
-
-				when (cellType) {
-
-					//CellType.EMPTY -> println("empty")
-
-					CellType.WALL -> {
-
-						var entity = EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
-
-						var transform : TransformComponent = entity.getComponent(TransformComponent::class.java)
-						transform.boundingBox.set(offset.x, offset.y, 1f, 1f)
-						transform.position = transform.boundingBox.getCenter(transform.position)
-
-					}
-
-					CellType.DESTRUCTIBLE -> {
-						var entity = EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
-
-						var transform : TransformComponent = entity.getComponent(TransformComponent::class.java)
-						transform.boundingBox.set(offset.x, offset.y, 1f, 1f)
-						transform.position = transform.boundingBox.getCenter(transform.position)
-
-					}
-
-				}
-			}
-
-		}
-
-	}
-
-
-	/**
-	 * Returns the map coordinate of the tiles around the
-	 * entity. If the entity is the one marked with 'e' in the diagram
-	 *     t t t
-	 *     t e t
-	 *     t t t
-	 * the function return all the eight tiles marked with 't'
-	 * plus the one marked with 'e'
-	 */
-	private fun nearTiles(entity: Entity): Iterable<Coordinate> {
-		val list = LinkedList<Coordinate>()
-		val center = Vector2()
-		val entityPoint = boundingBox(entity).getCenter(center)
-		for (i in max(0, entityPoint.x.toInt() - 1) until min(entityPoint.x.toInt() + 1, mapMatrix[0].size - 1) + 1) {
-			for (j in max(0, entityPoint.y.toInt() - 1) until min(entityPoint.y.toInt() + 1, mapMatrix.size - 1) + 1) {
-				list.add(Coordinate(i.toFloat(), j.toFloat()))
-			}
-		}
-		return list
-	}
-
-
-
-	private fun boundingBox (entity: Entity): Rectangle {
-		// TODO replace this with existing boundingbox in transform component
-		val transform = entity.getComponent(TransformComponent::class.java)
-		val texture = entity.getComponent(TextureComponent::class.java)
-		val coordinate = toMatrixIndexes(Coordinate(transform.position.x, transform.position.y))
-
-		return Rectangle(
-			coordinate.x,
-			coordinate.y,
-			transform.boundingBox.width * transform.scale.x,
-			transform.boundingBox.width * transform.scale.y
-		)
-	}
-
-
-	/**
-	 * Translate the world coordinate to the matrix indexes.
-	 */
-	private fun toMatrixIndexes(coordinate: Coordinate): Coordinate {
-		return Coordinate(coordinate.x - topLeftCorner.x, topLeftCorner.y - coordinate.y)
-	}
-
-
-
-	private fun isRigidTile(coordinate: Coordinate): Boolean {
-		val x = coordinate.x.toInt()
-		val y = coordinate.y.toInt()
-		return mapMatrix[y][x] != CellType.EMPTY
-	}
-
-
-
-	private fun overlapping(entity: Entity, tile: Coordinate): Boolean {
-		val entityBoundingBox = boundingBox(entity)
-		val tileBoundingBox = Rectangle(tile.x, tile.y, 1f, 1f)
-
-		return entityBoundingBox.overlaps(tileBoundingBox)
-	}
 
 }
