@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.math.Vector2
 import ktx.ashley.*
 import ktx.inject.*
 import no.group15.playmagic.commands.*
@@ -115,5 +116,18 @@ class MovementSystem(
 				transformMapper.get(entity).setPosition(command.posX, command.posY)
 			}
 		}
+	}
+
+	fun localPlayerPosition(): Vector2 {
+		var position: Vector2? = null
+
+		for (entity in entities) {
+			if (entity[movementMapper]!!.playerId == localPlayerId) {
+				position = entity[transformMapper]!!.position
+			}
+		}
+
+		println(position)
+		return position!!
 	}
 }

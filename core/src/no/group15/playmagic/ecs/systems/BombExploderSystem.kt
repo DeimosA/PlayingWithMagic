@@ -1,6 +1,8 @@
 package no.group15.playmagic.ecs.systems
 
 import com.badlogic.ashley.core.*
+import com.badlogic.ashley.signals.Listener
+import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
@@ -8,10 +10,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import ktx.ashley.allOf
 import ktx.ashley.get
 import ktx.ashley.mapperFor
+import no.group15.playmagic.commands.Command
+import no.group15.playmagic.commands.CommandReceiver
+import no.group15.playmagic.commands.DropBombCommand
 import no.group15.playmagic.ecs.components.ExploderComponent
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TimerComponent
 import no.group15.playmagic.ecs.components.TransformComponent
+import no.group15.playmagic.ecs.entities.EntityFactory
+import no.group15.playmagic.events.BombTimeoutEvent
 import no.group15.playmagic.utils.assets.GameAssets
 
 
@@ -20,7 +27,8 @@ class BombExploderSystem(
 	private val assetManager: AssetManager
 ): EntitySystem(
 	priority
-) {
+), Listener<BombTimeoutEvent>,
+	CommandReceiver {
 
 	private lateinit var entities: ImmutableArray<Entity>
 	private val timer = mapperFor<TimerComponent>()
@@ -32,8 +40,10 @@ class BombExploderSystem(
 		entities = engine.getEntitiesFor(
 			allOf(ExploderComponent::class, TimerComponent::class, TransformComponent::class, TextureComponent::class).get()
 		)
+		Command.Type.DROP_BOMB.receiver = this
 	}
 
+	/*
 	override fun update(deltaTime: Float) {
 		var explosionTexture: TextureRegion = TextureRegion(assetManager.get<Texture>(GameAssets.EXPLOSION.desc.fileName))
 
@@ -46,14 +56,50 @@ class BombExploderSystem(
 			}
 		}
 	}
+	 */
+
+	override fun receive(signal: Signal<BombTimeoutEvent>, event: BombTimeoutEvent) {
+		// Exploded
+		if (event.bomb[exploder]!!.isExploded) {
+			engine.removeEntity(event.bomb)
+		}
+		//Not exploded
+		else {
+			event.bomb[texture]!!.src = TextureRegion(assetManager.get<Texture>(GameAssets.EXPLOSION.desc.fileName))
+			event.bomb[exploder]!!.isExploded = true
+
+			// create new timer
+			val newTimer = (engine as PooledEngine).createComponent(TimerComponent::class.java)
+			newTimer.timeLeft = 3f
+
+			event.bomb.add(newTimer)
+		}
+	}
+
+
+
+	override fun receive(command: Command) {
+		when (command) {
+			is DropBombCommand -> {
+				val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
+				bomb[timer]!!.timeLeft = 3f
+
+				// position
+				val playerPos = engine.getSystem(MovementSystem::class.java).localPlayerPosition()
+				bomb[transform]!!.position.set(playerPos.x, playerPos.y)
+				bomb[transform]!!.boundingBox.setCenter(bomb[transform]!!.position)
+			}
+		}
+	}
+
 }
 
 // BombExploder System Test code
 fun testBomb(engine: PooledEngine, assetManager: AssetManager) {
 	val bomb = createBomb(engine, assetManager)
 	engine.addEntity(bomb)
-	engine.addSystem(BombExploderSystem(0, assetManager))
-	engine.addSystem(TimerSystem(0))
+	//engine.addSystem(BombExploderSystem(0, assetManager))
+	//engine.addSystem(TimerSystem(0))
 }
 
 // BombExploder System Test code

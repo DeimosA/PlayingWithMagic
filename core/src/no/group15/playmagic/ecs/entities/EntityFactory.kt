@@ -69,6 +69,8 @@ class EntityFactory {
 			val exploderComponent: ExploderComponent = engine.createComponent(ExploderComponent::class.java)
 			val timerComponent: TimerComponent = engine.createComponent(TimerComponent::class.java)
 
+			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BOMB.desc.fileName))
+
 			bomb.add(collisionComponent)
 			bomb.add(transformComponent)
 			bomb.add(textureComponent)
