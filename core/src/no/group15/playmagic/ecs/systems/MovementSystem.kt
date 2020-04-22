@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import ktx.ashley.*
+import ktx.collections.*
 import ktx.inject.*
 import no.group15.playmagic.commands.*
 import no.group15.playmagic.ecs.GameMap
@@ -29,13 +30,16 @@ class MovementSystem(
 	private val commandDispatcher: CommandDispatcher = injectContext.inject()
 	private var localPlayerId = 0
 	private var moveCommand: MoveCommand? = null
+	private val positionCommands = gdxMapOf<Int, PositionCommand>()
 
 
 	override fun addedToEngine(engine: Engine) {
 		entities = engine.getEntitiesFor(
 			allOf(MovementComponent::class, TransformComponent::class).get()
 		)
+		// Register for commands
 		Command.Type.MOVE.receiver = this
+		Command.Type.POSITION.receiver = this
 		Command.Type.CONFIG.receiver = this
 		Command.Type.SPAWN_PLAYER.receiver = this
 	}
@@ -50,8 +54,19 @@ class MovementSystem(
 			val transform = transformMapper.get(entity)
 			val movement = movementMapper.get(entity)
 
+			if (movement.playerId == localPlayerId) {
+				// This player
+
+			} else {
+				// Other player
+
+			}
+
 			val command = moveCommand
 			if (command != null) {
+
+
+
 				val deltaX = command.x * movement.maxSpeed * deltaTime
 				val deltaY = command.y * movement.maxSpeed * deltaTime
 
@@ -82,6 +97,9 @@ class MovementSystem(
 		when (command) {
 			is MoveCommand -> {
 				moveCommand = command
+			}
+			is PositionCommand -> {
+				positionCommands[command.playerId] = command
 			}
 			is ConfigCommand -> {
 				localPlayerId = command.playerId
