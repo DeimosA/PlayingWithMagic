@@ -15,6 +15,10 @@ class TransformComponent : Component, Pool.Poolable {
 	var rotation: Float = 0f
 
 
+	init {
+	    boundingBox.setCenter(position)
+	}
+
 	/**
 	 * Set center position of this entity
 	 */
