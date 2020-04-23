@@ -2,8 +2,6 @@ package no.group15.playmagic
 
 import com.badlogic.gdx.ApplicationListener
 import com.badlogic.gdx.Gdx
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import ktx.async.KtxAsync
 import no.group15.playmagic.server.Server
 
@@ -16,9 +14,9 @@ class PlayMagicServer(private val logLevel: Int) : ApplicationListener {
 		KtxAsync.initiate()
 		// Respond to TERM signal
 		Runtime.getRuntime().addShutdownHook(object : Thread() {
-			override fun run() = runBlocking {
+			override fun run() {
 				Gdx.app.exit()
-				delay(1000)
+				sleep(2000)
 			}
 		})
 		server = Server()

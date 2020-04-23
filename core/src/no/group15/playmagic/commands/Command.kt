@@ -17,7 +17,7 @@ interface Command : Pool.Poolable {
 		CONFIG { override var receiver: CommandReceiver? = null }, // Server tells the client to configure itself
 		MESSAGE { override var receiver: CommandReceiver? = null }, // Show the user a message
 		SPAWN_PLAYER { override var receiver: CommandReceiver? = null }, // Spawn a player
-		REMOVE_PLAYER { override var receiver: CommandReceiver? = null },
+		REMOVE_PLAYER { override var receiver: CommandReceiver? = null }, // Remove a disconnected player
 		RESET_MAP { override var receiver: CommandReceiver? = null },
 		MOVE { override var receiver: CommandReceiver? = null }, // Relative move command from user input
 		POSITION { override var receiver: CommandReceiver? = null }, // Positions from other players
