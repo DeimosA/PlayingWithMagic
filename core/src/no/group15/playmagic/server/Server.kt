@@ -133,6 +133,8 @@ class Server(
 	 * Remove client with [id]
 	 */
 	fun removeClient(id: Int) = launch {
+		// TODO return spawn positions?
+		// TODO send RemovePlayerCommand to all clients
 		val client = clients.remove(id)
 		client?.dispose()
 	}

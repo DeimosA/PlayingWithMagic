@@ -106,10 +106,12 @@ class GameClient(
 	 */
 	private tailrec fun receiveCommands() {
 		try {
-			log.debug { "Reader ready? ${reader?.ready()}" }
+//			log.debug { "Reader ready? ${reader?.ready()}" }
 			val line = reader?.readLine()
 			if (line == null) {
 				log.error { "Reached end of stream" }
+				// TODO connection lost
+				return
 			} else {
 				handleCommands(line)
 			}
@@ -175,11 +177,11 @@ class GameClient(
 		try {
 //			log.debug { "Sending ${array.size} commands" }
 			writer?.write(json.toJson(array))
-			writer?.newLine()
+			writer?.write("\n")
 			writer?.flush()
 		} catch (e: IOException) {
-			// TODO close connection?
 			log.error { "Error sending commands to server: ${e.message}" }
+			// TODO close connection?
 		}
 	}
 
