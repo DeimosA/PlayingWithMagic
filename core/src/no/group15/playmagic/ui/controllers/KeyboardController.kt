@@ -2,12 +2,12 @@ package no.group15.playmagic.ui.controllers
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
-import ktx.log.debug
 import no.group15.playmagic.commands.Command
 import no.group15.playmagic.commands.CommandDispatcher
 import no.group15.playmagic.commands.DropBombCommand
 import no.group15.playmagic.commands.MoveCommand
-import no.group15.playmagic.ecs.entities.EntityFactory
+import kotlin.math.abs
+import kotlin.math.sqrt
 
 
 class KeyboardController(private val commandDispatcher: CommandDispatcher) : InputAdapter() {
@@ -17,14 +17,18 @@ class KeyboardController(private val commandDispatcher: CommandDispatcher) : Inp
 	private var moveLeft = false
 	private var moveDown = false
 
+	private val diagonalScale = 1 / sqrt(2f)
 
 	fun update(deltaTime: Float) {
+		// If both keys on an axis are held down, movement is zero
 		val x = (if (moveLeft) -1f else 0f) + (if (moveRight) 1f else 0f)
 		val y = (if (moveDown) -1f else 0f) + (if (moveUp) 1f else 0f)
 		if (x != 0f || y != 0f) {
+			// Normalise if moving diagonally
+			val scalar = if (abs(x) + abs(y) > 1f) diagonalScale else 1f
 			val command = commandDispatcher.createCommand(Command.Type.MOVE) as MoveCommand
-			command.x = x
-			command.y = y
+			command.x = x * scalar
+			command.y = y * scalar
 			commandDispatcher.send(command)
 		}
 	}
@@ -56,9 +60,7 @@ class KeyboardController(private val commandDispatcher: CommandDispatcher) : Inp
 	override fun keyDown(keycode: Int): Boolean {
 		return when (keycode) {
 			Input.Keys.SPACE -> {
-				// TODO Drop bomb!
 				commandDispatcher.send(commandDispatcher.createCommand(Command.Type.DROP_BOMB) as DropBombCommand)
-				debug { "plz drop bomb!" }
 				true
 			}
 			else -> {

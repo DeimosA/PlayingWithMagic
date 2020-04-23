@@ -82,7 +82,6 @@ class Server(
 		// -send commands to other clients
 		launch {
 			for (client in ObjectMap.Values(clients)) {
-//				log.debug { "From ${client.id}, ${client.receiveQueue.size}" }
 				sendToAllExcept(client.id, client.receiveQueue)
 				client.receiveQueue.clear()
 			}
