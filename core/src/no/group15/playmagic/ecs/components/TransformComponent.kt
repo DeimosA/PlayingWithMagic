@@ -16,6 +16,10 @@ class TransformComponent : Component, Pool.Poolable {
 	val rotation: Float = 0f
 
 
+	init {
+	    boundingBox.setCenter(position)
+	}
+
 	/**
 	 * Set center position of this entity
 	 */

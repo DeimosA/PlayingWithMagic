@@ -4,11 +4,12 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.utils.Pool
 
 
-class MovementComponent : Component, Pool.Poolable {
+class PlayerComponent : Component, Pool.Poolable {
 
 	var playerId = 0
+	var isLocalPlayer = false
 
-	// Constants
+	// Max player movement speed
 	val maxSpeed = 2f
 
 
