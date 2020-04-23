@@ -7,16 +7,14 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Vector2
 import ktx.ashley.allOf
 import ktx.ashley.get
 import ktx.ashley.mapperFor
 import no.group15.playmagic.commands.Command
 import no.group15.playmagic.commands.CommandReceiver
 import no.group15.playmagic.commands.DropBombCommand
-import no.group15.playmagic.ecs.components.ExploderComponent
-import no.group15.playmagic.ecs.components.TextureComponent
-import no.group15.playmagic.ecs.components.TimerComponent
-import no.group15.playmagic.ecs.components.TransformComponent
+import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.ecs.entities.EntityFactory
 import no.group15.playmagic.events.BombTimeoutEvent
 import no.group15.playmagic.utils.assets.GameAssets
@@ -35,6 +33,7 @@ class BombExploderSystem(
 	private val texture = mapperFor<TextureComponent>()
 	private val transform = mapperFor<TransformComponent>()
 	private val exploder = mapperFor<ExploderComponent>()
+	private val player = mapperFor<PlayerComponent>()
 
 	override fun addedToEngine (engine: Engine) {
 		entities = engine.getEntitiesFor(
@@ -84,12 +83,29 @@ class BombExploderSystem(
 				val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
 				bomb[timer]!!.timeLeft = 3f
 
-				// position
-				val playerPos = engine.getSystem(MovementSystem::class.java).localPlayerPosition()
+				// get player position position
+				val playerPos = getLocalPlayerPosition()
+
 				bomb[transform]!!.position.set(playerPos.x, playerPos.y)
 				bomb[transform]!!.boundingBox.setCenter(bomb[transform]!!.position)
 			}
 		}
+	}
+
+
+
+	// --- IMPLEMENTATION ---
+
+	private fun getLocalPlayerPosition (): Vector2 {
+		var playerPos = Vector2(0f, 0f)
+		for (entity in engine.getEntitiesFor(allOf(PlayerComponent::class).get())) {
+			if (entity[player]!!.isLocalPlayer) {
+				playerPos = entity[transform]!!.position
+				break
+			}
+		}
+
+		return playerPos
 	}
 
 }

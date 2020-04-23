@@ -137,16 +137,4 @@ class MovementSystem(
 		}
 	}
 
-	fun localPlayerPosition(): Vector2 {
-		var position: Vector2? = null
-
-		for (entity in entities) {
-			if (entity[movementMapper]!!.playerId == localPlayerId) {
-				position = entity[transformMapper]!!.position
-			}
-		}
-
-		println(position)
-		return position!!
-	}
 }
