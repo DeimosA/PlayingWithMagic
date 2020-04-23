@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.utils.GdxRuntimeException
 import ktx.collections.GdxArray
 import ktx.collections.gdxArrayOf
 import ktx.inject.Context
@@ -62,16 +61,7 @@ class MainMenuList(
 			hoverBackground
 		) {
 			override fun click(x: Float, y: Float) {
-				try {
-					val context = NetworkContext(injectContext)
-					// Attempt to connect by initializing socket
-					// TODO find a better way of checking if the server is online
-//					context.client.socket
-					mainMenu.startGame(context)
-				} catch (e: GdxRuntimeException) {
-					// If connection fails, show error
-					mainMenu.setMenuList(ErrorList(boundingBox, font, hoverBackground, mainMenu, "Could not connect!", injectContext))
-				}
+				mainMenu.startGame(NetworkContext(injectContext))
 			}
 		})
 

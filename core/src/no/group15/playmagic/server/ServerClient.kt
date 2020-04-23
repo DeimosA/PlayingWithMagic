@@ -2,7 +2,6 @@ package no.group15.playmagic.server
 
 import com.badlogic.gdx.net.Socket
 import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.TimeUtils
 import kotlinx.coroutines.launch
 import ktx.collections.*
 import ktx.json.*
@@ -70,7 +69,6 @@ class ServerClient(
 		if (!server.running) return else receive()
 	}
 
-	private var receivedFirstData = false
 	/**
 	 * Handle incoming data
 	 */
@@ -78,10 +76,6 @@ class ServerClient(
 		val array = json.fromJson<GdxArray<Command>>(string)
 		server.launch {
 			receiveQueue.addAll(array)
-			if (!receivedFirstData) {
-				debug { "$logMessage Received first data: ${array.size} commands" }
-				receivedFirstData = true
-			}
 		}
 	}
 
@@ -92,9 +86,7 @@ class ServerClient(
 		command.tickRate = server.config.tickRate
 		command.spawnPosX = spawnPosition.x
 		command.spawnPosY = spawnPosition.y
-		val array = gdxArrayOf<Command>()
-		array.add(command)
-		sendCommands(array)
+		sendCommands(server.arrayOfCommands(command))
 	}
 
 	fun sendCommands(array: GdxArray<Command>) {
@@ -110,7 +102,6 @@ class ServerClient(
 	}
 
 	override fun dispose() {
-		// TODO send goodbye message?
 		try { socket.dispose() } catch (e: Exception) {}
 		try { reader.close() } catch (e: Exception) {}
 		try { writer.close() } catch (e: Exception) {}

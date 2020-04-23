@@ -63,6 +63,11 @@ class GameClient(
 
 		} catch (e: GdxRuntimeException) {
 			log.error { e.cause?.message ?: "Error opening client socket: ${e.message}" }
+			KtxAsync.launch {
+				val command = commandDispatcher.createCommand(Command.Type.MESSAGE) as MessageCommand
+				command.text = "Could not connect to server"
+				commandDispatcher.send(command)
+			}
 			return@launch
 		}
 
@@ -172,6 +177,23 @@ class GameClient(
 					position.y = command.y
 					send(position)
 				}
+				is ServerMessageCommand -> {
+					when (command.action) {
+						ServerMessageCommand.Action.REJECTED -> {
+							val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
+							message.text = "Server is full"
+							send(message)
+							dispose()
+						}
+						ServerMessageCommand.Action.SHUTDOWN -> {
+							val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
+							message.text = "Server is shutting down"
+							send(message)
+							send(createAsync(Command.Type.RESET_GAME).await() as ResetGameCommand)
+							dispose()
+						}
+					}
+				}
 
 				else -> send(command)
 			}
@@ -183,7 +205,6 @@ class GameClient(
 	 */
 	private fun sendCommands(array: GdxArray<Command>) {
 		try {
-//			log.debug { "Sending ${array.size} commands" }
 			writer?.write(json.toJson(array))
 			writer?.write("\n")
 			writer?.flush()
