@@ -1,16 +1,13 @@
 package no.group15.playmagic.server
 
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.net.Socket
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ktx.async.newSingleThreadAsyncContext
 import ktx.collections.*
 import ktx.json.*
 import ktx.log.*
+import ktx.math.ImmutableVector2
 import no.group15.playmagic.commands.Command
 import no.group15.playmagic.commands.ConfigCommand
 import java.io.IOException
@@ -25,7 +22,7 @@ class ServerClient(
 	val id: Int,
 	private val socket: Socket,
 	private val server: Server,
-	val position: Vector2
+	val spawnPosition: ImmutableVector2
 ) : Disposable {//, CoroutineScope by CoroutineScope(newSingleThreadAsyncContext()) {
 
 	private val writer = socket.outputStream.bufferedWriter()
@@ -38,18 +35,18 @@ class ServerClient(
 	init {
 		sendWelcomeConfig()
 		thread {
-			val time = TimeUtils.nanoTime()
-			debug { "$logMessage Trying to start reading from input stream" }
-			try {
-				while (!reader.ready()) {
-					// Do nothing
-				}
-			} catch (e: IOException) {
-				error { "$logMessage Error while waiting for ready: ${e.message}" }
-				server.removeClient(id)
-				return@thread
-			}
-			debug { "$logMessage Launching receive function (wait time ${"%.3f".format( (TimeUtils.nanoTime() - time) / 1000000000f)} secs)" }
+//			val time = TimeUtils.nanoTime()
+//			debug { "$logMessage Trying to start reading from input stream" }
+//			try {
+//				while (!reader.ready()) {
+//					// Do nothing
+//				}
+//			} catch (e: IOException) {
+//				error { "$logMessage Error while waiting for ready: ${e.message}" }
+//				server.removeClient(id)
+//				return@thread
+//			}
+			debug { "$logMessage Listening for incoming data" }
 			receive()
 		}
 	}
@@ -93,8 +90,8 @@ class ServerClient(
 		// Send id, tick rate, game map, spawn position, etc
 		command.playerId = id
 		command.tickRate = server.config.tickRate
-		command.spawnPosX = position.x
-		command.spawnPosY = position.y
+		command.spawnPosX = spawnPosition.x
+		command.spawnPosY = spawnPosition.y
 		val array = gdxArrayOf<Command>()
 		array.add(command)
 		sendCommands(array)

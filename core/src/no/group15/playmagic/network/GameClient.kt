@@ -204,7 +204,6 @@ class GameClient(
 
 	override fun dispose() {
 		running = false
-		// TODO send disconnect?
 		try { socket?.dispose() } catch (e: Exception) {}
 		try { reader?.close() } catch (e: Exception) {}
 		try { writer?.close() } catch (e: Exception) {}

@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.*
 import kotlinx.coroutines.*
 import ktx.async.*
 import ktx.collections.*
-import ktx.json.*
 import ktx.log.*
 import no.group15.playmagic.commands.Command
 import no.group15.playmagic.commands.RemovePlayerCommand
@@ -134,13 +133,16 @@ class Server(
 	 * Remove client with [id]
 	 */
 	fun removeClient(id: Int) = launch {
-		// TODO return spawn positions?
-		// TODO send RemovePlayerCommand to all clients
 		val client = clients.remove(id)
-		client?.dispose()
-		val array = gdxArrayOf<Command>()
-		array.add(RemovePlayerCommand(id))
-		sendToAll(array)
+		if (client != null) {
+			// Free spawn point
+			gameMap.returnSpawn(client.spawnPosition)
+			client.dispose()
+			val array = gdxArrayOf<Command>()
+			// Command other players to remove the player
+			array.add(RemovePlayerCommand(id))
+			sendToAll(array)
+		}
 	}
 
 	/**
@@ -149,12 +151,12 @@ class Server(
 	private fun spawnPlayers(playerClient: ServerClient) {
 		val newPlayer = gdxArrayOf<Command>()
 		val oldPlayers = gdxArrayOf<Command>()
-		newPlayer.add(SpawnPlayerCommand(playerClient.id, playerClient.position.x, playerClient.position.y))
+		newPlayer.add(SpawnPlayerCommand(playerClient.id, playerClient.spawnPosition.x, playerClient.spawnPosition.y))
 
 		for (client in clients.values()) {
 			if (client.id != playerClient.id) {
 				client.sendCommands(newPlayer)
-				oldPlayers.add(SpawnPlayerCommand(client.id, client.position.x, client.position.y))
+				oldPlayers.add(SpawnPlayerCommand(client.id, client.spawnPosition.x, client.spawnPosition.y))
 			}
 		}
 		log.debug { "Sending spawn commands: ${newPlayer.size} new, ${oldPlayers.size} old" }
