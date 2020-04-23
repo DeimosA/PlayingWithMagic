@@ -3,6 +3,7 @@ package no.group15.playmagic.server
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.net.Socket
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.TimeUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,10 +26,10 @@ class ServerClient(
 	private val socket: Socket,
 	private val server: Server,
 	val position: Vector2
-) : Disposable, CoroutineScope by CoroutineScope(newSingleThreadAsyncContext()) {
+) : Disposable {//, CoroutineScope by CoroutineScope(newSingleThreadAsyncContext()) {
 
 	private val writer = socket.outputStream.bufferedWriter()
-	private val reader = socket.inputStream.bufferedReader()
+	private val reader = socket.inputStream //.bufferedReader()
 	private val json = server.json
 	val receiveQueue = gdxArrayOf<Command>()
 	private val logMessage = "Client $id:"
@@ -37,33 +38,32 @@ class ServerClient(
 	init {
 		sendWelcomeConfig()
 		thread {
-			var count = 0
+			var time = 0L
 			debug { "$logMessage Trying to start reading from input stream" }
-			try {
-				while (!reader.ready()) {
-					count++
-//					delay(1)
-				}
-			} catch (e: IOException) {
-				error { "$logMessage Error while waiting for ready: ${e.message}" }
-				server.removeClient(id)
-				return@thread
-			}
-			debug { "$logMessage Launching receive function (ready loop count $count)" }
+//			try {
+//				while (!reader.ready()) {
+//					time += TimeUtils.nanoTime()
+//				}
+//			} catch (e: IOException) {
+//				error { "$logMessage Error while waiting for ready: ${e.message}" }
+//				server.removeClient(id)
+//				return@thread
+//			}
+			debug { "$logMessage Launching receive function (wait time ${"%.3f".format( time / 1000000000f)} secs)" }
 			receive()
 		}
 	}
 
 	private tailrec fun receive() {
 		try {
-//			debug { "Launching receive on client $id, ready? ${reader.ready()}" }
-			val line = reader.readLine()// ?: return
-			if (line == null) {
+			val line = reader.read()
+			if (line == -1) {
 				error { "$logMessage Reached end of stream" }
 				server.removeClient(id)
 				return
 			} else {
-				handleMessage(line)
+//				handleMessage(line)
+				debug { "Read char: $line" }
 			}
 		} catch (e: IOException) {
 			error { "$logMessage Error while reading from input stream: ${e.message}" }

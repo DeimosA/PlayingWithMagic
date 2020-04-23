@@ -25,7 +25,7 @@ import kotlin.concurrent.thread
 class GameClient(
 	injectContext: Context,
 	config: ClientConfig = ClientConfig()
-) : Disposable, CommandReceiver, CoroutineScope by CoroutineScope(newAsyncContext(2)) {
+) : Disposable, CommandReceiver, CoroutineScope by CoroutineScope(newSingleThreadAsyncContext()) {
 
 	val socket: Socket by lazy {
 		Gdx.net.newClientSocket(Net.Protocol.TCP, config.host, config.port, SocketHints())
@@ -61,7 +61,7 @@ class GameClient(
 			log.info { "Connected to server: ${socket.remoteAddress}" }
 			writer = socket.outputStream.bufferedWriter()
 			reader = socket.inputStream.bufferedReader()
-			launch { receiveCommands() }
+			receiveCommands()
 
 		} catch (e: GdxRuntimeException) {
 			log.error { e.cause?.message ?: "Error opening client socket: ${e.message}" }
@@ -104,22 +104,25 @@ class GameClient(
 	/**
 	 * Listen for incoming message from the server
 	 */
-	private tailrec fun receiveCommands() {
-		try {
-//			log.debug { "Reader ready? ${reader?.ready()}" }
-			val line = reader?.readLine()
-			if (line == null) {
-				log.error { "Reached end of stream" }
-				// TODO connection lost
-				return
-			} else {
-				handleCommands(line)
+	private fun receiveCommands() {
+		thread {
+			while (running) {
+				try {
+					val line = reader?.readLine()
+					if (line == null) {
+						log.error { "Reached end of stream" }
+						running = false
+						// TODO connection lost
+					} else {
+						handleCommands(line)
+					}
+				} catch (e: IOException) {
+					log.error { "Error while reading from input stream: ${e.message}" }
+					running = false
+					// TODO connection lost
+				}
 			}
-		} catch (e: IOException) {
-			log.error { "Error while reading from input stream: ${e.message}" }
-			// TODO connection lost
 		}
-		if (!running) return else receiveCommands()
 	}
 
 	/**
@@ -140,21 +143,21 @@ class GameClient(
 			// Check if we need to process anything locally
 			when (command) {
 				is ConfigCommand -> {
-					// Notify player and pass on command
+					// Pass on command and notify player
+					send(command)
 					id = command.playerId
 					tickRate = command.tickRate
 					log.debug { "Client configured with id $id and tick time ${tickTimeNano / 1000000f} ms" }
 					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
 					message.text = "Connected to server"
 					send(message)
-					send(command)
 				}
 				is SpawnPlayerCommand -> {
-					// Notify player and pass on command
+					// Pass on command and notify player
+					send(command)
 					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
 					message.text = "Player joined"
 					send(message)
-					send(command)
 				}
 				is SendPositionCommand -> {
 					// Convert to position command
