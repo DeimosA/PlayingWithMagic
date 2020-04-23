@@ -102,17 +102,22 @@ class GameClient(
 	}
 
 	/**
-	 * Listen for incoming message
+	 * Listen for incoming message from the server
 	 */
 	private tailrec fun receiveCommands() {
 		try {
 			log.debug { "Reader ready? ${reader?.ready()}" }
-			val line = reader?.readLine() ?: return
-			handleCommands(line)
+			val line = reader?.readLine()
+			if (line == null) {
+				log.error { "Reached end of stream" }
+			} else {
+				handleCommands(line)
+			}
 		} catch (e: IOException) {
+			log.error { "Error while reading from input stream: ${e.message}" }
 			// TODO connection lost
 		}
-		receiveCommands()
+		if (!running) return else receiveCommands()
 	}
 
 	/**

@@ -40,7 +40,7 @@ class ServerClient(
 				count++
 				delay(1)
 			}
-			debug { "Launching receive function, $count" }
+			debug { "Launching receive function for $id, $count" }
 			receive()
 		}
 	}
@@ -55,7 +55,7 @@ class ServerClient(
 				handleMessage(line)
 			}
 		} catch (e: IOException) {
-			error { "Exception while reading from input stream: ${e.message}" }
+			error { "Error while reading from input stream: ${e.message}" }
 			// TODO connection lost?
 		}
 		if (!server.running) return else receive()
