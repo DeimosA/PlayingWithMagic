@@ -6,10 +6,7 @@ import com.badlogic.gdx.net.ServerSocket
 import com.badlogic.gdx.net.ServerSocketHints
 import com.badlogic.gdx.net.Socket
 import com.badlogic.gdx.net.SocketHints
-import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.GdxRuntimeException
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.TimeUtils
+import com.badlogic.gdx.utils.*
 import kotlinx.coroutines.*
 import ktx.async.*
 import ktx.collections.*
@@ -17,6 +14,7 @@ import ktx.json.*
 import ktx.log.*
 import no.group15.playmagic.commands.Command
 import no.group15.playmagic.commands.SpawnPlayerCommand
+import no.group15.playmagic.ecs.GameMap
 import java.lang.Exception
 import kotlin.concurrent.thread
 
@@ -31,6 +29,7 @@ class Server(
 	private val clients = gdxMapOf<Int, ServerClient>()
 	private val log = logger<Server>()
 	val json = Json()
+	private val gameMap = GameMap()
 	private val commandQueue = gdxArrayOf<Command>()
 	private var nextClientId = 1
 		get() = field++
@@ -81,22 +80,15 @@ class Server(
 	}
 
 	private fun serverTick(deltaTime: Float) {
-		// TODO
-		//  -handle incoming commands
-		//  -send commands to other clients
+		// -handle incoming commands
+		// -send commands to other clients
 		launch {
-			sendToAll(commandQueue)
-			commandQueue.clear()
+			for (client in ObjectMap.Values(clients)) {
+//				log.debug { "From ${client.id}, ${client.receiveQueue.size}" }
+				sendToAllExcept(client.id, client.receiveQueue)
+				client.receiveQueue.clear()
+			}
 		}
-	}
-
-	/**
-	 * Handle incoming data
-	 */
-	fun handleMessage(string: String) = launch {
-		val array = json.fromJson<GdxArray<Command>>(string)
-		commandQueue.addAll(array)
-//		log.debug { string }
 	}
 
 	/**
@@ -123,7 +115,7 @@ class Server(
 	private fun acceptClient(socket: Socket) = launch {
 		if (clients.size < config.maxPlayers) {
 			val id = nextClientId
-			val serverClient = ServerClient(id, socket, this@Server)
+			val serverClient = ServerClient(id, socket, this@Server, gameMap.getRandomSpawn())
 			clients[id] = serverClient
 			log.info { "Client with id ${serverClient.id} connected from ${socket.remoteAddress},  Client count: ${clients.size}" }
 			// Notify players
@@ -135,6 +127,14 @@ class Server(
 			// TODO redo reject client with command
 //			ServerClient.rejectClient(socket, json.toJson(Message(0, Message.Type.REJECT, "Server is full")))
 		}
+	}
+
+	/**
+	 * Remove client with [id]
+	 */
+	fun removeClient(id: Int) = launch {
+		val client = clients.remove(id)
+		client?.dispose()
 	}
 
 	/**
@@ -171,17 +171,10 @@ class Server(
 	private fun sendToAllExcept(playerId: Int, array: GdxArray<Command>) {
 		for (client in clients.values()) {
 			if (client.id != playerId) {
+//				log.debug { "From $playerId to ${client.id} , ${array.size}" }
 				client.sendCommands(array)
 			}
 		}
-	}
-
-	/**
-	 * Remove client with [id]
-	 */
-	fun removeClient(id: Int) = launch {
-		val client = clients.remove(id)
-		client?.dispose()
 	}
 
 	override fun dispose() {

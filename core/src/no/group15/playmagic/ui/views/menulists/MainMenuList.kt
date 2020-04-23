@@ -79,12 +79,18 @@ class MainMenuList(
 			Rectangle(boundingBox.x, boundingBox.y + 1 * itemHeight, boundingBox.width, itemHeight),
 			font,
 			"Local multiplayer",
-			alignment
-//			hoverBackground
+			alignment,
+			hoverBackground
 		) {
 			override fun click(x: Float, y: Float) {
 				// TODO show local IP address and lobby
 				// TODO connect to IP dialog and then lobby
+				mainMenu.startGame(
+					NetworkContext(
+						injectContext,
+						ClientConfig(host = "localhost")
+					)
+				)
 			}
 		})
 

@@ -59,8 +59,8 @@ class GameClient(
 		try {
 			socket
 			log.info { "Connected to server: ${socket.remoteAddress}" }
-			reader = socket.inputStream.bufferedReader()
 			writer = socket.outputStream.bufferedWriter()
+			reader = socket.inputStream.bufferedReader()
 			launch { receiveCommands() }
 
 		} catch (e: GdxRuntimeException) {
@@ -102,20 +102,26 @@ class GameClient(
 	}
 
 	/**
-	 * Listen for incoming message
+	 * Listen for incoming message from the server
 	 */
 	private tailrec fun receiveCommands() {
 		try {
-			val line = reader?.readLine() ?: return
-			handleCommands(line)
+			log.debug { "Reader ready? ${reader?.ready()}" }
+			val line = reader?.readLine()
+			if (line == null) {
+				log.error { "Reached end of stream" }
+			} else {
+				handleCommands(line)
+			}
 		} catch (e: IOException) {
+			log.error { "Error while reading from input stream: ${e.message}" }
 			// TODO connection lost
 		}
-		receiveCommands()
+		if (!running) return else receiveCommands()
 	}
 
 	/**
-	 * Handle incoming commands
+	 * Handle incoming commands from the server
 	 */
 	private fun handleCommands(string: String) = launch {
 
@@ -132,21 +138,33 @@ class GameClient(
 			// Check if we need to process anything locally
 			when (command) {
 				is ConfigCommand -> {
+					// Notify player and pass on command
 					id = command.playerId
 					tickRate = command.tickRate
 					log.debug { "Client configured with id $id and tick time ${tickTimeNano / 1000000f} ms" }
 					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
 					message.text = "Connected to server"
 					send(message)
+					send(command)
 				}
 				is SpawnPlayerCommand -> {
+					// Notify player and pass on command
 					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
 					message.text = "Player joined"
 					send(message)
+					send(command)
 				}
+				is SendPositionCommand -> {
+					// Convert to position command
+					val position = createAsync(Command.Type.POSITION).await() as PositionCommand
+					position.playerId = command.playerId
+					position.x = command.x
+					position.y = command.y
+					send(position)
+				}
+
+				else -> send(command)
 			}
-			// Send commands to dispatcher
-			send(command)
 		}
 	}
 
@@ -155,11 +173,13 @@ class GameClient(
 	 */
 	private fun sendCommands(array: GdxArray<Command>) {
 		try {
+//			log.debug { "Sending ${array.size} commands" }
 			writer?.write(json.toJson(array))
 			writer?.newLine()
 			writer?.flush()
 		} catch (e: IOException) {
 			// TODO close connection?
+			log.error { "Error sending commands to server: ${e.message}" }
 		}
 	}
 

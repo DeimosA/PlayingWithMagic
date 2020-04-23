@@ -119,7 +119,7 @@ class GameMap {
 	private val d: TileType = TileType.DESTRUCTIBLE
 	private val s: TileType = TileType.SPAWN
 
-	val mapMatrix: Array<Array<TileType>> = arrayOf(
+	private val mapMatrix: Array<Array<TileType>> = arrayOf(
 		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x),
 		arrayOf(x, s, o, o, o, o, o, o, o, o, o, o, s, x),
 		arrayOf(x, o, x, x, d, x, o, o, x, d, x, x, o, x),
@@ -142,7 +142,8 @@ class GameMap {
 				}
 			}
 		}
-		array.random()
+		array.shrink()
+		array.shuffle()
 		array
 	}
 
