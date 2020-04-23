@@ -10,7 +10,9 @@ import ktx.freetype.*
 enum class GameAssets(override val desc: AssetDescriptor<out Any>) : AssetDesc {
 	BADLOGIC(AssetDescriptor("badlogic.jpg", Texture::class.java)),
 	WALL(AssetDescriptor("wall.png", Texture::class.java)),
-	DESTRUCTIBLE_WALL(AssetDescriptor("destructible_wall.png", Texture::class.java))
+	DESTRUCTIBLE_WALL(AssetDescriptor("destructible_wall.png", Texture::class.java)),
+	BOMB(AssetDescriptor("bomb.png", Texture::class.java)),
+	EXPLOSION(AssetDescriptor("explosion.png", Texture::class.java))
 }
 
 enum class VirtualStickAssets(override val desc: AssetDescriptor<out Any>, override val region: Region) : AssetDescRegion {
