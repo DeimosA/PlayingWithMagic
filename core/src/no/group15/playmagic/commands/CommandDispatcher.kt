@@ -29,7 +29,7 @@ class CommandDispatcher : Disposable {
 			Command.Type.MOVE -> moveCommandPool.obtain()
 			Command.Type.POSITION -> PositionCommand()
 			Command.Type.SEND_POSITION -> SendPositionCommand()
-			Command.Type.DROP_BOMB -> null
+			Command.Type.DROP_BOMB -> DropBombCommand()
 		}
 	}
 
