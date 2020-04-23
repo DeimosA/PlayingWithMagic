@@ -21,6 +21,7 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	engine.addSystem(MovementSystem(1, injectContext, gameMap))
 	engine.addSystem(CollisionSystem(2))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
+	engine.addSystem(AnimationSystem(10))
 
 	return engine
 }

@@ -27,8 +27,26 @@ class EntityFactory {
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
 			val movementComponent : MovementComponent = engine.createComponent(MovementComponent::class.java)
+			val animationComponent : AnimationComponent = engine.createComponent(AnimationComponent::class.java)
+			val stateComponent : StateComponent = engine.createComponent(StateComponent::class.java)
+			val sheet = assetManager.get<Texture>(GameAssets.PLAYER.desc.fileName)
 
-			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BADLOGIC.desc.fileName))
+			animationComponent.src = TextureRegion.split(sheet,
+				sheet.width / 13, sheet.height / 16
+			)
+			stateComponent.stateMap = mapOf( "IDLE" to 0, "DROPPING" to 2,
+				"WALKING_LEFT" to 9, "WALKING_RIGHT" to 1,
+				"DEAD_LEFT" to 15,"DEAD_RIGHT" to 7
+			)
+			stateComponent.setNewState("IDLE")
+			stateComponent.defaultState = "IDLE"
+
+			animationComponent.stateFrameCount = arrayOf(
+				13, 8, 2, 0, 0, 6, 4, 7, 13, 8, 2, 0, 0, 6, 4, 7
+			)
+
+			textureComponent.src = animationComponent.src[0][0]
+
 			transformComponent.boundingBox.setSize(0.9f)
 			transformComponent.boundingBox.setCenter(transformComponent.position)
 
@@ -36,6 +54,8 @@ class EntityFactory {
 			player.add(movementComponent)
 			player.add(transformComponent)
 			player.add(textureComponent)
+			player.add(animationComponent)
+			player.add(stateComponent)
 
 			engine.addEntity(player)
 			return player
