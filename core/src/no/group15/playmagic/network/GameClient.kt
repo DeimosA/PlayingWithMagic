@@ -34,6 +34,7 @@ class GameClient(
 	private val json = Json()
 	private val commandDispatcher: CommandDispatcher = injectContext.inject()
 	private val commandQueue = gdxArrayOf<Command>()
+	private var latestPosition: SendPositionCommand? = null
 
 	private var running = false
 	private var tickRate = 1f
@@ -95,6 +96,7 @@ class GameClient(
 	}
 
 	private fun clientTick(deltaTime: Float) = launch {
+		if (latestPosition != null) commandQueue.add(latestPosition)
 		if (commandQueue.size > 0) {
 			// Send command array
 			sendCommands(commandQueue)
@@ -150,6 +152,7 @@ class GameClient(
 					send(command)
 					id = command.playerId
 					tickRate = command.tickRate
+					latestPosition = SendPositionCommand(command.spawnPosX, command.spawnPosY, command.playerId)
 					log.debug { "Client configured with id $id and tick time ${tickTimeNano / 1000000f} ms" }
 					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
 					message.text = "Connected to server"
@@ -219,7 +222,12 @@ class GameClient(
 	 */
 	override fun receive(command: Command) {
 		launch {
-			commandQueue.add(command)
+			when (command) {
+				is SendPositionCommand -> {
+					latestPosition = command
+				}
+				else -> commandQueue.add(command)
+			}
 		}
 	}
 
