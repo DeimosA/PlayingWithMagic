@@ -24,12 +24,10 @@ import kotlin.concurrent.thread
 
 class GameClient(
 	injectContext: Context,
-	config: ClientConfig = ClientConfig()
+	private val config: ClientConfig = ClientConfig()
 ) : Disposable, CommandReceiver, CoroutineScope by CoroutineScope(newSingleThreadAsyncContext()) {
 
-	val socket: Socket by lazy {
-		Gdx.net.newClientSocket(Net.Protocol.TCP, config.host, config.port, SocketHints())
-	}
+	private var socket: Socket? = null
 	private val log = logger<GameClient>()
 	private var reader: BufferedReader? = null
 	private var writer: BufferedWriter? = null
@@ -57,10 +55,10 @@ class GameClient(
 	 */
 	fun connect() = launch {
 		try {
-			socket
-			log.info { "Connected to server: ${socket.remoteAddress}" }
-			writer = socket.outputStream.bufferedWriter()
-			reader = socket.inputStream.bufferedReader()
+			socket = Gdx.net.newClientSocket(Net.Protocol.TCP, config.host, config.port, SocketHints())
+			log.info { "Connected to server: ${socket?.remoteAddress}" }
+			writer = socket?.outputStream?.bufferedWriter()
+			reader = socket?.inputStream?.bufferedReader()
 			receiveCommands()
 
 		} catch (e: GdxRuntimeException) {
@@ -207,7 +205,7 @@ class GameClient(
 	override fun dispose() {
 		running = false
 		// TODO send disconnect?
-		try { socket.dispose() } catch (e: Exception) {}
+		try { socket?.dispose() } catch (e: Exception) {}
 		try { reader?.close() } catch (e: Exception) {}
 		try { writer?.close() } catch (e: Exception) {}
 	}
