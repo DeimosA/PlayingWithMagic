@@ -3,7 +3,6 @@ package no.group15.playmagic.ecs.systems
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.Vector2
 import ktx.ashley.*
@@ -13,12 +12,11 @@ import no.group15.playmagic.commands.*
 import no.group15.playmagic.ecs.GameMap
 import no.group15.playmagic.ecs.components.PlayerComponent
 import no.group15.playmagic.ecs.components.TransformComponent
-import no.group15.playmagic.ecs.entities.EntityFactory
 
 
 class MovementSystem(
 	priority: Int,
-	private val injectContext: Context,
+	injectContext: Context,
 	private val gameMap: GameMap
 ) : EntitySystem(
 	priority
@@ -40,8 +38,6 @@ class MovementSystem(
 		// Register for commands
 		Command.Type.MOVE.receiver = this
 		Command.Type.POSITION.receiver = this
-		Command.Type.CONFIG.receiver = this
-		Command.Type.SPAWN_PLAYER.receiver = this
 	}
 
 	override fun update(deltaTime: Float) {
@@ -115,24 +111,7 @@ class MovementSystem(
 				moveCommand = command
 			}
 			is PositionCommand -> {
-//				debug { "Position command: ${command.playerId}" }
 				positionCommands[command.playerId] = command
-			}
-			is ConfigCommand -> {
-				// Spawn local player entity here
-				val entity = EntityFactory.makeEntity(injectContext.inject(), engine as PooledEngine, EntityFactory.Type.PLAYER)
-				val player = playerMapper.get(entity)
-				player.isLocalPlayer = true
-				player.playerId = command.playerId
-				transformMapper.get(entity).setPosition(command.spawnPosX, command.spawnPosY)
-			}
-			is SpawnPlayerCommand -> {
-				// Spawn other player
-				val entity = EntityFactory.makeEntity(injectContext.inject(), engine as PooledEngine, EntityFactory.Type.PLAYER)
-				val player = playerMapper.get(entity)
-				player.isLocalPlayer = false
-				player.playerId = command.playerId
-				transformMapper.get(entity).setPosition(command.posX, command.posY)
 			}
 		}
 	}

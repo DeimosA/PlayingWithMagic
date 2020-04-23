@@ -13,6 +13,7 @@ import ktx.collections.*
 import ktx.json.*
 import ktx.log.*
 import no.group15.playmagic.commands.Command
+import no.group15.playmagic.commands.RemovePlayerCommand
 import no.group15.playmagic.commands.SpawnPlayerCommand
 import no.group15.playmagic.ecs.GameMap
 import java.lang.Exception
@@ -50,11 +51,8 @@ class Server(
 			return@launch
 		}
 
-		// Accept incoming connections on its own thread
-		val acceptExecutor = newSingleThreadAsyncContext()
-		launch(acceptExecutor) {
-			acceptSocket()
-		}
+		// Start accepting incoming connections
+		acceptSocket()
 
 		thread {
 			val nanosPerSec = 1000000000L
@@ -94,19 +92,22 @@ class Server(
 	/**
 	 * Listen for incoming connection
 	 */
-	private tailrec fun acceptSocket() {
-		try {
-			if (socket == null) {
-				log.error { "Inconsistent state?: running is $running wile socket is $socket" }
-				return
-			}
-			val clientSocket = socket?.accept(SocketHints()) ?: return
-			acceptClient(clientSocket)
+	private fun acceptSocket() {
+		thread {
+			while (running) {
+				try {
+					if (socket == null) {
+						log.error { "Inconsistent state?: running is $running wile socket is $socket" }
+						break
+					}
+					val clientSocket = socket?.accept(SocketHints()) ?: break
+					acceptClient(clientSocket)
 
-		} catch (e: GdxRuntimeException) {
-			log.error { e.cause?.message ?: "Error while accepting client: ${e.message}" }
+				} catch (e: GdxRuntimeException) {
+					log.error { e.cause?.message ?: "Error while accepting client: ${e.message}" }
+				}
+			}
 		}
-		if (!running) return else acceptSocket()
 	}
 
 	/**
@@ -133,8 +134,13 @@ class Server(
 	 * Remove client with [id]
 	 */
 	fun removeClient(id: Int) = launch {
+		// TODO return spawn positions?
+		// TODO send RemovePlayerCommand to all clients
 		val client = clients.remove(id)
 		client?.dispose()
+		val array = gdxArrayOf<Command>()
+		array.add(RemovePlayerCommand(id))
+		sendToAll(array)
 	}
 
 	/**

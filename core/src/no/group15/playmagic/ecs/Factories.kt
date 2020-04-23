@@ -21,14 +21,15 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	gameMap.makeEntities(engine, assetManager)
 
 	// Add systems
-	engine.addSystem(MovementSystem(1, injectContext, gameMap))
+	engine.addSystem(EntityManagementSystem(0, injectContext))
+  engine.addSystem(MovementSystem(1, injectContext, gameMap))
 	engine.addSystem(CollisionSystem(2))
+  engine.addSystem(TimerSystem(4))
+	engine.addSystem(BombExploderSystem(5, assetManager))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
-	engine.addSystem(TimerSystem(5)) // TODO chose appropriate priority
-	engine.addSystem(BombExploderSystem(5, assetManager)) // TODO chose appropriate priority
 
-	//TODO where I should put this line?
-	engine.getSystem(TimerSystem::class.java).registerListener(engine.getSystem(BombExploderSystem::class.java))
+  // Register signals
+  engine.getSystem(TimerSystem::class.java).registerListener(engine.getSystem(BombExploderSystem::class.java))
 
 	return engine
 }
