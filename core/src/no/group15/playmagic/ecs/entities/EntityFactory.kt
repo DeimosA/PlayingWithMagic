@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Vector2
 import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.utils.assets.GameAssets
 
@@ -69,6 +70,7 @@ class EntityFactory {
 			val exploderComponent: ExploderComponent = engine.createComponent(ExploderComponent::class.java)
 			val timerComponent: TimerComponent = engine.createComponent(TimerComponent::class.java)
 
+			transformComponent.boundingBox.setSize(.5f)
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BOMB.desc.fileName))
 
 			bomb.add(collisionComponent)
