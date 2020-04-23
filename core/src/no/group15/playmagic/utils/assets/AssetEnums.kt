@@ -9,7 +9,6 @@ import ktx.freetype.*
 
 enum class GameAssets(override val desc: AssetDescriptor<out Any>) : AssetDesc {
 	BADLOGIC(AssetDescriptor("badlogic.jpg", Texture::class.java)),
-	// Should be a TextureAtlas, but the texture packer did not work for me
 	PLAYER(AssetDescriptor("characterSheet.png", Texture::class.java)),
 	WALL(AssetDescriptor("wall.png", Texture::class.java)),
 	DESTRUCTIBLE_WALL(AssetDescriptor("destructible_wall.png", Texture::class.java))
