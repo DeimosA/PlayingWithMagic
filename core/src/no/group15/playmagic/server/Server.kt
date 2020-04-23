@@ -13,6 +13,7 @@ import ktx.collections.*
 import ktx.json.*
 import ktx.log.*
 import no.group15.playmagic.commands.Command
+import no.group15.playmagic.commands.RemovePlayerCommand
 import no.group15.playmagic.commands.SpawnPlayerCommand
 import no.group15.playmagic.ecs.GameMap
 import java.lang.Exception
@@ -137,6 +138,9 @@ class Server(
 		// TODO send RemovePlayerCommand to all clients
 		val client = clients.remove(id)
 		client?.dispose()
+		val array = gdxArrayOf<Command>()
+		array.add(RemovePlayerCommand(id))
+		sendToAll(array)
 	}
 
 	/**

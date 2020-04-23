@@ -24,7 +24,7 @@ class CommandDispatcher : Disposable {
 			Command.Type.CONFIG -> ConfigCommand()
 			Command.Type.MESSAGE -> messageCommandPool.obtain()
 			Command.Type.SPAWN_PLAYER -> SpawnPlayerCommand()
-			Command.Type.REMOVE_PLAYER -> null
+			Command.Type.REMOVE_PLAYER -> RemovePlayerCommand()
 			Command.Type.RESET_MAP -> null
 			Command.Type.MOVE -> moveCommandPool.obtain()
 			Command.Type.POSITION -> PositionCommand()

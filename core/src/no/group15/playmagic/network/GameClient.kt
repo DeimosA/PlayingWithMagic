@@ -159,6 +159,13 @@ class GameClient(
 					message.text = "Player joined"
 					send(message)
 				}
+				is RemovePlayerCommand -> {
+					// Pass on command and notify player
+					send(command)
+					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
+					message.text = "Player disconnected"
+					send(message)
+				}
 				is SendPositionCommand -> {
 					// Convert to position command
 					val position = createAsync(Command.Type.POSITION).await() as PositionCommand
