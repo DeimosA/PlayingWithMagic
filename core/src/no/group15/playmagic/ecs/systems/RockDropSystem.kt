@@ -7,7 +7,6 @@ import ktx.ashley.has
 import ktx.ashley.mapperFor
 import ktx.ashley.remove
 import no.group15.playmagic.ecs.components.DestructibleComponent
-import no.group15.playmagic.ecs.engineFactory
 
 import no.group15.playmagic.events.RockDestructionEvent
 
