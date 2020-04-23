@@ -65,7 +65,8 @@ class MainMenuList(
 				try {
 					val context = NetworkContext(injectContext)
 					// Attempt to connect by initializing socket
-					context.client.socket
+					// TODO find a better way of checking if the server is online
+//					context.client.socket
 					mainMenu.startGame(context)
 				} catch (e: GdxRuntimeException) {
 					// If connection fails, show error

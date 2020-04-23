@@ -5,7 +5,9 @@ import com.badlogic.gdx.InputAdapter
 import ktx.log.debug
 import no.group15.playmagic.commands.Command
 import no.group15.playmagic.commands.CommandDispatcher
+import no.group15.playmagic.commands.DropBombCommand
 import no.group15.playmagic.commands.MoveCommand
+import no.group15.playmagic.ecs.entities.EntityFactory
 
 
 class KeyboardController(private val commandDispatcher: CommandDispatcher) : InputAdapter() {
@@ -55,6 +57,7 @@ class KeyboardController(private val commandDispatcher: CommandDispatcher) : Inp
 		return when (keycode) {
 			Input.Keys.SPACE -> {
 				// TODO Drop bomb!
+				commandDispatcher.send(commandDispatcher.createCommand(Command.Type.DROP_BOMB) as DropBombCommand)
 				debug { "plz drop bomb!" }
 				true
 			}
