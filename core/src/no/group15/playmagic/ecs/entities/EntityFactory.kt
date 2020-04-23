@@ -26,14 +26,14 @@ class EntityFactory {
 			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
-			val movementComponent : MovementComponent = engine.createComponent(MovementComponent::class.java)
+			val playerComponent : PlayerComponent = engine.createComponent(PlayerComponent::class.java)
 
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BADLOGIC.desc.fileName))
 			transformComponent.boundingBox.setSize(0.9f)
 			transformComponent.boundingBox.setCenter(transformComponent.position)
 
 			player.add(collisionComponent)
-			player.add(movementComponent)
+			player.add(playerComponent)
 			player.add(transformComponent)
 			player.add(textureComponent)
 
