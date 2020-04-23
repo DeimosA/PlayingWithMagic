@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.collections.*
 import ktx.graphics.use
 import ktx.inject.Context
+import no.group15.playmagic.ui.views.widgets.ButtonsWidget
 import no.group15.playmagic.ui.views.widgets.MessagesWidget
 import no.group15.playmagic.ui.views.widgets.VirtualStickWidget
 import no.group15.playmagic.ui.views.widgets.Widget
@@ -35,9 +36,16 @@ class GameView(injectContext: Context) {
 			170f,
 			injectContext.inject()
 		)
+		val buttons = ButtonsWidget(
+			viewport,
+			textureRegionFactory(assetManager, VirtualStickAssets.HANDLE_REGION),
+			170f,
+			injectContext.inject()
+		)
 //		font = BitmapFont()
 //		stick.stickValueFont = font
 		widgets.add(stick)
+		widgets.add(buttons)
 		widgets.add(MessagesWidget(
 			33f,
 			assetManager.get(FontAssets.DRAGONFLY_25.desc.fileName)
