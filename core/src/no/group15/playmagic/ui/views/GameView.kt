@@ -1,7 +1,9 @@
 package no.group15.playmagic.ui.views
 
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.collections.*
 import ktx.graphics.use
@@ -36,7 +38,7 @@ class GameView(injectContext: Context) {
 		widgets.add(stick)
 		widgets.add(ButtonsWidget(
 			viewport,
-			textureRegionFactory(assetManager, VirtualStickAssets.HANDLE_REGION),
+			TextureRegion(assetManager.get<Texture>(GameAssets.BOMB.desc.fileName)),
 			170f,
 			injectContext
 		))
