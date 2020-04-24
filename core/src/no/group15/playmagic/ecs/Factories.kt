@@ -21,17 +21,15 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	val assetManager: AssetManager = injectContext.inject()
 	val batch: SpriteBatch = injectContext.inject()
 	val engine = PooledEngine()
-
 	val gameMap = GameMap()
-	gameMap.makeEntities(engine, assetManager)
 
 	// Add systems
-	engine.addSystem(EntityManagementSystem(0, injectContext))
+	engine.addSystem(EntityManagementSystem(0, injectContext, gameMap))
 	engine.addSystem(MovementSystem(1, injectContext, gameMap))
 	engine.addSystem(CollisionSystem(2))
 	engine.addSystem(TimerSystem(4))
 	engine.addSystem(BombExploderSystem(5, assetManager))
-	engine.addSystem(HealthSystem(5))
+	engine.addSystem(HealthSystem(6))
 	engine.addSystem(AnimationSystem(9))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
 

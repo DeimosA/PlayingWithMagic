@@ -17,8 +17,13 @@ open class PositionCommand : Command {
 	}
 }
 
-class SendPositionCommand : PositionCommand() {
+class SendPositionCommand() : PositionCommand() {
 
 	override val type = Command.Type.SEND_POSITION
 
+	constructor(x: Float, y: Float, id: Int): this() {
+		this.x = x
+		this.y = y
+		playerId = id
+	}
 }

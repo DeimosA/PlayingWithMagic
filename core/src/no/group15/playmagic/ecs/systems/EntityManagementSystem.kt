@@ -8,6 +8,7 @@ import com.badlogic.ashley.utils.ImmutableArray
 import ktx.ashley.*
 import ktx.inject.*
 import no.group15.playmagic.commands.*
+import no.group15.playmagic.ecs.GameMap
 import no.group15.playmagic.ecs.components.PlayerComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.entities.EntityFactory
@@ -18,7 +19,8 @@ import no.group15.playmagic.ecs.entities.EntityFactory
  */
 class EntityManagementSystem(
 	priority: Int,
-	private val injectContext: Context
+	private val injectContext: Context,
+	private val gameMap: GameMap
 ) : EntitySystem(
 	priority
 ), CommandReceiver {
@@ -37,11 +39,14 @@ class EntityManagementSystem(
 		Command.Type.CONFIG.receiver = this
 		Command.Type.SPAWN_PLAYER.receiver = this
 		Command.Type.REMOVE_PLAYER.receiver = this
+		Command.Type.RESET_GAME.receiver = this
 	}
 
 	override fun receive(command: Command) {
 		when (command) {
 			is ConfigCommand -> {
+				// Spawn map
+				gameMap.makeEntities(engine as PooledEngine, injectContext.inject())
 				// Spawn local player entity
 				val entity = EntityFactory.makeEntity(injectContext.inject(), engine as PooledEngine, EntityFactory.Type.PLAYER)
 				val player = playerMapper.get(entity)
@@ -64,6 +69,9 @@ class EntityManagementSystem(
 						engine.removeEntity(it)
 					}
 				}
+			}
+			is ResetGameCommand -> {
+				engine.removeAllEntities()
 			}
 		}
 	}

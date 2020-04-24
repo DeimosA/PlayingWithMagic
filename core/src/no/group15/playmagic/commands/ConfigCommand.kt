@@ -11,7 +11,7 @@ class ConfigCommand : Command {
 	var tickRate = 1f
 	var spawnPosX = 0f
 	var spawnPosY = 0f
-	var gameMap: Array<Array<GameMap.TileType>>? = null
+//	var gameMap: Array<Array<GameMap.TileType>>? = null
 
 
 	override fun free() {

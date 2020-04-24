@@ -14,6 +14,7 @@ import ktx.json.*
 import ktx.log.*
 import no.group15.playmagic.commands.Command
 import no.group15.playmagic.commands.RemovePlayerCommand
+import no.group15.playmagic.commands.ServerMessageCommand
 import no.group15.playmagic.commands.SpawnPlayerCommand
 import no.group15.playmagic.ecs.GameMap
 import java.lang.Exception
@@ -31,7 +32,6 @@ class Server(
 	private val log = logger<Server>()
 	val json = Json()
 	private val gameMap = GameMap()
-	private val commandQueue = gdxArrayOf<Command>()
 	private var nextClientId = 1
 		get() = field++
 
@@ -82,7 +82,6 @@ class Server(
 		// -send commands to other clients
 		launch {
 			for (client in ObjectMap.Values(clients)) {
-//				log.debug { "From ${client.id}, ${client.receiveQueue.size}" }
 				sendToAllExcept(client.id, client.receiveQueue)
 				client.receiveQueue.clear()
 			}
@@ -125,8 +124,8 @@ class Server(
 		} else {
 			// Reject client
 			log.debug { "Client tried to connect while server was full" }
-			// TODO redo reject client with command
-//			ServerClient.rejectClient(socket, json.toJson(Message(0, Message.Type.REJECT, "Server is full")))
+			val array = arrayOfCommands(ServerMessageCommand(ServerMessageCommand.Action.REJECTED))
+			ServerClient.rejectClient(socket, json.toJson(array))
 		}
 	}
 
@@ -134,27 +133,29 @@ class Server(
 	 * Remove client with [id]
 	 */
 	fun removeClient(id: Int) = launch {
-		// TODO return spawn positions?
-		// TODO send RemovePlayerCommand to all clients
 		val client = clients.remove(id)
-		client?.dispose()
-		val array = gdxArrayOf<Command>()
-		array.add(RemovePlayerCommand(id))
-		sendToAll(array)
+		if (client != null) {
+			// Free spawn point
+			gameMap.returnSpawn(client.spawnPosition)
+			client.dispose()
+			// Command other players to remove the player
+			sendToAll(arrayOfCommands(RemovePlayerCommand(id)))
+		}
 	}
 
 	/**
 	 * Spawn [playerClient] on all players and all players on [playerClient]
 	 */
 	private fun spawnPlayers(playerClient: ServerClient) {
-		val newPlayer = gdxArrayOf<Command>()
-		val oldPlayers = gdxArrayOf<Command>()
-		newPlayer.add(SpawnPlayerCommand(playerClient.id, playerClient.position.x, playerClient.position.y))
+		val newPlayer = arrayOfCommands(
+			SpawnPlayerCommand(playerClient.id, playerClient.spawnPosition.x, playerClient.spawnPosition.y)
+		)
+		val oldPlayers = arrayOfCommands()
 
 		for (client in clients.values()) {
 			if (client.id != playerClient.id) {
 				client.sendCommands(newPlayer)
-				oldPlayers.add(SpawnPlayerCommand(client.id, client.position.x, client.position.y))
+				oldPlayers.add(SpawnPlayerCommand(client.id, client.spawnPosition.x, client.spawnPosition.y))
 			}
 		}
 		log.debug { "Sending spawn commands: ${newPlayer.size} new, ${oldPlayers.size} old" }
@@ -183,10 +184,24 @@ class Server(
 		}
 	}
 
+	/**
+	 * Utility function for creating command array
+	 */
+	fun arrayOfCommands(vararg commands: Command): GdxArray<Command> {
+		val array = gdxArrayOf<Command>()
+		for (command in commands) {
+			array.add(command)
+		}
+		return array
+	}
+
 	override fun dispose() {
 		running = false
 
 		launch {
+			// Send goodbye message to all clients
+			sendToAll(arrayOfCommands(ServerMessageCommand(ServerMessageCommand.Action.SHUTDOWN)))
+			delay(100)
 			// Close connections and cleanup
 			try { socket?.dispose() } catch (e: Exception) {}
 			clients.values().forEach {

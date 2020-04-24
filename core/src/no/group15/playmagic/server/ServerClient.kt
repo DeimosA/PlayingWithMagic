@@ -1,16 +1,12 @@
 package no.group15.playmagic.server
 
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.net.Socket
 import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.TimeUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ktx.async.newSingleThreadAsyncContext
 import ktx.collections.*
 import ktx.json.*
 import ktx.log.*
+import ktx.math.ImmutableVector2
 import no.group15.playmagic.commands.Command
 import no.group15.playmagic.commands.ConfigCommand
 import java.io.IOException
@@ -25,7 +21,7 @@ class ServerClient(
 	val id: Int,
 	private val socket: Socket,
 	private val server: Server,
-	val position: Vector2
+	val spawnPosition: ImmutableVector2
 ) : Disposable {//, CoroutineScope by CoroutineScope(newSingleThreadAsyncContext()) {
 
 	private val writer = socket.outputStream.bufferedWriter()
@@ -38,18 +34,18 @@ class ServerClient(
 	init {
 		sendWelcomeConfig()
 		thread {
-			val time = TimeUtils.nanoTime()
-			debug { "$logMessage Trying to start reading from input stream" }
-			try {
-				while (!reader.ready()) {
-					// Do nothing
-				}
-			} catch (e: IOException) {
-				error { "$logMessage Error while waiting for ready: ${e.message}" }
-				server.removeClient(id)
-				return@thread
-			}
-			debug { "$logMessage Launching receive function (wait time ${"%.3f".format( (TimeUtils.nanoTime() - time) / 1000000000f)} secs)" }
+//			val time = TimeUtils.nanoTime()
+//			debug { "$logMessage Trying to start reading from input stream" }
+//			try {
+//				while (!reader.ready()) {
+//					// Do nothing
+//				}
+//			} catch (e: IOException) {
+//				error { "$logMessage Error while waiting for ready: ${e.message}" }
+//				server.removeClient(id)
+//				return@thread
+//			}
+			debug { "$logMessage Listening for incoming data" }
 			receive()
 		}
 	}
@@ -73,7 +69,6 @@ class ServerClient(
 		if (!server.running) return else receive()
 	}
 
-	private var receivedFirstData = false
 	/**
 	 * Handle incoming data
 	 */
@@ -81,10 +76,6 @@ class ServerClient(
 		val array = json.fromJson<GdxArray<Command>>(string)
 		server.launch {
 			receiveQueue.addAll(array)
-			if (!receivedFirstData) {
-				debug { "$logMessage Received first data: ${array.size} commands" }
-				receivedFirstData = true
-			}
 		}
 	}
 
@@ -93,11 +84,9 @@ class ServerClient(
 		// Send id, tick rate, game map, spawn position, etc
 		command.playerId = id
 		command.tickRate = server.config.tickRate
-		command.spawnPosX = position.x
-		command.spawnPosY = position.y
-		val array = gdxArrayOf<Command>()
-		array.add(command)
-		sendCommands(array)
+		command.spawnPosX = spawnPosition.x
+		command.spawnPosY = spawnPosition.y
+		sendCommands(server.arrayOfCommands(command))
 	}
 
 	fun sendCommands(array: GdxArray<Command>) {
@@ -113,7 +102,6 @@ class ServerClient(
 	}
 
 	override fun dispose() {
-		// TODO send goodbye message?
 		try { socket.dispose() } catch (e: Exception) {}
 		try { reader.close() } catch (e: Exception) {}
 		try { writer.close() } catch (e: Exception) {}
