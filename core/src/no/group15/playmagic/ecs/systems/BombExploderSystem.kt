@@ -64,7 +64,7 @@ class BombExploderSystem(
 
 			// create new timer
 			val newTimer = (engine as PooledEngine).createComponent(TimerComponent::class.java)
-			newTimer.timeLeft = 3f
+			newTimer.timeLeft = 1.5f
 
 			event.bomb.add(newTimer)
 		}
