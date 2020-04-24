@@ -32,6 +32,7 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	engine.addSystem(TimerSystem(4))
 	engine.addSystem(BombExploderSystem(5, assetManager))
 	engine.addSystem(HealthSystem(5))
+	engine.addSystem(AnimationSystem(9))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
 
 	// Register signals
