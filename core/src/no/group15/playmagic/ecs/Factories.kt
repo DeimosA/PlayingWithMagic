@@ -45,12 +45,7 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	engine.getSystem(CollisionSystem::class.java).registerListener(
 		allOf(DestructibleComponent::class).get(),
 		allOf(ExploderComponent::class).get(),
-		Listener<CollisionEvent>() {
-			_, event ->
-			val destructible = mapperFor<DestructibleComponent>()
-			val rock = if (event.entity1.has(destructible)) event.entity1 else event.entity2
-			engine.removeEntity(rock)
-		}
+		engine.getSystem(MovementSystem::class.java)
 	)
 
 	return engine

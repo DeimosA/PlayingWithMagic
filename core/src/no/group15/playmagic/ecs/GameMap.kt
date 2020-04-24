@@ -56,6 +56,14 @@ class GameMap {
 	}
 
 
+
+	fun setEmptyTile(x: Float, y: Float) {
+		val x = toMatrixCoordX(x)
+		val y = toMatrixCoordY(y)
+		mapMatrix[y][x] = TileType.EMPTY
+	}
+
+
 	// --- IMPLEMENTATION ---
 
 
