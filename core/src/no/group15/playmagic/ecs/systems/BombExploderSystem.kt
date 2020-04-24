@@ -38,6 +38,7 @@ class BombExploderSystem(
 	private val transformMapper = mapperFor<TransformComponent>()
 	private val exploderMapper = mapperFor<ExploderComponent>()
 	private val playerMapper = mapperFor<PlayerComponent>()
+	private val collisionMapper = mapperFor<CollisionComponent>()
 
 
 	override fun addedToEngine (engine: Engine) {
@@ -50,7 +51,7 @@ class BombExploderSystem(
 
 	override fun receive(signal: Signal<BombTimeoutEvent>, event: BombTimeoutEvent) {
 		val exploder = exploderMapper[event.bomb]
-		// explosion in ended
+		// explosion is over
 		if (exploder.isExploded) {
 			engine.removeEntity(event.bomb)
 		} else {
@@ -61,6 +62,13 @@ class BombExploderSystem(
 			transform.boundingBox.setSize(1.2f, 1.2f)
 			transform.boundingBox.setCenter(transform.position)
 			exploder.isExploded = true
+
+			// explosion must be detected as new collision
+			val collision = collisionMapper[event.bomb]
+			for (entity in collision.collidingWith) {
+				collisionMapper[entity].reset()
+			}
+			collision.reset()
 
 			// create new timer
 			val newTimer = (engine as PooledEngine).createComponent(TimerComponent::class.java)
