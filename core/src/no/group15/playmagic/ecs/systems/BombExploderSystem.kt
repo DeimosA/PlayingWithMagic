@@ -7,7 +7,7 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.TimeUtils
 import ktx.ashley.*
 import ktx.inject.Context
 import no.group15.playmagic.commandstream.Command
@@ -34,10 +34,10 @@ class BombExploderSystem(
 	private val commandDispatcher: CommandDispatcher = injectContext.inject()
 
 	private lateinit var entities: ImmutableArray<Entity>
-	private val texture = mapperFor<TextureComponent>()
-	private val transform = mapperFor<TransformComponent>()
-	private val exploder = mapperFor<ExploderComponent>()
-	private val player = mapperFor<PlayerComponent>()
+	private val textureMapper = mapperFor<TextureComponent>()
+	private val transformMapper = mapperFor<TransformComponent>()
+	private val exploderMapper = mapperFor<ExploderComponent>()
+	private val playerMapper = mapperFor<PlayerComponent>()
 
 
 	override fun addedToEngine (engine: Engine) {
@@ -49,18 +49,18 @@ class BombExploderSystem(
 	}
 
 	override fun receive(signal: Signal<BombTimeoutEvent>, event: BombTimeoutEvent) {
+		val exploder = exploderMapper[event.bomb]
 		// explosion in ended
-		if (event.bomb[exploder]!!.isExploded) {
+		if (exploder.isExploded) {
 			engine.removeEntity(event.bomb)
-		}
-		// bomb must explode
-		else {
-			event.bomb[texture]!!.src = TextureRegion(assetManager.get<Texture>(GameAssets.EXPLOSION.desc.fileName))
+		} else {
+			// bomb must explode
+			textureMapper[event.bomb].src = TextureRegion(assetManager.get<Texture>(GameAssets.EXPLOSION.desc.fileName))
 
-			val bombCenter = event.bomb[transform]!!.boundingBox.getCenter(Vector2())
-			event.bomb[transform]!!.boundingBox.setSize(1.2f, 1.2f)
-			event.bomb[transform]!!.boundingBox.setCenter(bombCenter)
-			event.bomb[exploder]!!.isExploded = true
+			val transform = transformMapper[event.bomb]
+			transform.boundingBox.setSize(1.2f, 1.2f)
+			transform.boundingBox.setCenter(transform.position)
+			exploder.isExploded = true
 
 			// create new timer
 			val newTimer = (engine as PooledEngine).createComponent(TimerComponent::class.java)
@@ -73,25 +73,32 @@ class BombExploderSystem(
 	override fun receive(command: Command) {
 		when (command) {
 			is DropBombCommand -> {
-				// get player position position
-				val playerPos = getLocalPlayerPosition()
-				if (playerPos != null) {
-					val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
-					transform[bomb].setPosition(playerPos.x, playerPos.y)
+				val localPlayer = getLocalPlayer()
+				if (localPlayer != null) {
+					val playerComponent = playerMapper[localPlayer]
 
-					// Send dropped bomb position to server
-					val bombPos =
-						commandDispatcher.createCommand(Command.Type.SEND_BOMB_POSITION) as SendBombPositionCommand
-					bombPos.x = playerPos.x
-					bombPos.y = playerPos.y
-					commandDispatcher.send(bombPos)
+					if (TimeUtils.millis() > playerComponent.previousBombDrop + playerComponent.bombCoolDown) {
+						playerComponent.previousBombDrop = TimeUtils.millis()
+
+						// get player position
+						val trans = transformMapper[localPlayer]
+						val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
+						transformMapper[bomb].setPosition(trans.position.x, trans.position.y)
+
+						// Send dropped bomb position to server
+						val bombPos =
+							commandDispatcher.createCommand(Command.Type.SEND_BOMB_POSITION) as SendBombPositionCommand
+						bombPos.x = trans.position.x
+						bombPos.y = trans.position.y
+						commandDispatcher.send(bombPos)
+					}
 				}
 			}
 			is BombPositionCommand -> {
 				// Receive dropped bombs from other players
 				val dudBomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
 				dudBomb.remove<CollisionComponent>()
-				transform[dudBomb].setPosition(command.x, command.y)
+				transformMapper[dudBomb].setPosition(command.x, command.y)
 			}
 		}
 	}
@@ -99,14 +106,12 @@ class BombExploderSystem(
 
 	// --- IMPLEMENTATION ---
 
-	private fun getLocalPlayerPosition (): Vector2? {
-		var playerPos:Vector2? = null
+	private fun getLocalPlayer (): Entity? {
 		for (entity in engine.getEntitiesFor(allOf(PlayerComponent::class).get())) {
-			if (entity[player]!!.isLocalPlayer) {
-				playerPos = entity[transform]!!.position
-				break
+			if (playerMapper[entity].isLocalPlayer) {
+				return entity
 			}
 		}
-		return playerPos
+		return null
 	}
 }

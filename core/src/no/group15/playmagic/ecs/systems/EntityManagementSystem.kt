@@ -55,18 +55,18 @@ class EntityManagementSystem(
 				gameMap.makeEntities(engine as PooledEngine, injectContext.inject())
 				// Spawn local player entity
 				val entity = EntityFactory.makeEntity(injectContext.inject(), engine as PooledEngine, EntityFactory.Type.PLAYER)
-				val player = playerMapper.get(entity)
+				val player = playerMapper[entity]
 				player.isLocalPlayer = true
 				player.playerId = command.playerId
-				transformMapper.get(entity).setPosition(command.spawnPosX, command.spawnPosY)
+				transformMapper[entity].setPosition(command.spawnPosX, command.spawnPosY)
 			}
 			is SpawnPlayerCommand -> {
 				// Spawn other player
 				val entity = EntityFactory.makeEntity(injectContext.inject(), engine as PooledEngine, EntityFactory.Type.PLAYER)
-				val player = playerMapper.get(entity)
+				val player = playerMapper[entity]
 				player.isLocalPlayer = false
 				player.playerId = command.playerId
-				transformMapper.get(entity).setPosition(command.posX, command.posY)
+				transformMapper[entity].setPosition(command.posX, command.posY)
 			}
 			is RemovePlayerCommand -> {
 				// Remove player from game

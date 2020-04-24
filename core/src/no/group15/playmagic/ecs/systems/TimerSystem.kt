@@ -1,7 +1,6 @@
 package no.group15.playmagic.ecs.systems
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.signals.Listener
 import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.systems.IteratingSystem
@@ -13,7 +12,7 @@ import no.group15.playmagic.ecs.events.BombTimeoutEvent
 class TimerSystem(
 	priority: Int
 ) : IteratingSystem(
-	Family.all(TimerComponent::class.java).get(),
+	allOf(TimerComponent::class).get(),
 	priority
 ) {
 
@@ -22,7 +21,7 @@ class TimerSystem(
 
 
 	override fun processEntity(entity: Entity, deltaTime: Float) {
-		val timer = timerMapper.get(entity)
+		val timer = timerMapper[entity]
 
 		timer.timeLeft -= deltaTime
 
