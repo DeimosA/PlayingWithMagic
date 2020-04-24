@@ -35,6 +35,11 @@ class EntityFactory {
 			animationComponent.src = TextureRegion.split(sheet,
 				sheet.width / 13, sheet.height / 16
 			)
+			for (row in animationComponent.src) {
+				for (region in row) {
+					region.setRegion(region, 3, 10, 22, 22)
+				}
+			}
 			stateComponent.stateMap = mapOf( "IDLE" to 0, "DROPPING" to 2,
 				"WALKING_LEFT" to 9, "WALKING_RIGHT" to 1,
 				"DEAD_LEFT" to 15,"DEAD_RIGHT" to 7
@@ -49,7 +54,7 @@ class EntityFactory {
 			textureComponent.src = animationComponent.src[0][0]
 
 
-			transformComponent.boundingBox.setSize(0.9f)
+			transformComponent.boundingBox.setSize(0.8f)
 			transformComponent.boundingBox.setCenter(transformComponent.position)
 
 			player.add(collisionComponent)
@@ -93,6 +98,7 @@ class EntityFactory {
 
 			transformComponent.boundingBox.setSize(.5f)
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BOMB.desc.fileName))
+			timerComponent.timeLeft = 3f
 
 			bomb.add(collisionComponent)
 			bomb.add(transformComponent)

@@ -8,9 +8,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
 import ktx.inject.Context
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.CommandDispatcher
-import no.group15.playmagic.commands.DropBombCommand
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.commands.DropBombCommand
 import kotlin.math.pow
 
 
@@ -27,20 +27,15 @@ class ButtonsWidget(
 	private val buttonCenter = Vector2()
 	private val buttonRadius = size / 2
 	private val buttonRadius2 = buttonRadius.pow(2)
-	private val coolDown = 3000 //ms
-	private var millisPreviousBombDrop: Long = 0
 
 	private val buttonInput = object : InputAdapter() {
 		override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
 			val cursor = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
 			if (buttonCenter.dst2(cursor) < buttonRadius2) {
-				if (System.currentTimeMillis() > millisPreviousBombDrop + coolDown) {
-					commandDispatcher.send(
-						commandDispatcher.createCommand(Command.Type.DROP_BOMB) as DropBombCommand
-					)
-					millisPreviousBombDrop = System.currentTimeMillis()
-					return true
-				}
+				commandDispatcher.send(
+					commandDispatcher.createCommand(Command.Type.DROP_BOMB) as DropBombCommand
+				)
+				return true
 			}
 			return false
 		}

@@ -15,7 +15,7 @@ import ktx.freetype.*
 import ktx.graphics.*
 import ktx.inject.*
 import no.group15.playmagic.PlayMagic
-import no.group15.playmagic.commands.CommandDispatcher
+import no.group15.playmagic.commandstream.CommandDispatcher
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.controllers.GamePresenter

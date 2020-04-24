@@ -7,8 +7,8 @@ import ktx.collections.*
 import ktx.json.*
 import ktx.log.*
 import ktx.math.ImmutableVector2
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.ConfigCommand
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.commands.ConfigCommand
 import java.io.IOException
 import java.lang.Exception
 import kotlin.concurrent.thread
