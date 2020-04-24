@@ -11,7 +11,7 @@ import no.group15.playmagic.commandstream.commands.SendKillPlayerCommand
 import no.group15.playmagic.ecs.components.ExploderComponent
 import no.group15.playmagic.ecs.components.PlayerComponent
 import no.group15.playmagic.ecs.components.StateComponent
-import no.group15.playmagic.events.CollisionEvent
+import no.group15.playmagic.ecs.events.CollisionEvent
 
 
 class HealthSystem(
