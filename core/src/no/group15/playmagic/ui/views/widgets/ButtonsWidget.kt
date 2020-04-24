@@ -27,20 +27,15 @@ class ButtonsWidget(
 	private val buttonCenter = Vector2()
 	private val buttonRadius = size / 2
 	private val buttonRadius2 = buttonRadius.pow(2)
-	private val coolDown = 3000 //ms
-	private var millisPreviousBombDrop: Long = 0
 
 	private val buttonInput = object : InputAdapter() {
 		override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
 			val cursor = viewport.unproject(Vector2(screenX.toFloat(), screenY.toFloat()))
 			if (buttonCenter.dst2(cursor) < buttonRadius2) {
-				if (System.currentTimeMillis() > millisPreviousBombDrop + coolDown) {
-					commandDispatcher.send(
-						commandDispatcher.createCommand(Command.Type.DROP_BOMB) as DropBombCommand
-					)
-					millisPreviousBombDrop = System.currentTimeMillis()
-					return true
-				}
+				commandDispatcher.send(
+					commandDispatcher.createCommand(Command.Type.DROP_BOMB) as DropBombCommand
+				)
+				return true
 			}
 			return false
 		}

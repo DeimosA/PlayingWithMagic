@@ -35,6 +35,8 @@ class BombExploderSystem(
 	private val exploder = mapperFor<ExploderComponent>()
 	private val player = mapperFor<PlayerComponent>()
 	private val destructible = mapperFor<DestructibleComponent>()
+	private val coolDown = 3000 //ms
+	private var millisPreviousBombDrop: Long = 0
 
 	override fun addedToEngine (engine: Engine) {
 		entities = engine.getEntitiesFor(
@@ -72,14 +74,17 @@ class BombExploderSystem(
 	override fun receive(command: Command) {
 		when (command) {
 			is DropBombCommand -> {
-				val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
-				bomb[timer]!!.timeLeft = 3f
+				if (System.currentTimeMillis() > millisPreviousBombDrop + coolDown) {
+					millisPreviousBombDrop = System.currentTimeMillis()
+					val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
+					bomb[timer]!!.timeLeft = 3f
 
-				// get player position position
-				val playerPos = getLocalPlayerPosition()
+					// get player position position
+					val playerPos = getLocalPlayerPosition()
 
-				bomb[transform]!!.position.set(playerPos.x, playerPos.y)
-				bomb[transform]!!.boundingBox.setCenter(bomb[transform]!!.position)
+					bomb[transform]!!.position.set(playerPos.x, playerPos.y)
+					bomb[transform]!!.boundingBox.setCenter(bomb[transform]!!.position)
+				}
 			}
 		}
 	}
