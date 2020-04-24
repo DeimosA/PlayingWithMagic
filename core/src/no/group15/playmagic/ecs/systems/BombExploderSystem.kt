@@ -18,6 +18,7 @@ import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.ecs.entities.EntityFactory
 import no.group15.playmagic.events.BombTimeoutEvent
 import no.group15.playmagic.utils.assets.GameAssets
+import java.lang.RuntimeException
 
 
 class BombExploderSystem(
@@ -35,8 +36,6 @@ class BombExploderSystem(
 	private val exploder = mapperFor<ExploderComponent>()
 	private val player = mapperFor<PlayerComponent>()
 	private val destructible = mapperFor<DestructibleComponent>()
-	private val coolDown = 3000 //ms
-	private var millisPreviousBombDrop: Long = 0
 
 	override fun addedToEngine (engine: Engine) {
 		entities = engine.getEntitiesFor(
@@ -74,8 +73,9 @@ class BombExploderSystem(
 	override fun receive(command: Command) {
 		when (command) {
 			is DropBombCommand -> {
-				if (System.currentTimeMillis() > millisPreviousBombDrop + coolDown) {
-					millisPreviousBombDrop = System.currentTimeMillis()
+				val playerComponent = getLocalPlayer()[player]!!
+				if (System.currentTimeMillis() > playerComponent.millisPreviousBombDrop + playerComponent.bombCooldown) {
+					playerComponent.millisPreviousBombDrop = System.currentTimeMillis()
 					val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
 					bomb[timer]!!.timeLeft = 3f
 
@@ -92,6 +92,17 @@ class BombExploderSystem(
 
 
 	// --- IMPLEMENTATION ---
+
+	private fun getLocalPlayer(): Entity {
+		for (entity in engine.getEntitiesFor(allOf(PlayerComponent::class).get())) {
+			if (entity[player]!!.isLocalPlayer) {
+				return entity
+			}
+		}
+		throw RuntimeException("Local player don't exists.")
+	}
+
+
 
 	private fun getLocalPlayerPosition (): Vector2 {
 		var playerPos = Vector2(0f, 0f)
