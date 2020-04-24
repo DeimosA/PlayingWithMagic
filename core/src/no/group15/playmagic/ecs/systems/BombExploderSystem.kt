@@ -72,14 +72,16 @@ class BombExploderSystem(
 	override fun receive(command: Command) {
 		when (command) {
 			is DropBombCommand -> {
-				val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
-				bomb[timer]!!.timeLeft = 3f
 
 				// get player position position
 				val playerPos = getLocalPlayerPosition()
+				if (playerPos != null){
+					val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
+					bomb[timer]!!.timeLeft = 3f
 
-				bomb[transform]!!.position.set(playerPos.x, playerPos.y)
-				bomb[transform]!!.boundingBox.setCenter(bomb[transform]!!.position)
+					bomb[transform]!!.position.set(playerPos.x, playerPos.y)
+					bomb[transform]!!.boundingBox.setCenter(bomb[transform]!!.position)
+				}
 			}
 		}
 	}
@@ -88,8 +90,8 @@ class BombExploderSystem(
 
 	// --- IMPLEMENTATION ---
 
-	private fun getLocalPlayerPosition (): Vector2 {
-		var playerPos = Vector2(0f, 0f)
+	private fun getLocalPlayerPosition (): Vector2? {
+		var playerPos:Vector2? = null
 		for (entity in engine.getEntitiesFor(allOf(PlayerComponent::class).get())) {
 			if (entity[player]!!.isLocalPlayer) {
 				playerPos = entity[transform]!!.position
@@ -99,6 +101,5 @@ class BombExploderSystem(
 
 		return playerPos
 	}
-
 }
 
