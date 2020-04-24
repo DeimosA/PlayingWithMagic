@@ -53,6 +53,8 @@ class GameClient(
 		// Register receiver
 	    Command.Type.SEND_POSITION.receiver = this
 		Command.Type.SEND_BOMB_POSITION.receiver = this
+		Command.Type.SEND_KILL_PLAYER.receiver = this
+		Command.Type.SEND_DESTROY.receiver = this
 	}
 
 	/**
@@ -194,6 +196,19 @@ class GameClient(
 					bombPosition.x = command.x
 					bombPosition.y = command.y
 					send(bombPosition)
+				}
+				is SendKillPlayerCommand -> {
+					// Convert to kill player command
+					val kill = createAsync(Command.Type.KILL_PLAYER).await() as KillPlayerCommand
+					kill.playerId = command.playerId
+					send(kill)
+				}
+				is SendDestroyCommand -> {
+					// Convert to destroy command
+					val destroy = createAsync(Command.Type.DESTROY).await() as DestroyCommand
+					destroy.x = command.x
+					destroy.y = command.y
+					send(destroy)
 				}
 				is ServerMessageCommand -> {
 					when (command.action) {

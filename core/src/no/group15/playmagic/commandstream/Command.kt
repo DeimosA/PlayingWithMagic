@@ -26,7 +26,10 @@ interface Command : Pool.Poolable {
 		DROP_BOMB { override var receiver: CommandReceiver? = null }, // Drop bomb command from user input
 		BOMB_POSITION { override var receiver: CommandReceiver? = null }, // A different player dropped a bomb
 		SEND_BOMB_POSITION { override var receiver: CommandReceiver? = null }, // Send position of dropped bomb to server
-		KILL_PLAYER { override var receiver: CommandReceiver? = null } // Kill a player
+		KILL_PLAYER { override var receiver: CommandReceiver? = null }, // A player was killed
+		SEND_KILL_PLAYER { override var receiver: CommandReceiver? = null }, // Send kill command to server
+		DESTROY { override var receiver: CommandReceiver? = null }, // Destroy a destructible
+		SEND_DESTROY { override var receiver: CommandReceiver? = null } // Send destroy command to server
 		;
 		abstract var receiver: CommandReceiver?
 	}
