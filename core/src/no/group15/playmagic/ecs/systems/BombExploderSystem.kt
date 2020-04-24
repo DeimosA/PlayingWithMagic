@@ -8,10 +8,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
-import ktx.ashley.allOf
-import ktx.ashley.get
-import ktx.ashley.mapperFor
-import ktx.ashley.remove
+import ktx.ashley.*
 import ktx.inject.Context
 import no.group15.playmagic.commandstream.Command
 import no.group15.playmagic.commandstream.CommandDispatcher
@@ -37,12 +34,11 @@ class BombExploderSystem(
 	private val commandDispatcher: CommandDispatcher = injectContext.inject()
 
 	private lateinit var entities: ImmutableArray<Entity>
-	private val timer = mapperFor<TimerComponent>()
 	private val texture = mapperFor<TextureComponent>()
 	private val transform = mapperFor<TransformComponent>()
 	private val exploder = mapperFor<ExploderComponent>()
 	private val player = mapperFor<PlayerComponent>()
-	private val destructible = mapperFor<DestructibleComponent>()
+
 
 	override fun addedToEngine (engine: Engine) {
 		entities = engine.getEntitiesFor(
@@ -51,8 +47,6 @@ class BombExploderSystem(
 		Command.Type.DROP_BOMB.receiver = this
 		Command.Type.BOMB_POSITION.receiver = this
 	}
-
-
 
 	override fun receive(signal: Signal<BombTimeoutEvent>, event: BombTimeoutEvent) {
 		// explosion in ended
@@ -76,23 +70,22 @@ class BombExploderSystem(
 		}
 	}
 
-
-
 	override fun receive(command: Command) {
 		when (command) {
 			is DropBombCommand -> {
-				val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
-
 				// get player position position
 				val playerPos = getLocalPlayerPosition()
+				if (playerPos != null) {
+					val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
+					transform[bomb].setPosition(playerPos.x, playerPos.y)
 
-				transform[bomb].setPosition(playerPos.x, playerPos.y)
-
-				// Send dropped bomb position to server
-				val bombPos = commandDispatcher.createCommand(Command.Type.SEND_BOMB_POSITION) as SendBombPositionCommand
-				bombPos.x = playerPos.x
-				bombPos.y = playerPos.y
-				commandDispatcher.send(bombPos)
+					// Send dropped bomb position to server
+					val bombPos =
+						commandDispatcher.createCommand(Command.Type.SEND_BOMB_POSITION) as SendBombPositionCommand
+					bombPos.x = playerPos.x
+					bombPos.y = playerPos.y
+					commandDispatcher.send(bombPos)
+				}
 			}
 			is BombPositionCommand -> {
 				// Receive dropped bombs from other players
@@ -104,19 +97,16 @@ class BombExploderSystem(
 	}
 
 
-
 	// --- IMPLEMENTATION ---
 
-	private fun getLocalPlayerPosition (): Vector2 {
-		var playerPos = Vector2(0f, 0f)
+	private fun getLocalPlayerPosition (): Vector2? {
+		var playerPos:Vector2? = null
 		for (entity in engine.getEntitiesFor(allOf(PlayerComponent::class).get())) {
 			if (entity[player]!!.isLocalPlayer) {
 				playerPos = entity[transform]!!.position
 				break
 			}
 		}
-
 		return playerPos
 	}
-
 }
