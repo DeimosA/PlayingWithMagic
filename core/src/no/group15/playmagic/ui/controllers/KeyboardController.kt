@@ -2,10 +2,10 @@ package no.group15.playmagic.ui.controllers
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.CommandDispatcher
-import no.group15.playmagic.commands.DropBombCommand
-import no.group15.playmagic.commands.MoveCommand
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.commands.DropBombCommand
+import no.group15.playmagic.commandstream.commands.MoveCommand
 import kotlin.math.abs
 import kotlin.math.sqrt
 

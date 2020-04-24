@@ -7,7 +7,12 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import ktx.ashley.*
 import ktx.inject.*
-import no.group15.playmagic.commands.*
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.ConfigCommand
+import no.group15.playmagic.commandstream.commands.RemovePlayerCommand
+import no.group15.playmagic.commandstream.commands.ResetGameCommand
+import no.group15.playmagic.commandstream.commands.SpawnPlayerCommand
 import no.group15.playmagic.ecs.GameMap
 import no.group15.playmagic.ecs.components.PlayerComponent
 import no.group15.playmagic.ecs.components.TransformComponent

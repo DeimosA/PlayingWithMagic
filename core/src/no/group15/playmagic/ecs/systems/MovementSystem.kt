@@ -4,11 +4,15 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.math.Vector2
 import ktx.ashley.*
 import ktx.collections.*
 import ktx.inject.*
-import no.group15.playmagic.commands.*
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.MoveCommand
+import no.group15.playmagic.commandstream.commands.PositionCommand
+import no.group15.playmagic.commandstream.commands.SendPositionCommand
 import no.group15.playmagic.ecs.GameMap
 import no.group15.playmagic.ecs.components.PlayerComponent
 import no.group15.playmagic.ecs.components.TransformComponent

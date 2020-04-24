@@ -11,9 +11,9 @@ import com.badlogic.gdx.math.Vector2
 import ktx.ashley.allOf
 import ktx.ashley.get
 import ktx.ashley.mapperFor
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.CommandReceiver
-import no.group15.playmagic.commands.DropBombCommand
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.DropBombCommand
 import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.ecs.entities.EntityFactory
 import no.group15.playmagic.events.BombTimeoutEvent

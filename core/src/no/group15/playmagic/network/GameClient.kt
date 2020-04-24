@@ -14,7 +14,17 @@ import ktx.collections.*
 import ktx.inject.Context
 import ktx.json.*
 import ktx.log.*
-import no.group15.playmagic.commands.*
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.ConfigCommand
+import no.group15.playmagic.commandstream.commands.MessageCommand
+import no.group15.playmagic.commandstream.commands.PositionCommand
+import no.group15.playmagic.commandstream.commands.RemovePlayerCommand
+import no.group15.playmagic.commandstream.commands.ResetGameCommand
+import no.group15.playmagic.commandstream.commands.SendPositionCommand
+import no.group15.playmagic.commandstream.commands.ServerMessageCommand
+import no.group15.playmagic.commandstream.commands.SpawnPlayerCommand
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.IOException
@@ -152,7 +162,11 @@ class GameClient(
 					send(command)
 					id = command.playerId
 					tickRate = command.tickRate
-					latestPosition = SendPositionCommand(command.spawnPosX, command.spawnPosY, command.playerId)
+					latestPosition = SendPositionCommand(
+						command.spawnPosX,
+						command.spawnPosY,
+						command.playerId
+					)
 					log.debug { "Client configured with id $id and tick time ${tickTimeNano / 1000000f} ms" }
 					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
 					message.text = "Connected to server"

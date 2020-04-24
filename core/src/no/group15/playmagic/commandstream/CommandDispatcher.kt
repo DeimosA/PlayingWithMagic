@@ -1,7 +1,8 @@
-package no.group15.playmagic.commands
+package no.group15.playmagic.commandstream
 
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.Pool
+import no.group15.playmagic.commandstream.commands.*
 
 
 class CommandDispatcher : Disposable {
@@ -23,6 +24,7 @@ class CommandDispatcher : Disposable {
 //			Command.Type.NONE -> null
 			Command.Type.CONFIG -> ConfigCommand()
 			Command.Type.MESSAGE -> messageCommandPool.obtain()
+			Command.Type.SERVER_MESSAGE -> ServerMessageCommand()
 			Command.Type.SPAWN_PLAYER -> SpawnPlayerCommand()
 			Command.Type.REMOVE_PLAYER -> RemovePlayerCommand()
 			Command.Type.RESET_GAME -> ResetGameCommand()
@@ -30,7 +32,9 @@ class CommandDispatcher : Disposable {
 			Command.Type.POSITION -> PositionCommand()
 			Command.Type.SEND_POSITION -> SendPositionCommand()
 			Command.Type.DROP_BOMB -> DropBombCommand()
-			Command.Type.SERVER_MESSAGE -> ServerMessageCommand()
+			Command.Type.BOMB_POSITION -> TODO()
+			Command.Type.SEND_BOMB_POSITION -> TODO()
+			Command.Type.KILL_PLAYER -> TODO()
 		}
 	}
 
