@@ -60,7 +60,7 @@ class KeyboardController(private val commandDispatcher: CommandDispatcher) : Inp
 	override fun keyDown(keycode: Int): Boolean {
 		return when (keycode) {
 			Input.Keys.SPACE -> {
-//				commandDispatcher.send(commandDispatcher.createCommand(Command.Type.DROP_BOMB) as DropBombCommand)
+				commandDispatcher.send(commandDispatcher.createCommand(Command.Type.DROP_BOMB) as DropBombCommand)
 				true
 			}
 			else -> {
