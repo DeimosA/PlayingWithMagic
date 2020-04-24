@@ -14,7 +14,10 @@ import ktx.collections.*
 import ktx.inject.Context
 import ktx.json.*
 import ktx.log.*
-import no.group15.playmagic.commands.*
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.*
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.IOException
@@ -49,6 +52,9 @@ class GameClient(
 	init {
 		// Register receiver
 	    Command.Type.SEND_POSITION.receiver = this
+		Command.Type.SEND_BOMB_POSITION.receiver = this
+		Command.Type.SEND_KILL_PLAYER.receiver = this
+		Command.Type.SEND_DESTROY.receiver = this
 	}
 
 	/**
@@ -152,7 +158,11 @@ class GameClient(
 					send(command)
 					id = command.playerId
 					tickRate = command.tickRate
-					latestPosition = SendPositionCommand(command.spawnPosX, command.spawnPosY, command.playerId)
+					latestPosition = SendPositionCommand(
+						command.spawnPosX,
+						command.spawnPosY,
+						command.playerId
+					)
 					log.debug { "Client configured with id $id and tick time ${tickTimeNano / 1000000f} ms" }
 					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
 					message.text = "Connected to server"
@@ -179,6 +189,26 @@ class GameClient(
 					position.x = command.x
 					position.y = command.y
 					send(position)
+				}
+				is SendBombPositionCommand -> {
+					// Convert to bomb position command
+					val bombPosition = createAsync(Command.Type.BOMB_POSITION).await() as BombPositionCommand
+					bombPosition.x = command.x
+					bombPosition.y = command.y
+					send(bombPosition)
+				}
+				is SendKillPlayerCommand -> {
+					// Convert to kill player command
+					val kill = createAsync(Command.Type.KILL_PLAYER).await() as KillPlayerCommand
+					kill.playerId = command.playerId
+					send(kill)
+				}
+				is SendDestroyCommand -> {
+					// Convert to destroy command
+					val destroy = createAsync(Command.Type.DESTROY).await() as DestroyCommand
+					destroy.x = command.x
+					destroy.y = command.y
+					send(destroy)
 				}
 				is ServerMessageCommand -> {
 					when (command.action) {

@@ -10,12 +10,11 @@ import com.badlogic.gdx.utils.*
 import kotlinx.coroutines.*
 import ktx.async.*
 import ktx.collections.*
-import ktx.json.*
 import ktx.log.*
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.RemovePlayerCommand
-import no.group15.playmagic.commands.ServerMessageCommand
-import no.group15.playmagic.commands.SpawnPlayerCommand
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.commands.RemovePlayerCommand
+import no.group15.playmagic.commandstream.commands.ServerMessageCommand
+import no.group15.playmagic.commandstream.commands.SpawnPlayerCommand
 import no.group15.playmagic.ecs.GameMap
 import java.lang.Exception
 import kotlin.concurrent.thread
@@ -124,7 +123,11 @@ class Server(
 		} else {
 			// Reject client
 			log.debug { "Client tried to connect while server was full" }
-			val array = arrayOfCommands(ServerMessageCommand(ServerMessageCommand.Action.REJECTED))
+			val array = arrayOfCommands(
+				ServerMessageCommand(
+					ServerMessageCommand.Action.REJECTED
+				)
+			)
 			ServerClient.rejectClient(socket, json.toJson(array))
 		}
 	}
@@ -139,7 +142,11 @@ class Server(
 			gameMap.returnSpawn(client.spawnPosition)
 			client.dispose()
 			// Command other players to remove the player
-			sendToAll(arrayOfCommands(RemovePlayerCommand(id)))
+			sendToAll(arrayOfCommands(
+				RemovePlayerCommand(
+					id
+				)
+			))
 		}
 	}
 
@@ -148,14 +155,24 @@ class Server(
 	 */
 	private fun spawnPlayers(playerClient: ServerClient) {
 		val newPlayer = arrayOfCommands(
-			SpawnPlayerCommand(playerClient.id, playerClient.spawnPosition.x, playerClient.spawnPosition.y)
+			SpawnPlayerCommand(
+				playerClient.id,
+				playerClient.spawnPosition.x,
+				playerClient.spawnPosition.y
+			)
 		)
 		val oldPlayers = arrayOfCommands()
 
 		for (client in clients.values()) {
 			if (client.id != playerClient.id) {
 				client.sendCommands(newPlayer)
-				oldPlayers.add(SpawnPlayerCommand(client.id, client.spawnPosition.x, client.spawnPosition.y))
+				oldPlayers.add(
+					SpawnPlayerCommand(
+						client.id,
+						client.spawnPosition.x,
+						client.spawnPosition.y
+					)
+				)
 			}
 		}
 		log.debug { "Sending spawn commands: ${newPlayer.size} new, ${oldPlayers.size} old" }
@@ -200,7 +217,11 @@ class Server(
 
 		launch {
 			// Send goodbye message to all clients
-			sendToAll(arrayOfCommands(ServerMessageCommand(ServerMessageCommand.Action.SHUTDOWN)))
+			sendToAll(arrayOfCommands(
+				ServerMessageCommand(
+					ServerMessageCommand.Action.SHUTDOWN
+				)
+			))
 			delay(100)
 			// Close connections and cleanup
 			try { socket?.dispose() } catch (e: Exception) {}

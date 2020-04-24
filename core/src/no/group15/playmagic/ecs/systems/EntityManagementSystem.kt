@@ -7,9 +7,12 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import ktx.ashley.*
 import ktx.inject.*
-import no.group15.playmagic.commands.*
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.*
 import no.group15.playmagic.ecs.GameMap
 import no.group15.playmagic.ecs.components.PlayerComponent
+import no.group15.playmagic.ecs.components.StateComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.entities.EntityFactory
 
@@ -28,18 +31,21 @@ class EntityManagementSystem(
 	private lateinit var entities: ImmutableArray<Entity>
 	private val transformMapper = mapperFor<TransformComponent>()
 	private val playerMapper = mapperFor<PlayerComponent>()
+	private val stateMapper = mapperFor<StateComponent>()
 
 
 	override fun addedToEngine(engine: Engine) {
 		setProcessing(false)
 		entities = engine.getEntitiesFor(
-			allOf(PlayerComponent::class, TransformComponent::class).get()
+			allOf(PlayerComponent::class, TransformComponent::class, StateComponent::class).get()
 		)
 		// Register for commands
 		Command.Type.CONFIG.receiver = this
 		Command.Type.SPAWN_PLAYER.receiver = this
 		Command.Type.REMOVE_PLAYER.receiver = this
 		Command.Type.RESET_GAME.receiver = this
+		Command.Type.KILL_PLAYER.receiver = this
+		Command.Type.DESTROY.receiver = this
 	}
 
 	override fun receive(command: Command) {
@@ -72,6 +78,21 @@ class EntityManagementSystem(
 			}
 			is ResetGameCommand -> {
 				engine.removeAllEntities()
+			}
+			is KillPlayerCommand -> {
+				killPlayer(command.playerId)
+			}
+			is DestroyCommand -> {
+				// TODO awaiting rock destruction fix
+			}
+		}
+	}
+
+	private fun killPlayer(id: Int) {
+		entities.forEach {
+			if (playerMapper[it].playerId == id) {
+				stateMapper[it].setNewState("DEAD_RIGHT", false)
+				it.remove<PlayerComponent>()
 			}
 		}
 	}

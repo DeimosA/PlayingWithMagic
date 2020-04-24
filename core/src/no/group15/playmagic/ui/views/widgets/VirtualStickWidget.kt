@@ -6,9 +6,9 @@ import com.badlogic.gdx.graphics.g2d.*
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
 import ktx.inject.Context
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.CommandDispatcher
-import no.group15.playmagic.commands.MoveCommand
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.commands.MoveCommand
 import kotlin.math.pow
 
 
@@ -94,7 +94,8 @@ class VirtualStickWidget(
 
 	override fun update(deltaTime: Float) {
 		if (stickValue.x != 0f || stickValue.y != 0f) {
-			val command: MoveCommand = commandDispatcher.createCommand(Command.Type.MOVE) as MoveCommand
+			val command: MoveCommand = commandDispatcher.createCommand(
+				Command.Type.MOVE) as MoveCommand
 			command.x = stickValue.x
 			command.y = stickValue.y
 			commandDispatcher.send(command)
