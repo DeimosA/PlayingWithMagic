@@ -34,6 +34,7 @@ class BombExploderSystem(
 	private val transform = mapperFor<TransformComponent>()
 	private val exploder = mapperFor<ExploderComponent>()
 	private val player = mapperFor<PlayerComponent>()
+	private val destructible = mapperFor<DestructibleComponent>()
 
 	override fun addedToEngine (engine: Engine) {
 		entities = engine.getEntitiesFor(
@@ -45,13 +46,17 @@ class BombExploderSystem(
 
 
 	override fun receive(signal: Signal<BombTimeoutEvent>, event: BombTimeoutEvent) {
-		// Exploded
+		// explosion in ended
 		if (event.bomb[exploder]!!.isExploded) {
 			engine.removeEntity(event.bomb)
 		}
-		//Not exploded
+		// bomb must explode
 		else {
 			event.bomb[texture]!!.src = TextureRegion(assetManager.get<Texture>(GameAssets.EXPLOSION.desc.fileName))
+
+			val bombCenter = event.bomb[transform]!!.boundingBox.getCenter(Vector2())
+			event.bomb[transform]!!.boundingBox.setSize(1.2f, 1.2f)
+			event.bomb[transform]!!.boundingBox.setCenter(bombCenter)
 			event.bomb[exploder]!!.isExploded = true
 
 			// create new timer
