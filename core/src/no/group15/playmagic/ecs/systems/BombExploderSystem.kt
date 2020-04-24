@@ -11,9 +11,14 @@ import com.badlogic.gdx.math.Vector2
 import ktx.ashley.allOf
 import ktx.ashley.get
 import ktx.ashley.mapperFor
+import ktx.ashley.remove
+import ktx.inject.Context
 import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
 import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.BombPositionCommand
 import no.group15.playmagic.commandstream.commands.DropBombCommand
+import no.group15.playmagic.commandstream.commands.SendBombPositionCommand
 import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.ecs.entities.EntityFactory
 import no.group15.playmagic.events.BombTimeoutEvent
@@ -22,11 +27,14 @@ import no.group15.playmagic.utils.assets.GameAssets
 
 class BombExploderSystem(
 	priority: Int,
-	private val assetManager: AssetManager
+	injectContext: Context
 ): EntitySystem(
 	priority
 ), Listener<BombTimeoutEvent>,
 	CommandReceiver {
+
+	private val assetManager: AssetManager = injectContext.inject()
+	private val commandDispatcher: CommandDispatcher = injectContext.inject()
 
 	private lateinit var entities: ImmutableArray<Entity>
 	private val timer = mapperFor<TimerComponent>()
@@ -41,6 +49,7 @@ class BombExploderSystem(
 			allOf(ExploderComponent::class, TimerComponent::class, TransformComponent::class, TextureComponent::class).get()
 		)
 		Command.Type.DROP_BOMB.receiver = this
+		Command.Type.BOMB_POSITION.receiver = this
 	}
 
 
@@ -73,13 +82,23 @@ class BombExploderSystem(
 		when (command) {
 			is DropBombCommand -> {
 				val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
-				bomb[timer]!!.timeLeft = 3f
 
 				// get player position position
 				val playerPos = getLocalPlayerPosition()
 
-				bomb[transform]!!.position.set(playerPos.x, playerPos.y)
-				bomb[transform]!!.boundingBox.setCenter(bomb[transform]!!.position)
+				transform[bomb].setPosition(playerPos.x, playerPos.y)
+
+				// Send dropped bomb position to server
+				val bombPos = commandDispatcher.createCommand(Command.Type.SEND_BOMB_POSITION) as SendBombPositionCommand
+				bombPos.x = playerPos.x
+				bombPos.y = playerPos.y
+				commandDispatcher.send(bombPos)
+			}
+			is BombPositionCommand -> {
+				// Receive dropped bombs from other players
+				val dudBomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
+				dudBomb.remove<CollisionComponent>()
+				transform[dudBomb].setPosition(command.x, command.y)
 			}
 		}
 	}
@@ -101,4 +120,3 @@ class BombExploderSystem(
 	}
 
 }
-

@@ -32,9 +32,9 @@ class CommandDispatcher : Disposable {
 			Command.Type.POSITION -> PositionCommand()
 			Command.Type.SEND_POSITION -> SendPositionCommand()
 			Command.Type.DROP_BOMB -> DropBombCommand()
-			Command.Type.BOMB_POSITION -> TODO()
-			Command.Type.SEND_BOMB_POSITION -> TODO()
-			Command.Type.KILL_PLAYER -> TODO()
+			Command.Type.BOMB_POSITION -> BombPositionCommand()
+			Command.Type.SEND_BOMB_POSITION -> SendBombPositionCommand()
+			Command.Type.KILL_PLAYER -> KillPlayerCommand()
 		}
 	}
 

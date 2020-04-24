@@ -17,14 +17,7 @@ import ktx.log.*
 import no.group15.playmagic.commandstream.Command
 import no.group15.playmagic.commandstream.CommandDispatcher
 import no.group15.playmagic.commandstream.CommandReceiver
-import no.group15.playmagic.commandstream.commands.ConfigCommand
-import no.group15.playmagic.commandstream.commands.MessageCommand
-import no.group15.playmagic.commandstream.commands.PositionCommand
-import no.group15.playmagic.commandstream.commands.RemovePlayerCommand
-import no.group15.playmagic.commandstream.commands.ResetGameCommand
-import no.group15.playmagic.commandstream.commands.SendPositionCommand
-import no.group15.playmagic.commandstream.commands.ServerMessageCommand
-import no.group15.playmagic.commandstream.commands.SpawnPlayerCommand
+import no.group15.playmagic.commandstream.commands.*
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.IOException
@@ -59,6 +52,7 @@ class GameClient(
 	init {
 		// Register receiver
 	    Command.Type.SEND_POSITION.receiver = this
+		Command.Type.SEND_BOMB_POSITION.receiver = this
 	}
 
 	/**
@@ -193,6 +187,13 @@ class GameClient(
 					position.x = command.x
 					position.y = command.y
 					send(position)
+				}
+				is SendBombPositionCommand -> {
+					// Convert to bomb position command
+					val bombPosition = createAsync(Command.Type.BOMB_POSITION).await() as BombPositionCommand
+					bombPosition.x = command.x
+					bombPosition.y = command.y
+					send(bombPosition)
 				}
 				is ServerMessageCommand -> {
 					when (command.action) {
