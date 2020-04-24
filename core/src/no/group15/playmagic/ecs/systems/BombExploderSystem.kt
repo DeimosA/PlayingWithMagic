@@ -20,7 +20,6 @@ import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.ecs.entities.EntityFactory
 import no.group15.playmagic.ecs.events.BombTimeoutEvent
 import no.group15.playmagic.utils.assets.GameAssets
-import java.lang.RuntimeException
 
 
 class BombExploderSystem(
@@ -41,7 +40,7 @@ class BombExploderSystem(
 	private val player = mapperFor<PlayerComponent>()
 
 
-	override fun addedToEngine (engine: Engine) {
+	override fun addedToEngine(engine: Engine) {
 		entities = engine.getEntitiesFor(
 			allOf(ExploderComponent::class, TimerComponent::class, TransformComponent::class, TextureComponent::class).get()
 		)
@@ -119,3 +118,4 @@ class BombExploderSystem(
 		return null
 	}
 
+}
