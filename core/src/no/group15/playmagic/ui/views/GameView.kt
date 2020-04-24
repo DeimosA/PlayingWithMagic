@@ -1,7 +1,6 @@
 package no.group15.playmagic.ui.views
 
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.collections.*
@@ -23,8 +22,6 @@ class GameView(injectContext: Context) {
 		4 / 3f * viewHeight, viewHeight, 21 / 9f * viewHeight, viewHeight
 	)
 
-	private var font: BitmapFont? = null
-
 
 	init {
 		val assetManager: AssetManager = injectContext.inject()
@@ -34,26 +31,20 @@ class GameView(injectContext: Context) {
 			textureRegionFactory(assetManager, VirtualStickAssets.PAD_REGION),
 			textureRegionFactory(assetManager, VirtualStickAssets.HANDLE_REGION),
 			170f,
-			injectContext.inject()
+			injectContext
 		)
-		val buttons = ButtonsWidget(
+		widgets.add(stick)
+		widgets.add(ButtonsWidget(
 			viewport,
 			textureRegionFactory(assetManager, VirtualStickAssets.HANDLE_REGION),
 			170f,
-			injectContext.inject()
-		)
-//		font = BitmapFont()
-//		stick.stickValueFont = font
-		widgets.add(stick)
-		widgets.add(buttons)
+			injectContext
+		))
 		widgets.add(MessagesWidget(
 			33f,
 			assetManager.get(FontAssets.DRAGONFLY_25.desc.fileName)
 		))
 		widgets.shrink()
-
-
-
 	}
 
 	fun update(deltaTime: Float) {
@@ -82,6 +73,5 @@ class GameView(injectContext: Context) {
 		for (widget in widgets) {
 			widget.dispose()
 		}
-		font?.dispose()
 	}
 }

@@ -32,7 +32,6 @@ class VirtualStickWidget(
 	private val padRadius2 = padRadius.pow(2)
 
 	private var touchIndex = -1
-	var stickValueFont: BitmapFont? = null
 
 	private val stickInput = object : InputAdapter() {
 		override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
@@ -69,6 +68,11 @@ class VirtualStickWidget(
 	    padSprite.setSize(size, size)
 		padSprite.setPosition(margin, margin)
 		handleSprite.setScale(scale)
+		handleCenter.set(
+			padSprite.x + padSprite.width / 2,
+			padSprite.y + padSprite.height / 2
+		)
+		handleSprite.setCenter(handleCenter.x, handleCenter.y)
 		inputMultiplexer.addProcessor(stickInput)
 	}
 
@@ -100,19 +104,10 @@ class VirtualStickWidget(
 	override fun render(batch: SpriteBatch) {
 		padSprite.draw(batch)
 		handleSprite.draw(batch)
-		stickValueFont?.draw(
-			batch,
-			"${"%.2f".format(stickValue.x)} ${"%.2f".format(stickValue.y)}",
-			margin, margin / 2 + 20
-		)
 	}
 
 	override fun resize(width: Float, height: Float) {
-		handleCenter.set(
-			padSprite.x + padSprite.width / 2,
-			padSprite.y + padSprite.height / 2
-		)
-		handleSprite.setCenter(handleCenter.x, handleCenter.y)
+		// Viewport expands only to the right
 	}
 
 	override fun dispose() {
