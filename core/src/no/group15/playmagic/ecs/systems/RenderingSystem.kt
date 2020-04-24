@@ -37,8 +37,8 @@ class RenderingSystem(
 
 			// Draw entities
 			for (entity in entities) {
-				val transform = transformMapper.get(entity)
-				val texture = textureMapper.get(entity)
+				val transform = transformMapper[entity]
+				val texture = textureMapper[entity]
 
 				batch.draw(
 					texture.src,

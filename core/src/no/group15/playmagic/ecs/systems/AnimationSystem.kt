@@ -3,15 +3,11 @@ package no.group15.playmagic.ecs.systems
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
-import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.ashley.utils.ImmutableArray
 import ktx.ashley.*
-import ktx.log.info
 import no.group15.playmagic.ecs.components.AnimationComponent
 import no.group15.playmagic.ecs.components.StateComponent
 import no.group15.playmagic.ecs.components.TextureComponent
-import no.group15.playmagic.ecs.components.TransformComponent
 
 
 class AnimationSystem(
@@ -45,8 +41,6 @@ class AnimationSystem(
 				animator.lastSwitch += deltaTime
 			}
 
-			// Switch as many times as one should have since last update.
-//			while (animator.lastSwitch > animator.frameSwitchDelta) {
 			if (animator.lastSwitch >= animator.frameSwitchDelta) {
 
 				val stateIndex = state.stateMap[state.currentState]!!

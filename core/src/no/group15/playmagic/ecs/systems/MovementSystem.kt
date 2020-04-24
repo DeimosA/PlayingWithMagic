@@ -47,8 +47,8 @@ class MovementSystem(
 	override fun update(deltaTime: Float) {
 
 		for (entity in entities) {
-			val transform = transformMapper.get(entity)
-			val player = playerMapper.get(entity)
+			val transform = transformMapper[entity]
+			val player = playerMapper[entity]
 
 			if (player.isLocalPlayer) {
 				// Local player
@@ -109,7 +109,6 @@ class MovementSystem(
 	}
 
 	override fun receive(command: Command) {
-		// TODO several input devices can be active so check if exists, and choose one (largest movement?), discard the other. remember to clean up the unused one
 		when (command) {
 			is MoveCommand -> {
 				moveCommand = command
@@ -119,5 +118,4 @@ class MovementSystem(
 			}
 		}
 	}
-
 }
