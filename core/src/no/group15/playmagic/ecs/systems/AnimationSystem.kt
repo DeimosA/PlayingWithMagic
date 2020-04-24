@@ -32,24 +32,35 @@ class AnimationSystem(
 	}
 
 	override fun update(deltaTime: Float) {
-		super.update(deltaTime)
 		for (entity in entities) {
 			val animator = animationMapper.get(entity)
 			val texture = textureMapper.get(entity)
 			val state = stateMapper.get(entity)
 
-			animator.lastSwitch += deltaTime
+			if (state.stateChanged) {
+				state.stateChanged = false
+				animator.currentFrame = 0
+				animator.lastSwitch = animator.frameSwitchDelta
+			} else {
+				animator.lastSwitch += deltaTime
+			}
+
 			// Switch as many times as one should have since last update.
-			while (animator.lastSwitch > animator.frameSwitchDelta) {
+//			while (animator.lastSwitch > animator.frameSwitchDelta) {
+			if (animator.lastSwitch >= animator.frameSwitchDelta) {
+
+				val stateIndex = state.stateMap[state.currentState]!!
+				val framesLeft = animator.stateFrameCount[stateIndex] - (animator.currentFrame)
 				// If there is more frames in the animation: animate them
-				if (animator.currentFrame < animator.stateFrameCount[state.stateMap[state.currentState]!!]-1) {
-					texture.src = animator.src[state.stateMap[state.currentState]!!][++animator.currentFrame]
+				if (framesLeft > 0) {
+					texture.src = animator.src[stateIndex][animator.currentFrame++]
 					// Set last switch to when the switch should have happen (in case of delay)
 					animator.lastSwitch -= animator.frameSwitchDelta
 
-				} else {    // If there are no more frames: reset state.
-					animator.reset()
-					state.reset()
+					if (state.revertState && framesLeft == 1) {
+						animator.reset()
+						state.reset()
+					}
 				}
 			}
 		}

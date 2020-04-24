@@ -1,4 +1,4 @@
-package no.group15.playmagic.events
+package no.group15.playmagic.ecs.events
 
 import com.badlogic.ashley.core.Entity
 

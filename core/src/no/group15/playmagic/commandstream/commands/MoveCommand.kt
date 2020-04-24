@@ -1,6 +1,7 @@
-package no.group15.playmagic.commands
+package no.group15.playmagic.commandstream.commands
 
 import com.badlogic.gdx.utils.Pool
+import no.group15.playmagic.commandstream.Command
 
 
 class MoveCommand() : Command {

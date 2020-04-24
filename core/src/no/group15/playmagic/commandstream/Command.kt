@@ -1,4 +1,4 @@
-package no.group15.playmagic.commands
+package no.group15.playmagic.commandstream
 
 import com.badlogic.gdx.utils.Pool
 
@@ -23,7 +23,13 @@ interface Command : Pool.Poolable {
 		MOVE { override var receiver: CommandReceiver? = null }, // Relative move command from user input
 		POSITION { override var receiver: CommandReceiver? = null }, // Positions from other players
 		SEND_POSITION { override var receiver: CommandReceiver? = null }, // Local player position sent to server
-		DROP_BOMB { override var receiver: CommandReceiver? = null } // Drop bomb command from user input
+		DROP_BOMB { override var receiver: CommandReceiver? = null }, // Drop bomb command from user input
+		BOMB_POSITION { override var receiver: CommandReceiver? = null }, // A different player dropped a bomb
+		SEND_BOMB_POSITION { override var receiver: CommandReceiver? = null }, // Send position of dropped bomb to server
+		KILL_PLAYER { override var receiver: CommandReceiver? = null }, // A player was killed
+		SEND_KILL_PLAYER { override var receiver: CommandReceiver? = null }, // Send kill command to server
+		DESTROY { override var receiver: CommandReceiver? = null }, // Destroy a destructible
+		SEND_DESTROY { override var receiver: CommandReceiver? = null } // Send destroy command to server
 		;
 		abstract var receiver: CommandReceiver?
 	}

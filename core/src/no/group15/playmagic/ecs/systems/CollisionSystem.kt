@@ -13,7 +13,7 @@ import ktx.ashley.mapperFor
 import no.group15.playmagic.ecs.components.CollisionComponent
 import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
-import no.group15.playmagic.events.CollisionEvent
+import no.group15.playmagic.ecs.events.CollisionEvent
 import java.util.*
 
 
