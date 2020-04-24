@@ -70,7 +70,6 @@ class GameMap {
 	}
 
 
-	// --- IMPLEMENTATION ---
 
 
 	/**
@@ -176,6 +175,24 @@ class GameMap {
 		for (i in mapMatrix.indices) {
 			for (j in mapMatrix[0].indices) {
 				if (mapMatrix[i][j] == TileType.BROKEN_ROCK) {
+					mapMatrix[i][j] = TileType.DESTRUCTIBLE
+				}
+			}
+		}
+	}
+
+
+
+	// reset state and also recreate rocks entity
+	fun reset(engine: PooledEngine, assetManager: AssetManager) {
+		for (i in mapMatrix.indices) {
+			for (j in mapMatrix[0].indices) {
+				if (mapMatrix[i][j] == TileType.BROKEN_ROCK) {
+					val worldCoord = toWorldCoordinate(MatrixIndexes(j, i))
+					val entity = EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
+					val transform = entity.getComponent(TransformComponent::class.java)
+					transform.boundingBox.setSize(1f)
+					transform.setPosition(worldCoord.x, worldCoord.y)
 					mapMatrix[i][j] = TileType.DESTRUCTIBLE
 				}
 			}
