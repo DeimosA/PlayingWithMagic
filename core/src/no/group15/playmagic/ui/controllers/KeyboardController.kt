@@ -35,19 +35,19 @@ class KeyboardController(private val commandDispatcher: CommandDispatcher) : Inp
 
 	private fun setKey(keycode: Int, active: Boolean): Boolean {
 		return when (keycode) {
-			Input.Keys.RIGHT -> {
+			Input.Keys.RIGHT, Input.Keys.D -> {
 				moveRight = active
 				true
 			}
-			Input.Keys.UP -> {
+			Input.Keys.UP, Input.Keys.W -> {
 				moveUp = active
 				true
 			}
-			Input.Keys.LEFT ->  {
+			Input.Keys.LEFT, Input.Keys.A ->  {
 				moveLeft = active
 				true
 			}
-			Input.Keys.DOWN -> {
+			Input.Keys.DOWN, Input.Keys.S -> {
 				moveDown = active
 				true
 			}
