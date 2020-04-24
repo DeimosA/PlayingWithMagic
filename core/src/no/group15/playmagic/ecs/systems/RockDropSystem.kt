@@ -31,7 +31,7 @@ class RockDropSystem (
 
 		val bomb = if (event.entity1.has(exploder)) event.entity1 else event.entity2
 		val destructible = if(event.entity1.has(destructible))event.entity1 else event.entity2
-		//if(bomb[exploder]!!.isExploded) {
+		//if(bomb[exploder]!!.isExploded) { // uncomment this
 			engine.removeEntity(destructible)
 
 
