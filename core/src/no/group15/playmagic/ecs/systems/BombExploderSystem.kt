@@ -18,7 +18,7 @@ import no.group15.playmagic.commandstream.commands.DropBombCommand
 import no.group15.playmagic.commandstream.commands.SendBombPositionCommand
 import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.ecs.entities.EntityFactory
-import no.group15.playmagic.events.BombTimeoutEvent
+import no.group15.playmagic.ecs.events.BombTimeoutEvent
 import no.group15.playmagic.utils.assets.GameAssets
 
 

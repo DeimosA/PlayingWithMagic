@@ -7,7 +7,7 @@ import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.systems.IteratingSystem
 import ktx.ashley.*
 import no.group15.playmagic.ecs.components.TimerComponent
-import no.group15.playmagic.events.BombTimeoutEvent
+import no.group15.playmagic.ecs.events.BombTimeoutEvent
 
 
 class TimerSystem(

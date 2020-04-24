@@ -14,7 +14,7 @@ import no.group15.playmagic.ecs.components.DestructibleComponent
 import no.group15.playmagic.ecs.components.ExploderComponent
 import no.group15.playmagic.ecs.components.PlayerComponent
 import no.group15.playmagic.ecs.systems.*
-import no.group15.playmagic.events.CollisionEvent
+import no.group15.playmagic.ecs.events.CollisionEvent
 
 
 fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
