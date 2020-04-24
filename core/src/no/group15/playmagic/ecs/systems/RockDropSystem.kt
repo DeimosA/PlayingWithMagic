@@ -31,11 +31,11 @@ class RockDropSystem (
 
 		val bomb = if (event.entity1.has(exploder)) event.entity1 else event.entity2
 		val destructible = if(event.entity1.has(destructible))event.entity1 else event.entity2
-		if(bomb[exploder]!!.isExploded) {
+		//if(bomb[exploder]!!.isExploded) {
 			engine.removeEntity(destructible)
 
 
-		}
+		//}
 		val rockPos = destructible[transform]!!.position
 			if((0 .. 9).random() > 4) {  //just a random chance
 		var pickUp = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.PICKUP)
