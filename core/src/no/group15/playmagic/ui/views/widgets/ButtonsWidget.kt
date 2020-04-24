@@ -8,9 +8,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
 import ktx.inject.Context
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.CommandDispatcher
-import no.group15.playmagic.commands.DropBombCommand
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.commands.DropBombCommand
 import kotlin.math.pow
 
 

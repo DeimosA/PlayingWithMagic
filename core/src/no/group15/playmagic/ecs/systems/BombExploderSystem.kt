@@ -8,43 +8,46 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
-import ktx.ashley.allOf
-import ktx.ashley.get
-import ktx.ashley.mapperFor
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.CommandReceiver
-import no.group15.playmagic.commands.DropBombCommand
+import ktx.ashley.*
+import ktx.inject.Context
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.BombPositionCommand
+import no.group15.playmagic.commandstream.commands.DropBombCommand
+import no.group15.playmagic.commandstream.commands.SendBombPositionCommand
 import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.ecs.entities.EntityFactory
-import no.group15.playmagic.events.BombTimeoutEvent
+import no.group15.playmagic.ecs.events.BombTimeoutEvent
 import no.group15.playmagic.utils.assets.GameAssets
 import java.lang.RuntimeException
 
 
 class BombExploderSystem(
 	priority: Int,
-	private val assetManager: AssetManager
+	injectContext: Context
 ): EntitySystem(
 	priority
 ), Listener<BombTimeoutEvent>,
 	CommandReceiver {
 
+	private val assetManager: AssetManager = injectContext.inject()
+	private val commandDispatcher: CommandDispatcher = injectContext.inject()
+
 	private lateinit var entities: ImmutableArray<Entity>
-	private val timer = mapperFor<TimerComponent>()
 	private val texture = mapperFor<TextureComponent>()
 	private val transform = mapperFor<TransformComponent>()
 	private val exploder = mapperFor<ExploderComponent>()
 	private val player = mapperFor<PlayerComponent>()
-	private val destructible = mapperFor<DestructibleComponent>()
+
 
 	override fun addedToEngine (engine: Engine) {
 		entities = engine.getEntitiesFor(
 			allOf(ExploderComponent::class, TimerComponent::class, TransformComponent::class, TextureComponent::class).get()
 		)
 		Command.Type.DROP_BOMB.receiver = this
+		Command.Type.BOMB_POSITION.receiver = this
 	}
-
-
 
 	override fun receive(signal: Signal<BombTimeoutEvent>, event: BombTimeoutEvent) {
 		// explosion in ended
@@ -68,53 +71,51 @@ class BombExploderSystem(
 		}
 	}
 
-
-
 	override fun receive(command: Command) {
 		when (command) {
 			is DropBombCommand -> {
-				val playerComponent = getLocalPlayer()[player]!!
-				if (System.currentTimeMillis() > playerComponent.millisPreviousBombDrop + playerComponent.bombCooldown) {
-					playerComponent.millisPreviousBombDrop = System.currentTimeMillis()
-					val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
-					bomb[timer]!!.timeLeft = 3f
+				val playerEntity = getLocalPlayer()
 
-					// get player position position
-					val playerPos = getLocalPlayerPosition()
+				// check if player is dead
+				if (playerEntity != null) {
+					val playerComponent = playerEntity[player]!!
+					val playerPos = playerEntity[transform]!!.position
 
-					bomb[transform]!!.position.set(playerPos.x, playerPos.y)
-					bomb[transform]!!.boundingBox.setCenter(bomb[transform]!!.position)
+					//check bomb cooldown
+					if (System.currentTimeMillis() > playerComponent.millisPreviousBombDrop + playerComponent.bombCooldown) {
+						playerComponent.millisPreviousBombDrop = System.currentTimeMillis()
+
+						//create new bomb
+						val bomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
+						transform[bomb].setPosition(playerPos.x, playerPos.y)
+
+						// Send dropped bomb position to server
+						val bombPos =
+							commandDispatcher.createCommand(Command.Type.SEND_BOMB_POSITION) as SendBombPositionCommand
+						bombPos.x = playerPos.x
+						bombPos.y = playerPos.y
+						commandDispatcher.send(bombPos)
+					}
 				}
+			}
+			is BombPositionCommand -> {
+				// Receive dropped bombs from other players
+				val dudBomb = EntityFactory.makeEntity(assetManager, engine as PooledEngine, EntityFactory.Type.BOMB)
+				dudBomb.remove<CollisionComponent>()
+				transform[dudBomb].setPosition(command.x, command.y)
 			}
 		}
 	}
 
 
-
 	// --- IMPLEMENTATION ---
 
-	private fun getLocalPlayer(): Entity {
+	private fun getLocalPlayer(): Entity? {
 		for (entity in engine.getEntitiesFor(allOf(PlayerComponent::class).get())) {
 			if (entity[player]!!.isLocalPlayer) {
 				return entity
 			}
 		}
-		throw RuntimeException("Local player don't exists.")
+		return null
 	}
-
-
-
-	private fun getLocalPlayerPosition (): Vector2 {
-		var playerPos = Vector2(0f, 0f)
-		for (entity in engine.getEntitiesFor(allOf(PlayerComponent::class).get())) {
-			if (entity[player]!!.isLocalPlayer) {
-				playerPos = entity[transform]!!.position
-				break
-			}
-		}
-
-		return playerPos
-	}
-
-}
 

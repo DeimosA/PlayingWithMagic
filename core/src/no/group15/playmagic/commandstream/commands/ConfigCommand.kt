@@ -1,6 +1,6 @@
-package no.group15.playmagic.commands
+package no.group15.playmagic.commandstream.commands
 
-import no.group15.playmagic.ecs.GameMap
+import no.group15.playmagic.commandstream.Command
 
 
 class ConfigCommand : Command {
