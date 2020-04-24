@@ -102,8 +102,6 @@ class EntityManagementSystem(
 		}
 	}
 
-
-
 	override fun receive(signal: Signal<CollisionEvent>, event: CollisionEvent) {
 		val destructible = mapperFor<DestructibleComponent>()
 		val rock = if (event.entity1.has(destructible)) event.entity1 else event.entity2
@@ -111,6 +109,7 @@ class EntityManagementSystem(
 
 		gameMap.destroyRock(rockPosition.x, rockPosition.y)
 		engine.removeEntity(rock)
-	}
 
+		// TODO send destroy command
+	}
 }
