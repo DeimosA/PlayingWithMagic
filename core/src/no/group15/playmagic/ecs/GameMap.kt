@@ -6,6 +6,7 @@ import ktx.collections.*
 import ktx.math.ImmutableVector2
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.entities.EntityFactory
+import java.lang.RuntimeException
 import kotlin.math.round
 
 
@@ -41,7 +42,7 @@ class GameMap {
 				val centerY = base.y - y
 
 				val entity = when (cellType) {
-					TileType.EMPTY, TileType.SPAWN -> null
+					TileType.EMPTY, TileType.SPAWN, TileType.BROKEN_ROCK -> null
 					TileType.WALL -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
 					TileType.DESTRUCTIBLE -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
 				}
@@ -57,10 +58,15 @@ class GameMap {
 
 
 
-	fun setEmptyTile(x: Float, y: Float) {
+	fun destroyRock(x: Float, y: Float) {
 		val x = toMatrixCoordX(x)
 		val y = toMatrixCoordY(y)
-		mapMatrix[y][x] = TileType.EMPTY
+
+		if (mapMatrix[y][x] != TileType.DESTRUCTIBLE) {
+			throw RuntimeException("The tile is not a rock, you should destroy only rocks.")
+		}
+
+		mapMatrix[y][x] = TileType.BROKEN_ROCK
 	}
 
 
@@ -119,7 +125,7 @@ class GameMap {
 	// --- MAP DATA ---
 
 	enum class TileType {
-		EMPTY, WALL, DESTRUCTIBLE, SPAWN
+		EMPTY, WALL, DESTRUCTIBLE, SPAWN, BROKEN_ROCK
 	}
 
 	private val o: TileType = TileType.EMPTY
@@ -162,5 +168,17 @@ class GameMap {
 	fun returnSpawn(position: ImmutableVector2) {
 		spawnList.add(position)
 		spawnList.shuffle()
+	}
+
+
+
+	fun reset() {
+		for (i in mapMatrix.indices) {
+			for (j in mapMatrix[0].indices) {
+				if (mapMatrix[i][j] == TileType.BROKEN_ROCK) {
+					mapMatrix[i][j] = TileType.DESTRUCTIBLE
+				}
+			}
+		}
 	}
 }

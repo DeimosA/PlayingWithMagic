@@ -109,7 +109,7 @@ class EntityManagementSystem(
 		val rock = if (event.entity1.has(destructible)) event.entity1 else event.entity2
 		val rockPosition = rock[transformMapper]!!.position
 
-		gameMap.setEmptyTile(rockPosition.x, rockPosition.y)
+		gameMap.destroyRock(rockPosition.x, rockPosition.y)
 		engine.removeEntity(rock)
 	}
 
