@@ -116,12 +116,17 @@ class EntityFactory {
 			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
+			val pickupComponent: PickupComponent = engine.createComponent(PickupComponent::class.java)
+
+			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.PICKUP.desc.fileName))
+
 
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.PICKUP.desc.fileName))
 
 			pickup.add(collisionComponent)
 			pickup.add(transformComponent)
 			pickup.add(textureComponent)
+			pickup.add(pickupComponent)
 
 			engine.addEntity(pickup)
 			return pickup

@@ -12,6 +12,7 @@ import ktx.ashley.mapperFor
 import ktx.inject.Context
 import no.group15.playmagic.ecs.components.DestructibleComponent
 import no.group15.playmagic.ecs.components.ExploderComponent
+import no.group15.playmagic.ecs.components.PickupComponent
 import no.group15.playmagic.ecs.components.PlayerComponent
 import no.group15.playmagic.ecs.systems.*
 import no.group15.playmagic.ecs.events.CollisionEvent
@@ -32,7 +33,8 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	engine.addSystem(HealthSystem(6, injectContext))
 	engine.addSystem(AnimationSystem(9))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
-	engine.addSystem(RockDropSystem(5, assetManager))
+	engine.addSystem(PickUpSystem(7, injectContext))
+	engine.addSystem(RockDropSystem(6, assetManager))
 
 	// Register signals
 	engine.getSystem(TimerSystem::class.java).registerListener(engine.getSystem(BombExploderSystem::class.java))
@@ -48,6 +50,11 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 		allOf(ExploderComponent::class).get(),
 		engine.getSystem(EntityManagementSystem::class.java)
 	)
+  
+	engine.getSystem(CollisionSystem::class.java).registerListener(
+		allOf(PlayerComponent::class).get(),
+		allOf(PickupComponent::class).get(),
+		engine.getSystem(PickUpSystem::class.java)
  */
 
 	engine.getSystem(CollisionSystem::class.java).registerListener(
