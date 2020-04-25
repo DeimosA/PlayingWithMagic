@@ -58,17 +58,16 @@ class GameMap {
 
 
 
-	fun destroyRock(x: Float, y: Float) {
+	fun destroyRock(x: Float, y: Float): Boolean {
 		val x = toMatrixCoordX(x)
 		val y = toMatrixCoordY(y)
 
-		if (mapMatrix[y][x] != TileType.DESTRUCTIBLE) {
-			throw RuntimeException("The tile is not a rock, you should destroy only rocks.")
+		if (mapMatrix[y][x] == TileType.DESTRUCTIBLE) {
+			mapMatrix[y][x] = TileType.BROKEN_ROCK
+			return true
 		}
-
-		mapMatrix[y][x] = TileType.BROKEN_ROCK
+		return false
 	}
-
 
 
 

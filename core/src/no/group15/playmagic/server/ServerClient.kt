@@ -62,8 +62,10 @@ class ServerClient(
 	 */
 	private fun handleMessage(string: String) {
 		val array = json.fromJson<GdxArray<Command>>(string)
-		server.launch {
-			receiveQueue.addAll(array)
+		if (array != null) {
+			server.launch {
+				receiveQueue.addAll(array)
+			}
 		}
 	}
 
