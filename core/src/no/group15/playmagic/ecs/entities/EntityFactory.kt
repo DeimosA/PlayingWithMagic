@@ -5,9 +5,9 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.Vector2
 import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.utils.assets.GameAssets
+
 
 class EntityFactory {
 	companion object{
@@ -54,7 +54,7 @@ class EntityFactory {
 			textureComponent.src = animationComponent.src[0][0]
 
 
-			transformComponent.boundingBox.setSize(0.8f)
+			transformComponent.boundingBox.setSize(0.7f)
 			transformComponent.boundingBox.setCenter(transformComponent.position)
 
 			player.add(collisionComponent)
@@ -98,7 +98,7 @@ class EntityFactory {
 
 			transformComponent.boundingBox.setSize(.5f)
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BOMB.desc.fileName))
-			timerComponent.timeLeft = 3f
+			timerComponent.timeLeft = 2.5f
 
 			bomb.add(collisionComponent)
 			bomb.add(transformComponent)
@@ -116,10 +116,14 @@ class EntityFactory {
 			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
+			val pickupComponent: PickupComponent = engine.createComponent(PickupComponent::class.java)
+
+			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.PICKUP.desc.fileName))
 
 			pickup.add(collisionComponent)
 			pickup.add(transformComponent)
 			pickup.add(textureComponent)
+			pickup.add(pickupComponent)
 
 			engine.addEntity(pickup)
 			return pickup
