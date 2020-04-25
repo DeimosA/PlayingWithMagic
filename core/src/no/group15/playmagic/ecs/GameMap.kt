@@ -6,6 +6,7 @@ import ktx.collections.*
 import ktx.math.ImmutableVector2
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.entities.EntityFactory
+import java.lang.RuntimeException
 import kotlin.math.round
 
 
@@ -41,7 +42,7 @@ class GameMap {
 				val centerY = base.y - y
 
 				val entity = when (cellType) {
-					TileType.EMPTY, TileType.SPAWN -> null
+					TileType.EMPTY, TileType.SPAWN, TileType.BROKEN_ROCK -> null
 					TileType.WALL -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
 					TileType.DESTRUCTIBLE -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
 					TileType.PICKUP -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.PICKUP)
@@ -57,7 +58,19 @@ class GameMap {
 	}
 
 
-	// --- IMPLEMENTATION ---
+
+	fun destroyRock(x: Float, y: Float) {
+		val x = toMatrixCoordX(x)
+		val y = toMatrixCoordY(y)
+
+		if (mapMatrix[y][x] != TileType.DESTRUCTIBLE) {
+			throw RuntimeException("The tile is not a rock, you should destroy only rocks.")
+		}
+
+		mapMatrix[y][x] = TileType.BROKEN_ROCK
+	}
+
+
 
 
 	/**
@@ -112,7 +125,7 @@ class GameMap {
 	// --- MAP DATA ---
 
 	enum class TileType {
-		EMPTY, WALL, DESTRUCTIBLE, SPAWN, PICKUP
+		EMPTY, WALL, DESTRUCTIBLE, SPAWN, BROKEN_ROCK, PICKUP
 	}
 
 	private val o: TileType = TileType.EMPTY
@@ -156,5 +169,35 @@ class GameMap {
 	fun returnSpawn(position: ImmutableVector2) {
 		spawnList.add(position)
 		spawnList.shuffle()
+	}
+
+
+
+	fun reset() {
+		for (i in mapMatrix.indices) {
+			for (j in mapMatrix[0].indices) {
+				if (mapMatrix[i][j] == TileType.BROKEN_ROCK) {
+					mapMatrix[i][j] = TileType.DESTRUCTIBLE
+				}
+			}
+		}
+	}
+
+
+
+	// reset state and also recreate rocks entity
+	fun reset(engine: PooledEngine, assetManager: AssetManager) {
+		for (i in mapMatrix.indices) {
+			for (j in mapMatrix[0].indices) {
+				if (mapMatrix[i][j] == TileType.BROKEN_ROCK) {
+					val worldCoord = toWorldCoordinate(MatrixIndexes(j, i))
+					val entity = EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
+					val transform = entity.getComponent(TransformComponent::class.java)
+					transform.boundingBox.setSize(1f)
+					transform.setPosition(worldCoord.x, worldCoord.y)
+					mapMatrix[i][j] = TileType.DESTRUCTIBLE
+				}
+			}
+		}
 	}
 }

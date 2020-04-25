@@ -121,6 +121,8 @@ class EntityFactory {
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.PICKUP.desc.fileName))
 
 
+			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.PICKUP.desc.fileName))
+
 			pickup.add(collisionComponent)
 			pickup.add(transformComponent)
 			pickup.add(textureComponent)

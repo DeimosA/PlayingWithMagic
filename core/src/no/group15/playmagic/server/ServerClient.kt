@@ -34,17 +34,6 @@ class ServerClient(
 	init {
 		sendWelcomeConfig()
 		thread {
-//			val time = TimeUtils.nanoTime()
-//			debug { "$logMessage Trying to start reading from input stream" }
-//			try {
-//				while (!reader.ready()) {
-//					// Do nothing
-//				}
-//			} catch (e: IOException) {
-//				error { "$logMessage Error while waiting for ready: ${e.message}" }
-//				server.removeClient(id)
-//				return@thread
-//			}
 			debug { "$logMessage Listening for incoming data" }
 			receive()
 		}
@@ -62,7 +51,6 @@ class ServerClient(
 			}
 		} catch (e: IOException) {
 			error { "$logMessage Error while reading from input stream: ${e.message}" }
-			// TODO connection lost?
 			server.removeClient(id)
 			return
 		}
@@ -96,7 +84,6 @@ class ServerClient(
 			writer.flush()
 		} catch (e: IOException) {
 			error { "$logMessage Error while writing to output stream: ${e.message}" }
-			// TODO close connection?
 			server.removeClient(id)
 		}
 	}

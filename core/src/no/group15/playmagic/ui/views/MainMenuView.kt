@@ -93,13 +93,11 @@ class MainMenuView(
 
 		clickSound = assetManager.get(MenuAssets.SOUND_CLICK.desc.fileName)
 
-		// TODO change to using asset manager after merge with master, also fix text size and hover mess
-		val hoverBackground = TextureRegion(assetManager.get<Texture>(MenuAssets.HOVER_BACKGROUND.desc.fileName))
 		val width = 622f
 		menuList = MainMenuList(
 			Rectangle(viewport.worldWidth - width - 50f, 50f, width, 620f),
 			menuFont,
-			hoverBackground,
+			TextureRegion(assetManager.get<Texture>(MenuAssets.HOVER_BACKGROUND.desc.fileName)),
 			this,
 			injectContext
 		)

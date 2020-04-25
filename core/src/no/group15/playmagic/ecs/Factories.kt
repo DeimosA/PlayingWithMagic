@@ -33,7 +33,8 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	engine.addSystem(HealthSystem(6, injectContext))
 	engine.addSystem(AnimationSystem(9))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
-	engine.addSystem(PickUpSystem(5, injectContext))
+	engine.addSystem(PickUpSystem(7, injectContext))
+	engine.addSystem(RockDropSystem(6, assetManager))
 
 	// Register signals
 	engine.getSystem(TimerSystem::class.java).registerListener(engine.getSystem(BombExploderSystem::class.java))
@@ -44,20 +45,22 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 		engine.getSystem(HealthSystem::class.java)
 	)
 
-	engine.getSystem(CollisionSystem::class.java).registerListener(
+/*	engine.getSystem(CollisionSystem::class.java).registerListener(
 		allOf(DestructibleComponent::class).get(),
 		allOf(ExploderComponent::class).get(),
-		Listener<CollisionEvent>() {
-			_, event ->
-			val destructible = mapperFor<DestructibleComponent>()
-			val rock = if (event.entity1.has(destructible)) event.entity1 else event.entity2
-			engine.removeEntity(rock)
-		}
+		engine.getSystem(EntityManagementSystem::class.java)
 	)
+  
 	engine.getSystem(CollisionSystem::class.java).registerListener(
 		allOf(PlayerComponent::class).get(),
 		allOf(PickupComponent::class).get(),
 		engine.getSystem(PickUpSystem::class.java)
+ */
+
+	engine.getSystem(CollisionSystem::class.java).registerListener(
+		allOf(ExploderComponent::class).get(),
+		allOf(DestructibleComponent::class).get(),
+		engine.getSystem(RockDropSystem::class.java)
 	)
 
 
