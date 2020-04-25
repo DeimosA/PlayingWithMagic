@@ -94,7 +94,6 @@ class EntityManagementSystem(
 				killPlayer(command.playerId)
 			}
 			is DestroyCommand -> {
-				// TODO awaiting rock destruction fix
 				val rocks = engine.getEntitiesFor(
 					allOf(DestructibleComponent::class, TransformComponent::class).get()
 				)
@@ -129,7 +128,6 @@ class EntityManagementSystem(
 		gameMap.destroyRock(rockPosition.x, rockPosition.y)
 		engine.removeEntity(rock)
 
-		// TODO send destroy command
 		val command = commandDispatcher.createCommand(Command.Type.SEND_DESTROY) as SendDestroyCommand
 		command.x = rockPosition.x
 		command.y = rockPosition.y
