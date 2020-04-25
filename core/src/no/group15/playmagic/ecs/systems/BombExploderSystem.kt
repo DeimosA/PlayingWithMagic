@@ -59,7 +59,7 @@ class BombExploderSystem(
 			textureMapper[event.bomb].src = TextureRegion(assetManager.get<Texture>(GameAssets.EXPLOSION.desc.fileName))
 
 			val transform = transformMapper[event.bomb]
-			transform.boundingBox.setSize(1.2f, 1.2f)
+			transform.boundingBox.setSize(1.5f, 1.5f)
 			transform.boundingBox.setCenter(transform.position)
 			exploder.isExploded = true
 

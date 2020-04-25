@@ -54,7 +54,7 @@ class EntityFactory {
 			textureComponent.src = animationComponent.src[0][0]
 
 
-			transformComponent.boundingBox.setSize(0.8f)
+			transformComponent.boundingBox.setSize(0.7f)
 			transformComponent.boundingBox.setCenter(transformComponent.position)
 
 			player.add(collisionComponent)
@@ -98,7 +98,7 @@ class EntityFactory {
 
 			transformComponent.boundingBox.setSize(.5f)
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BOMB.desc.fileName))
-			timerComponent.timeLeft = 3f
+			timerComponent.timeLeft = 2.5f
 
 			bomb.add(collisionComponent)
 			bomb.add(transformComponent)
