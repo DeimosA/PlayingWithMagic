@@ -117,6 +117,8 @@ class EntityFactory {
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
 
+			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.PICKUP.desc.fileName))
+
 			pickup.add(collisionComponent)
 			pickup.add(transformComponent)
 			pickup.add(textureComponent)

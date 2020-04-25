@@ -32,6 +32,7 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	engine.addSystem(HealthSystem(6, injectContext))
 	engine.addSystem(AnimationSystem(9))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
+	engine.addSystem(RockDropSystem(5, assetManager))
 
 	// Register signals
 	engine.getSystem(TimerSystem::class.java).registerListener(engine.getSystem(BombExploderSystem::class.java))
@@ -42,11 +43,19 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 		engine.getSystem(HealthSystem::class.java)
 	)
 
-	engine.getSystem(CollisionSystem::class.java).registerListener(
+/*	engine.getSystem(CollisionSystem::class.java).registerListener(
 		allOf(DestructibleComponent::class).get(),
 		allOf(ExploderComponent::class).get(),
 		engine.getSystem(EntityManagementSystem::class.java)
 	)
+ */
+
+	engine.getSystem(CollisionSystem::class.java).registerListener(
+		allOf(ExploderComponent::class).get(),
+		allOf(DestructibleComponent::class).get(),
+		engine.getSystem(RockDropSystem::class.java)
+	)
+
 
 	return engine
 }
