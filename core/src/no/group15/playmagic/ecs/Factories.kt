@@ -2,20 +2,16 @@ package no.group15.playmagic.ecs
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.PooledEngine
-import com.badlogic.ashley.signals.Listener
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.viewport.Viewport
-import ktx.ashley.allOf
-import ktx.ashley.has
-import ktx.ashley.mapperFor
+import ktx.ashley.*
 import ktx.inject.Context
 import no.group15.playmagic.ecs.components.DestructibleComponent
 import no.group15.playmagic.ecs.components.ExploderComponent
 import no.group15.playmagic.ecs.components.PickupComponent
 import no.group15.playmagic.ecs.components.PlayerComponent
 import no.group15.playmagic.ecs.systems.*
-import no.group15.playmagic.ecs.events.CollisionEvent
 
 
 fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
@@ -31,10 +27,10 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	engine.addSystem(TimerSystem(4))
 	engine.addSystem(BombExploderSystem(5, injectContext))
 	engine.addSystem(HealthSystem(6, injectContext))
+	engine.addSystem(RockDropSystem(6, assetManager))
+	engine.addSystem(PickUpSystem(7))
 	engine.addSystem(AnimationSystem(9))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
-	engine.addSystem(PickUpSystem(7, injectContext))
-	engine.addSystem(RockDropSystem(6, assetManager))
 
 	// Register signals
 	engine.getSystem(TimerSystem::class.java).registerListener(engine.getSystem(BombExploderSystem::class.java))
@@ -45,17 +41,17 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 		engine.getSystem(HealthSystem::class.java)
 	)
 
-/*	engine.getSystem(CollisionSystem::class.java).registerListener(
+	engine.getSystem(CollisionSystem::class.java).registerListener(
 		allOf(DestructibleComponent::class).get(),
 		allOf(ExploderComponent::class).get(),
 		engine.getSystem(EntityManagementSystem::class.java)
 	)
-  
+
 	engine.getSystem(CollisionSystem::class.java).registerListener(
 		allOf(PlayerComponent::class).get(),
 		allOf(PickupComponent::class).get(),
 		engine.getSystem(PickUpSystem::class.java)
- */
+	)
 
 	engine.getSystem(CollisionSystem::class.java).registerListener(
 		allOf(ExploderComponent::class).get(),
