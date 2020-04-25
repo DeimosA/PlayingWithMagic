@@ -33,7 +33,7 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	engine.addSystem(HealthSystem(6, injectContext))
 	engine.addSystem(AnimationSystem(9))
 	engine.addSystem(RenderingSystem(10, viewport, batch))
-	engine.addSystem(PickUpSystem(5))
+	engine.addSystem(PickUpSystem(5, injectContext))
 
 	// Register signals
 	engine.getSystem(TimerSystem::class.java).registerListener(engine.getSystem(BombExploderSystem::class.java))
@@ -57,7 +57,8 @@ fun engineFactory(injectContext: Context, viewport: Viewport): Engine {
 	engine.getSystem(CollisionSystem::class.java).registerListener(
 		allOf(PlayerComponent::class).get(),
 		allOf(PickupComponent::class).get(),
-		//engine.getSystem(RockDropSystem::class.java)
+		engine.getSystem(PickUpSystem::class.java)
+	)
 
 
 	return engine

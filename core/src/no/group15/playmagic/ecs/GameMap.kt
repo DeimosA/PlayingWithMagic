@@ -122,9 +122,9 @@ class GameMap {
 	private val p: TileType = TileType.PICKUP
 
 	private val mapMatrix: Array<Array<TileType>> = arrayOf(
-		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x),
+		arrayOf(o, x, p, x, x, x, x, x, x, x, x, x, x, x),
 		arrayOf(x, s, o, o, o, o, o, o, o, o, o, o, s, x),
-		arrayOf(x, o, x, x, p, x, o, o, x, d, x, x, o, x),
+		arrayOf(x, o, x, x, x, x, o, o, x, d, x, x, o, x),
 		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, x),
 		arrayOf(x, o, x, d, x, o, o, o, o, x, d, x, o, x),
 		arrayOf(x, o, x, s, x, x, o, o, x, x, s, x, o, x),

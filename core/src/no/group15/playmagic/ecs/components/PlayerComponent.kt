@@ -12,7 +12,7 @@ class PlayerComponent : Component, Pool.Poolable {
 	var previousBombDrop: Long = 0
 
 	// Max player movement speed
-	val maxSpeed = 2f
+	var maxSpeed = 2f
 
 	val bombCoolDown = 3000 //ms
 
