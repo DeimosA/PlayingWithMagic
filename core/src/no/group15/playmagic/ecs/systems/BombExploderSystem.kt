@@ -65,10 +65,12 @@ class BombExploderSystem(
 
 			// explosion must be detected as new collision
 			val collision = collisionMapper[event.bomb]
-			for (entity in collision.collidingWith) {
-				collisionMapper[entity].reset()
+			if (collision != null) {
+				for (entity in collision.collidingWith) {
+					collisionMapper[entity].reset()
+				}
+				collision.reset()
 			}
-			collision.reset()
 
 			// create new timer
 			val newTimer = (engine as PooledEngine).createComponent(TimerComponent::class.java)
