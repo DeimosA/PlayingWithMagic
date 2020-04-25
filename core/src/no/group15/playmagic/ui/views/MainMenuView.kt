@@ -15,7 +15,7 @@ import ktx.freetype.*
 import ktx.graphics.*
 import ktx.inject.*
 import no.group15.playmagic.PlayMagic
-import no.group15.playmagic.commands.CommandDispatcher
+import no.group15.playmagic.commandstream.CommandDispatcher
 import no.group15.playmagic.network.NetworkContext
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.controllers.GamePresenter
@@ -93,13 +93,11 @@ class MainMenuView(
 
 		clickSound = assetManager.get(MenuAssets.SOUND_CLICK.desc.fileName)
 
-		// TODO change to using asset manager after merge with master, also fix text size and hover mess
-		val hoverBackground = TextureRegion(assetManager.get<Texture>(MenuAssets.HOVER_BACKGROUND.desc.fileName))
 		val width = 622f
 		menuList = MainMenuList(
 			Rectangle(viewport.worldWidth - width - 50f, 50f, width, 620f),
 			menuFont,
-			hoverBackground,
+			TextureRegion(assetManager.get<Texture>(MenuAssets.HOVER_BACKGROUND.desc.fileName)),
 			this,
 			injectContext
 		)

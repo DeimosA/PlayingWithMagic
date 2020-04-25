@@ -5,16 +5,22 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.utils.ImmutableArray
 import ktx.ashley.*
+import ktx.collections.*
 import ktx.inject.*
-import no.group15.playmagic.commands.*
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.MoveCommand
+import no.group15.playmagic.commandstream.commands.PositionCommand
+import no.group15.playmagic.commandstream.commands.SendPositionCommand
 import no.group15.playmagic.ecs.GameMap
-import no.group15.playmagic.ecs.components.MovementComponent
+import no.group15.playmagic.ecs.components.PlayerComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 
 
 class MovementSystem(
 	priority: Int,
-	private val injectContext: Context,
+	injectContext: Context,
 	private val gameMap: GameMap
 ) : EntitySystem(
 	priority
@@ -22,84 +28,93 @@ class MovementSystem(
 
 	private lateinit var entities: ImmutableArray<Entity>
 	private val transformMapper = mapperFor<TransformComponent>()
-	private val movementMapper = mapperFor<MovementComponent>()
+	private val playerMapper = mapperFor<PlayerComponent>()
 
 	private val commandDispatcher: CommandDispatcher = injectContext.inject()
-	private var localPlayerId = 0
 	private var moveCommand: MoveCommand? = null
+	private val positionCommands = gdxMapOf<Int, PositionCommand?>()
 
 
 	override fun addedToEngine(engine: Engine) {
 		entities = engine.getEntitiesFor(
-			allOf(MovementComponent::class, TransformComponent::class).get()
+			allOf(PlayerComponent::class, TransformComponent::class).get()
 		)
+		// Register for commands
 		Command.Type.MOVE.receiver = this
-		Command.Type.CONFIG.receiver = this
-		Command.Type.SPAWN_PLAYER.receiver = this
+		Command.Type.POSITION.receiver = this
 	}
 
 	override fun update(deltaTime: Float) {
 
-		// TODO
-		//  -move command only for local player
-		//  -send position command to network
-		//  -handle position commands for other players
 		for (entity in entities) {
-			val transform = transformMapper.get(entity)
-			val movement = movementMapper.get(entity)
+			val transform = transformMapper[entity]
+			val player = playerMapper[entity]
 
-			val command = moveCommand
-			if (command != null) {
-				val deltaX = command.x * movement.maxSpeed * deltaTime
-				val deltaY = command.y * movement.maxSpeed * deltaTime
+			if (player.isLocalPlayer) {
+				// Local player
+				val command = moveCommand
+				moveCommand = null
+				if (command != null) {
 
-				transform.position.add(
-					deltaX,
-					deltaY
-				)
-				transform.boundingBox.setCenter(transform.position)
+					val deltaX = command.x * player.maxSpeed * deltaTime
+					val deltaY = command.y * player.maxSpeed * deltaTime
+					// Move commands are relative and transient so clean up
+					command.free()
 
-				// TODO the overlapping function could maybe just take in the boundingbox Rectangle and the delta position to check beforehand so we don't need to revert
-				if (gameMap.overlappingWithWall(entity)) {
-					//REVERT MOVEMENT
-					transform.position.add(
-						-deltaX,
-						-deltaY
-					)
+					// - Check if moving along axis
+					// - Find edge of bounding box in the direction of movement
+					// - Check if we will collide with wall in this direction
+					// Then move
+					if (deltaX != 0f) {
+						// x is deltaX + either left side or right side of bounding box
+						val x = deltaX + transform.boundingBox.x + if (deltaX > 0f) transform.boundingBox.width else 0f
+						if (!gameMap.willCollideX(
+								x,
+								transform.boundingBox.y,
+								transform.boundingBox.y + transform.boundingBox.height
+							)) {
+							transform.position.x += deltaX
+						}
+					}
+
+					if (deltaY != 0f) {
+						val y = deltaY + transform.boundingBox.y + if (deltaY > 0f) transform.boundingBox.height else 0f
+						if (!gameMap.willCollideY(
+								y,
+								transform.boundingBox.x,
+								transform.boundingBox.x + transform.boundingBox.width
+							)) {
+							transform.position.y += deltaY
+						}
+					}
+
 					transform.boundingBox.setCenter(transform.position)
+
+					// Send position command for local player
+					val sendCommand = commandDispatcher.createCommand(Command.Type.SEND_POSITION) as SendPositionCommand
+					sendCommand.x = transform.position.x
+					sendCommand.y = transform.position.y
+					sendCommand.playerId = player.playerId
+					commandDispatcher.send(sendCommand)
 				}
 
-				// Send position command for local player
-				val sendCommand = commandDispatcher.createCommand(Command.Type.SEND_POSITION) as SendPositionCommand
-				sendCommand.x = transform.position.x
-				sendCommand.y = transform.position.y
-				sendCommand.playerId = localPlayerId
-				commandDispatcher.send(sendCommand)
-				// Move commands are relative and transient so clean up
-				command.free()
-				moveCommand = null
+			} else {
+				// Other player
+				val command = positionCommands[player.playerId]
+				if (command != null) {
+					transform.setPosition(command.x, command.y)
+				}
 			}
 		}
 	}
 
 	override fun receive(command: Command) {
-		// TODO several input devices can be active so check if exists, and choose one (largest movement?), discard the other. remember to clean up the unused one
 		when (command) {
 			is MoveCommand -> {
 				moveCommand = command
 			}
-			is ConfigCommand -> {
-				localPlayerId = command.playerId
-				// TODO should spawn entity here
-				for (entity in entities) {
-					movementMapper.get(entity).playerId = command.playerId
-//					val transform = transformMapper.get(entity)
-//					transform.position.set(command.spawnPosX, command.spawnPosY)
-//					transform.boundingBox.setCenter(transform.position)
-				}
-			}
-			is SpawnPlayerCommand -> {
-				// TODO spawn player
+			is PositionCommand -> {
+				positionCommands[command.playerId] = command
 			}
 		}
 	}

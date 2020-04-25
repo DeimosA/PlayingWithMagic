@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import ktx.async.KtxAsync
 import ktx.inject.*
-import no.group15.playmagic.commands.CommandDispatcher
+import no.group15.playmagic.commandstream.CommandDispatcher
 import no.group15.playmagic.ui.AppState
 import no.group15.playmagic.ui.views.MainMenuView
 

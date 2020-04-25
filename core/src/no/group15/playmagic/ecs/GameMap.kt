@@ -1,181 +1,201 @@
 package no.group15.playmagic.ecs
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.math.Vector2
+import ktx.collections.*
 import ktx.math.ImmutableVector2
-import no.group15.playmagic.ecs.components.CollisionComponent
-import no.group15.playmagic.ecs.components.TextureComponent
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.entities.EntityFactory
-import no.group15.playmagic.utils.assets.GameAssets
-import java.util.*
-import kotlin.math.max
-import kotlin.math.min
+import java.lang.RuntimeException
+import kotlin.math.round
 
 
-class GameMap (
-	private val assetManager: AssetManager
-) {
+class GameMap {
 
-	private class Coordinate (
+
+	// --- PUBLIC INTERFACE ---
+
+	fun width() = mapMatrix[0].size
+	fun height() = mapMatrix.size
+
+	fun willCollideX(worldPosX: Float, yBottom: Float, yTop: Float): Boolean {
+		val matrixX = toMatrixCoordX(worldPosX)
+		val matrixY1 = toMatrixCoordY(yBottom)
+		val matrixY2 = toMatrixCoordY(yTop)
+		return isRigidTile(matrixX, matrixY1) || isRigidTile(matrixX, matrixY2)
+	}
+
+	fun willCollideY(worldPosY: Float, xLeft: Float, xRight: Float): Boolean {
+		val matrixY = toMatrixCoordY(worldPosY)
+		val matrixX1 = toMatrixCoordX(xLeft)
+		val matrixX2 = toMatrixCoordX(xRight)
+		return isRigidTile(matrixX1, matrixY) || isRigidTile(matrixX2, matrixY)
+	}
+
+	fun makeEntities(engine: PooledEngine, assetManager: AssetManager) {
+		val base = toWorldCoordinate(MatrixIndexes(0, 0))
+
+		for ((y, row) in mapMatrix.withIndex()) {
+			for ((x, cellType) in row.withIndex()) {
+
+				val centerX = base.x + x
+				val centerY = base.y - y
+
+				val entity = when (cellType) {
+					TileType.EMPTY, TileType.SPAWN, TileType.BROKEN_ROCK -> null
+					TileType.WALL -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
+					TileType.DESTRUCTIBLE -> EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
+				}
+
+				if (entity != null) {
+					val transform = entity.getComponent(TransformComponent::class.java)
+					transform.boundingBox.setSize(1f)
+					transform.setPosition(centerX, centerY)
+				}
+			}
+		}
+	}
+
+
+
+	fun destroyRock(x: Float, y: Float) {
+		val x = toMatrixCoordX(x)
+		val y = toMatrixCoordY(y)
+
+		if (mapMatrix[y][x] != TileType.DESTRUCTIBLE) {
+			throw RuntimeException("The tile is not a rock, you should destroy only rocks.")
+		}
+
+		mapMatrix[y][x] = TileType.BROKEN_ROCK
+	}
+
+
+
+
+	/**
+	 * Translate the world coordinate for [worldPosX] to the matrix indexes.
+	 */
+	private fun toMatrixCoordX(worldPosX: Float): Int {
+		val offset = -width() / 2f + 0.5f
+		val relPos = worldPosX - offset
+
+		return round(relPos).toInt()
+	}
+
+	/**
+	 * Translate the world coordinate for [worldPosY] to the matrix indexes.
+	 */
+	private fun toMatrixCoordY(worldPosY: Float): Int {
+		val offset = -height() / 2f + 0.5f
+		val relPos = worldPosY - offset
+
+		return height() - 1 - round(relPos).toInt()
+	}
+
+	/**
+	 * Check if matrix coordinates is a rigid tile
+	 */
+	private fun isRigidTile(x: Int, y: Int): Boolean {
+		val tile = mapMatrix[y][x]
+		return tile == TileType.WALL || tile == TileType.DESTRUCTIBLE
+	}
+
+	/**
+	 * Translate the matrix indexes to the world coordinate.
+	 */
+	private fun toWorldCoordinate(m: MatrixIndexes) = WorldCoordinate(m.x - width() / 2 + .5f, (height() - 1) / 2 - m.y + .5f)
+
+
+	private class WorldCoordinate(
 		var x: Float,
 		var y: Float
 	) {
 		override fun toString() = "($x, $y)"
 	}
 
-	enum class CellType {
-		EMPTY, WALL, DESTRUCTIBLE
+	private class MatrixIndexes(
+		var x: Int,
+		var y: Int
+	) {
+		override fun toString() = "($x, $y)"
 	}
 
-	private val o: CellType =
-		CellType.EMPTY
-	private val x: CellType =
-		CellType.WALL
-	private val d: CellType =
-		CellType.DESTRUCTIBLE
 
-	val mapMatrix: Array<Array<CellType>> = arrayOf(
-		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x),
-		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
-		arrayOf(x, o, x, d, d, x, x, x, o, o, x, x, x, d, x, x, o, x),
-		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
-		arrayOf(x, o, x, o, x, o, x, o, o, o, o, x, o, x, o, x, o, x),
-		arrayOf(x, o, x, o, x, o, o, x, o, o, x, o, o, x, o, x, o, x),
-		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
-		arrayOf(x, o, x, d, d, x, x, x, o, o, x, x, d, x, x, x, o, x),
-		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, o, x),
-		arrayOf(x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x)
+	// --- MAP DATA ---
+
+	enum class TileType {
+		EMPTY, WALL, DESTRUCTIBLE, SPAWN, BROKEN_ROCK
+	}
+
+	private val o: TileType = TileType.EMPTY
+	private val x: TileType = TileType.WALL
+	private val d: TileType = TileType.DESTRUCTIBLE
+	private val s: TileType = TileType.SPAWN
+
+	private val mapMatrix: Array<Array<TileType>> = arrayOf(
+		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x),
+		arrayOf(x, s, o, o, o, o, o, o, o, o, o, o, s, x),
+		arrayOf(x, o, x, x, d, x, o, o, x, d, x, x, o, x),
+		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, x),
+		arrayOf(x, o, x, d, x, o, o, o, o, x, d, x, o, x),
+		arrayOf(x, o, x, s, x, x, o, o, x, x, s, x, o, x),
+		arrayOf(x, o, o, o, o, o, o, o, o, o, o, o, o, x),
+		arrayOf(x, o, x, d, x, x, o, o, x, x, d, x, o, x),
+		arrayOf(x, s, o, o, o, o, o, o, o, o, o, o, s, x),
+		arrayOf(x, x, x, x, x, x, x, x, x, x, x, x, x, x)
 	)
 
-	//private val discreteWidth: Int = 18
-
-	// TODO: write a public method that set this value
-	private var topLeftCorner: Coordinate =
-		Coordinate(-9f, 4f)
-
-
-
-	fun overlappingWithWall(entity: Entity): Boolean {
-		for (tile in nearTiles(entity)) {
-			if (isRigidTile(tile) and overlapping(entity, tile)) {
-				return true
-			}
-		}
-		return false
-	}
-
-
-
-	//TODO remove entity creation
-	fun makeEntities (engine: PooledEngine) {
-		var offset = Coordinate(topLeftCorner.x, topLeftCorner.y)
-
-		for ( (y, row) in mapMatrix.withIndex()) {
-			for ( (x, cellType) in row.withIndex()) {
-
-				offset.x = topLeftCorner.x + x
-				offset.y = topLeftCorner.y - y
-
-				//println("" + offset.x + ", " + offset.y)
-
-
-				when (cellType) {
-
-					//CellType.EMPTY -> println("empty")
-
-					CellType.WALL -> {
-
-						var entity = EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.WALL)
-
-						var transform : TransformComponent = entity.getComponent(TransformComponent::class.java)
-						transform.boundingBox.set(offset.x, offset.y, 1f, 1f)
-						transform.position = transform.boundingBox.getCenter(transform.position)
-
-					}
-
-					CellType.DESTRUCTIBLE -> {
-						var entity = EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
-
-						var transform : TransformComponent = entity.getComponent(TransformComponent::class.java)
-						transform.boundingBox.set(offset.x, offset.y, 1f, 1f)
-						transform.position = transform.boundingBox.getCenter(transform.position)
-
-					}
-
+	private val spawnList: GdxArray<ImmutableVector2> by lazy {
+		val array = gdxArrayOf<ImmutableVector2>()
+		for ((y, row) in mapMatrix.withIndex()) {
+			for ((x, tile) in row.withIndex()) {
+				if (tile == TileType.SPAWN) {
+					val position = toWorldCoordinate(MatrixIndexes(x, y))
+					array.add(ImmutableVector2(position.x, position.y))
 				}
 			}
-
 		}
+		array.shrink()
+		array.shuffle()
+		array
+	}
 
+	fun getRandomSpawn(): ImmutableVector2 {
+		return spawnList.pop()
+	}
+
+	fun returnSpawn(position: ImmutableVector2) {
+		spawnList.add(position)
+		spawnList.shuffle()
 	}
 
 
-	/**
-	 * Returns the map coordinate of the tiles around the
-	 * entity. If the entity is the one marked with 'e' in the diagram
-	 *     t t t
-	 *     t e t
-	 *     t t t
-	 * the function return all the eight tiles marked with 't'
-	 * plus the one marked with 'e'
-	 */
-	private fun nearTiles(entity: Entity): Iterable<Coordinate> {
-		val list = LinkedList<Coordinate>()
-		val center = Vector2()
-		val entityPoint = boundingBox(entity).getCenter(center)
-		for (i in max(0, entityPoint.x.toInt() - 1) until min(entityPoint.x.toInt() + 1, mapMatrix[0].size - 1) + 1) {
-			for (j in max(0, entityPoint.y.toInt() - 1) until min(entityPoint.y.toInt() + 1, mapMatrix.size - 1) + 1) {
-				list.add(Coordinate(i.toFloat(), j.toFloat()))
+
+	fun reset() {
+		for (i in mapMatrix.indices) {
+			for (j in mapMatrix[0].indices) {
+				if (mapMatrix[i][j] == TileType.BROKEN_ROCK) {
+					mapMatrix[i][j] = TileType.DESTRUCTIBLE
+				}
 			}
 		}
-		return list
 	}
 
 
 
-	private fun boundingBox (entity: Entity): Rectangle {
-		// TODO replace this with existing boundingbox in transform component
-		val transform = entity.getComponent(TransformComponent::class.java)
-		val texture = entity.getComponent(TextureComponent::class.java)
-		val coordinate = toMatrixIndexes(Coordinate(transform.position.x, transform.position.y))
-
-		return Rectangle(
-			coordinate.x,
-			coordinate.y,
-			transform.boundingBox.width * transform.scale.x,
-			transform.boundingBox.width * transform.scale.y
-		)
+	// reset state and also recreate rocks entity
+	fun reset(engine: PooledEngine, assetManager: AssetManager) {
+		for (i in mapMatrix.indices) {
+			for (j in mapMatrix[0].indices) {
+				if (mapMatrix[i][j] == TileType.BROKEN_ROCK) {
+					val worldCoord = toWorldCoordinate(MatrixIndexes(j, i))
+					val entity = EntityFactory.makeEntity(assetManager, engine, EntityFactory.Type.ROCK)
+					val transform = entity.getComponent(TransformComponent::class.java)
+					transform.boundingBox.setSize(1f)
+					transform.setPosition(worldCoord.x, worldCoord.y)
+					mapMatrix[i][j] = TileType.DESTRUCTIBLE
+				}
+			}
+		}
 	}
-
-
-	/**
-	 * Translate the world coordinate to the matrix indexes.
-	 */
-	private fun toMatrixIndexes(coordinate: Coordinate): Coordinate {
-		return Coordinate(coordinate.x - topLeftCorner.x, topLeftCorner.y - coordinate.y)
-	}
-
-
-
-	private fun isRigidTile(coordinate: Coordinate): Boolean {
-		val x = coordinate.x.toInt()
-		val y = coordinate.y.toInt()
-		return mapMatrix[y][x] != CellType.EMPTY
-	}
-
-
-
-	private fun overlapping(entity: Entity, tile: Coordinate): Boolean {
-		val entityBoundingBox = boundingBox(entity)
-		val tileBoundingBox = Rectangle(tile.x, tile.y, 1f, 1f)
-
-		return entityBoundingBox.overlaps(tileBoundingBox)
-	}
-
 }

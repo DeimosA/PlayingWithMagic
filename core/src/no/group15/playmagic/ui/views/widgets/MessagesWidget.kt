@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import ktx.collections.gdxListOf
-import no.group15.playmagic.commands.Command
-import no.group15.playmagic.commands.CommandReceiver
-import no.group15.playmagic.commands.MessageCommand
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.MessageCommand
 
 
 class MessagesWidget(

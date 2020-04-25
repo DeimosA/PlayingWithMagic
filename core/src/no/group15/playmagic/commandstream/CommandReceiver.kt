@@ -1,4 +1,5 @@
-package no.group15.playmagic.commands
+package no.group15.playmagic.commandstream
+
 
 interface CommandReceiver {
 

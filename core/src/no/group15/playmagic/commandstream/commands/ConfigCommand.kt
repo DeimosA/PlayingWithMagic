@@ -1,6 +1,6 @@
-package no.group15.playmagic.commands
+package no.group15.playmagic.commandstream.commands
 
-import no.group15.playmagic.ecs.GameMap
+import no.group15.playmagic.commandstream.Command
 
 
 class ConfigCommand : Command {
@@ -11,7 +11,7 @@ class ConfigCommand : Command {
 	var tickRate = 1f
 	var spawnPosX = 0f
 	var spawnPosY = 0f
-	var gameMap: Array<Array<GameMap.CellType>>? = null
+//	var gameMap: Array<Array<GameMap.TileType>>? = null
 
 
 	override fun free() {

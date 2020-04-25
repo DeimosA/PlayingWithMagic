@@ -14,7 +14,10 @@ import ktx.collections.*
 import ktx.inject.Context
 import ktx.json.*
 import ktx.log.*
-import no.group15.playmagic.commands.*
+import no.group15.playmagic.commandstream.Command
+import no.group15.playmagic.commandstream.CommandDispatcher
+import no.group15.playmagic.commandstream.CommandReceiver
+import no.group15.playmagic.commandstream.commands.*
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.IOException
@@ -24,18 +27,17 @@ import kotlin.concurrent.thread
 
 class GameClient(
 	injectContext: Context,
-	config: ClientConfig = ClientConfig()
-) : Disposable, CommandReceiver, CoroutineScope by CoroutineScope(newAsyncContext(2)) {
+	private val config: ClientConfig = ClientConfig()
+) : Disposable, CommandReceiver, CoroutineScope by CoroutineScope(newSingleThreadAsyncContext()) {
 
-	val socket: Socket by lazy {
-		Gdx.net.newClientSocket(Net.Protocol.TCP, config.host, config.port, SocketHints())
-	}
+	private var socket: Socket? = null
 	private val log = logger<GameClient>()
 	private var reader: BufferedReader? = null
 	private var writer: BufferedWriter? = null
 	private val json = Json()
 	private val commandDispatcher: CommandDispatcher = injectContext.inject()
 	private val commandQueue = gdxArrayOf<Command>()
+	private var latestPosition: SendPositionCommand? = null
 
 	private var running = false
 	private var tickRate = 1f
@@ -50,6 +52,9 @@ class GameClient(
 	init {
 		// Register receiver
 	    Command.Type.SEND_POSITION.receiver = this
+		Command.Type.SEND_BOMB_POSITION.receiver = this
+		Command.Type.SEND_KILL_PLAYER.receiver = this
+		Command.Type.SEND_DESTROY.receiver = this
 	}
 
 	/**
@@ -57,14 +62,19 @@ class GameClient(
 	 */
 	fun connect() = launch {
 		try {
-			socket
-			log.info { "Connected to server: ${socket.remoteAddress}" }
-			reader = socket.inputStream.bufferedReader()
-			writer = socket.outputStream.bufferedWriter()
-			launch { receiveCommands() }
+			socket = Gdx.net.newClientSocket(Net.Protocol.TCP, config.host, config.port, SocketHints())
+			log.info { "Connected to server: ${socket?.remoteAddress}" }
+			writer = socket?.outputStream?.bufferedWriter()
+			reader = socket?.inputStream?.bufferedReader()
+			receiveCommands()
 
 		} catch (e: GdxRuntimeException) {
 			log.error { e.cause?.message ?: "Error opening client socket: ${e.message}" }
+			KtxAsync.launch {
+				val command = commandDispatcher.createCommand(Command.Type.MESSAGE) as MessageCommand
+				command.text = "Could not connect to server"
+				commandDispatcher.send(command)
+			}
 			return@launch
 		}
 
@@ -92,6 +102,7 @@ class GameClient(
 	}
 
 	private fun clientTick(deltaTime: Float) = launch {
+		if (latestPosition != null) commandQueue.add(latestPosition)
 		if (commandQueue.size > 0) {
 			// Send command array
 			sendCommands(commandQueue)
@@ -102,20 +113,31 @@ class GameClient(
 	}
 
 	/**
-	 * Listen for incoming message
+	 * Listen for incoming message from the server
 	 */
-	private tailrec fun receiveCommands() {
-		try {
-			val line = reader?.readLine() ?: return
-			handleCommands(line)
-		} catch (e: IOException) {
-			// TODO connection lost
+	private fun receiveCommands() {
+		thread {
+			while (running) {
+				try {
+					val line = reader?.readLine()
+					if (line == null) {
+						log.error { "Reached end of stream" }
+						running = false
+						// TODO connection lost
+					} else {
+						handleCommands(line)
+					}
+				} catch (e: IOException) {
+					log.error { "Error while reading from input stream: ${e.message}" }
+					running = false
+					// TODO connection lost
+				}
+			}
 		}
-		receiveCommands()
 	}
 
 	/**
-	 * Handle incoming commands
+	 * Handle incoming commands from the server
 	 */
 	private fun handleCommands(string: String) = launch {
 
@@ -132,21 +154,82 @@ class GameClient(
 			// Check if we need to process anything locally
 			when (command) {
 				is ConfigCommand -> {
+					// Pass on command and notify player
+					send(command)
 					id = command.playerId
 					tickRate = command.tickRate
+					latestPosition = SendPositionCommand(
+						command.spawnPosX,
+						command.spawnPosY,
+						command.playerId
+					)
 					log.debug { "Client configured with id $id and tick time ${tickTimeNano / 1000000f} ms" }
 					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
 					message.text = "Connected to server"
 					send(message)
 				}
 				is SpawnPlayerCommand -> {
+					// Pass on command and notify player
+					send(command)
 					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
 					message.text = "Player joined"
 					send(message)
 				}
+				is RemovePlayerCommand -> {
+					// Pass on command and notify player
+					send(command)
+					val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
+					message.text = "Player disconnected"
+					send(message)
+				}
+				is SendPositionCommand -> {
+					// Convert to position command
+					val position = createAsync(Command.Type.POSITION).await() as PositionCommand
+					position.playerId = command.playerId
+					position.x = command.x
+					position.y = command.y
+					send(position)
+				}
+				is SendBombPositionCommand -> {
+					// Convert to bomb position command
+					val bombPosition = createAsync(Command.Type.BOMB_POSITION).await() as BombPositionCommand
+					bombPosition.x = command.x
+					bombPosition.y = command.y
+					send(bombPosition)
+				}
+				is SendKillPlayerCommand -> {
+					// Convert to kill player command
+					val kill = createAsync(Command.Type.KILL_PLAYER).await() as KillPlayerCommand
+					kill.playerId = command.playerId
+					send(kill)
+				}
+				is SendDestroyCommand -> {
+					// Convert to destroy command
+					val destroy = createAsync(Command.Type.DESTROY).await() as DestroyCommand
+					destroy.x = command.x
+					destroy.y = command.y
+					send(destroy)
+				}
+				is ServerMessageCommand -> {
+					when (command.action) {
+						ServerMessageCommand.Action.REJECTED -> {
+							val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
+							message.text = "Server is full"
+							send(message)
+							dispose()
+						}
+						ServerMessageCommand.Action.SHUTDOWN -> {
+							val message = createAsync(Command.Type.MESSAGE).await() as MessageCommand
+							message.text = "Server is shutting down"
+							send(message)
+							send(createAsync(Command.Type.RESET_GAME).await() as ResetGameCommand)
+							dispose()
+						}
+					}
+				}
+
+				else -> send(command)
 			}
-			// Send commands to dispatcher
-			send(command)
 		}
 	}
 
@@ -156,9 +239,10 @@ class GameClient(
 	private fun sendCommands(array: GdxArray<Command>) {
 		try {
 			writer?.write(json.toJson(array))
-			writer?.newLine()
+			writer?.write("\n")
 			writer?.flush()
 		} catch (e: IOException) {
+			log.error { "Error sending commands to server: ${e.message}" }
 			// TODO close connection?
 		}
 	}
@@ -168,14 +252,18 @@ class GameClient(
 	 */
 	override fun receive(command: Command) {
 		launch {
-			commandQueue.add(command)
+			when (command) {
+				is SendPositionCommand -> {
+					latestPosition = command
+				}
+				else -> commandQueue.add(command)
+			}
 		}
 	}
 
 	override fun dispose() {
 		running = false
-		// TODO send disconnect?
-		try { socket.dispose() } catch (e: Exception) {}
+		try { socket?.dispose() } catch (e: Exception) {}
 		try { reader?.close() } catch (e: Exception) {}
 		try { writer?.close() } catch (e: Exception) {}
 	}

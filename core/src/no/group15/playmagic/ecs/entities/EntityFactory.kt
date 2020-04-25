@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Vector2
 import no.group15.playmagic.ecs.components.*
 import no.group15.playmagic.utils.assets.GameAssets
 
@@ -26,14 +27,42 @@ class EntityFactory {
 			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
-			val movementComponent : MovementComponent = engine.createComponent(MovementComponent::class.java)
+			val animationComponent : AnimationComponent = engine.createComponent(AnimationComponent::class.java)
+			val stateComponent : StateComponent = engine.createComponent(StateComponent::class.java)
+			val sheet = assetManager.get<Texture>(GameAssets.PLAYER.desc.fileName)
+			val playerComponent : PlayerComponent = engine.createComponent(PlayerComponent::class.java)
 
-			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BADLOGIC.desc.fileName))
+			animationComponent.src = TextureRegion.split(sheet,
+				sheet.width / 13, sheet.height / 16
+			)
+			for (row in animationComponent.src) {
+				for (region in row) {
+					region.setRegion(region, 3, 10, 22, 22)
+				}
+			}
+			stateComponent.stateMap = mapOf( "IDLE" to 0, "DROPPING" to 2,
+				"WALKING_LEFT" to 9, "WALKING_RIGHT" to 1,
+				"DEAD_LEFT" to 15,"DEAD_RIGHT" to 7
+			)
+			stateComponent.setNewState("IDLE")
+			stateComponent.defaultState = "IDLE"
+
+			animationComponent.stateFrameCount = arrayOf(
+				13, 8, 2, 0, 0, 6, 4, 7, 13, 8, 2, 0, 0, 6, 4, 7
+			)
+
+			textureComponent.src = animationComponent.src[0][0]
+
+
+			transformComponent.boundingBox.setSize(0.8f)
+			transformComponent.boundingBox.setCenter(transformComponent.position)
 
 			player.add(collisionComponent)
-			player.add(movementComponent)
+			player.add(playerComponent)
 			player.add(transformComponent)
 			player.add(textureComponent)
+			player.add(animationComponent)
+			player.add(stateComponent)
 
 			engine.addEntity(player)
 			return player
@@ -67,6 +96,10 @@ class EntityFactory {
 			val exploderComponent: ExploderComponent = engine.createComponent(ExploderComponent::class.java)
 			val timerComponent: TimerComponent = engine.createComponent(TimerComponent::class.java)
 
+			transformComponent.boundingBox.setSize(.5f)
+			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.BOMB.desc.fileName))
+			timerComponent.timeLeft = 3f
+
 			bomb.add(collisionComponent)
 			bomb.add(transformComponent)
 			bomb.add(textureComponent)
@@ -95,15 +128,11 @@ class EntityFactory {
 		private fun makeWall(assetManager: AssetManager, engine: PooledEngine) : Entity{
 			val wall: Entity = engine.createEntity()
 
-			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
-			val destructibleComponent: DestructibleComponent = engine.createComponent(DestructibleComponent::class.java)
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
 
 			textureComponent.src = TextureRegion(assetManager.get<Texture>(GameAssets.WALL.desc.fileName))
 
-			wall.add(collisionComponent)
-			wall.add(destructibleComponent)
 			wall.add(transformComponent)
 			wall.add(textureComponent)
 

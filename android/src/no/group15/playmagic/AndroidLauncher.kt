@@ -1,7 +1,6 @@
 package no.group15.playmagic
 
 import android.os.Bundle
-import com.badlogic.gdx.Application
 import com.badlogic.gdx.backends.android.AndroidApplication
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration
 
@@ -11,6 +10,6 @@ class AndroidLauncher : AndroidApplication() {
 		val config = AndroidApplicationConfiguration()
 		config.hideStatusBar = true
 		config.useImmersiveMode = true
-		initialize(PlayMagic(Application.LOG_INFO), config)
+		initialize(PlayMagic(), config)
 	}
 }
