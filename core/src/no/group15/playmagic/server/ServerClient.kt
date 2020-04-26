@@ -2,6 +2,7 @@ package no.group15.playmagic.server
 
 import com.badlogic.gdx.net.Socket
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.SerializationException
 import kotlinx.coroutines.launch
 import ktx.collections.*
 import ktx.json.*
@@ -61,11 +62,15 @@ class ServerClient(
 	 * Handle incoming data
 	 */
 	private fun handleMessage(string: String) {
-		val array = json.fromJson<GdxArray<Command>>(string)
-		if (array != null) {
-			server.launch {
-				receiveQueue.addAll(array)
+		try {
+			val array = json.fromJson<GdxArray<Command>>(string)
+			if (array != null) {
+				server.launch {
+					receiveQueue.addAll(array)
+				}
 			}
+		} catch (e: SerializationException) {
+			error { "$logMessage SerializationException: ${e.message}" }
 		}
 	}
 
