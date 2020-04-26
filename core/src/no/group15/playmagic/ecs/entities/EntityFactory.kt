@@ -27,11 +27,12 @@ class EntityFactory {
 			val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent::class.java)
 			val transformComponent: TransformComponent = engine.createComponent(TransformComponent::class.java)
 			val textureComponent: TextureComponent = engine.createComponent(TextureComponent::class.java)
-			val animationComponent : AnimationComponent = engine.createComponent(AnimationComponent::class.java)
-			val stateComponent : StateComponent = engine.createComponent(StateComponent::class.java)
-			val sheet = assetManager.get<Texture>(GameAssets.PLAYER.desc.fileName)
-			val playerComponent : PlayerComponent = engine.createComponent(PlayerComponent::class.java)
+			val animationComponent: AnimationComponent = engine.createComponent(AnimationComponent::class.java)
+			val stateComponent: StateComponent = engine.createComponent(StateComponent::class.java)
+			val playerComponent: PlayerComponent = engine.createComponent(PlayerComponent::class.java)
+			val healthComponent: HealthComponent = engine.createComponent(HealthComponent::class.java)
 
+			val sheet = assetManager.get<Texture>(GameAssets.PLAYER.desc.fileName)
 			animationComponent.src = TextureRegion.split(sheet,
 				sheet.width / 13, sheet.height / 16
 			)
@@ -63,6 +64,7 @@ class EntityFactory {
 			player.add(textureComponent)
 			player.add(animationComponent)
 			player.add(stateComponent)
+			player.add(healthComponent)
 
 			engine.addEntity(player)
 			return player

@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Pool
 class ExploderComponent : Component, Pool.Poolable {
 
 	var range: Float = 0F
+	val damage = 150
 	var isExploded: Boolean = false
 
 
