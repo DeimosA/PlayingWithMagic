@@ -6,11 +6,10 @@ import ktx.collections.*
 import ktx.math.ImmutableVector2
 import no.group15.playmagic.ecs.components.TransformComponent
 import no.group15.playmagic.ecs.entities.EntityFactory
-import java.lang.RuntimeException
 import kotlin.math.round
 
 
-class GameMap {
+open class GameMap {
 
 
 	// --- PUBLIC INTERFACE ---
@@ -126,12 +125,12 @@ class GameMap {
 		EMPTY, WALL, DESTRUCTIBLE, SPAWN, BROKEN_ROCK
 	}
 
-	private val o: TileType = TileType.EMPTY
-	private val x: TileType = TileType.WALL
-	private val d: TileType = TileType.DESTRUCTIBLE
-	private val s: TileType = TileType.SPAWN
+	protected val o: TileType = TileType.EMPTY
+	protected val x: TileType = TileType.WALL
+	protected val d: TileType = TileType.DESTRUCTIBLE
+	protected val s: TileType = TileType.SPAWN
 
-	private val mapMatrix: Array<Array<TileType>> = arrayOf(
+	protected open val mapMatrix: Array<Array<TileType>> = arrayOf(
 		arrayOf(o, x, x, x, x, x, x, x, x, x, x, x, x, x),
 		arrayOf(x, s, o, o, o, o, o, o, o, o, o, o, s, x),
 		arrayOf(x, o, x, x, d, x, o, o, x, d, x, x, o, x),
